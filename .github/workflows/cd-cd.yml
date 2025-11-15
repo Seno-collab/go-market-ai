@@ -55,7 +55,6 @@ jobs:
               echo "🔄 Pulling latest changes..."
               git fetch origin main
               git reset --hard origin/main
-            fi
           fi
 
           docker compose down
