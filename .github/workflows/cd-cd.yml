@@ -52,14 +52,15 @@ jobs:
           else
             echo "📁 Folder exists — updating repository..."
             cd "$APP_PATH"
-            if [ -d ".git" ]; then
-              echo "🔄 Pulling latest changes..."
-              git reset --hard
-              git pull origin main
-            else
+            echo "📁 Folder exists — updating repository..."
+
+            if [ ! -d "$APP_PATH/.git" ]; then
               echo "⚠️ No .git folder found — reinitializing repo..."
-              rm -rf .git 2>/dev/null || true
-              git clone git@github.com:${{ github.repository }}.git .
+              rm -rf "$APP_PATH"
+              git clone git@github.com:${{ github.repository }}.git "$APP_PATH"
+            else
+              echo "🔄 Pulling latest changes..."
+              cd "$APP_PATH"
               git fetch origin main
               git reset --hard origin/main
             fi
