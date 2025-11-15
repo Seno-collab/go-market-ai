@@ -43,7 +43,7 @@ func (h *UserHandler) Register(c echo.Context) error {
 	}
 	if h.validate != nil {
 		if err := h.validate.Struct(in); err != nil {
-			return common.ErrorResponse(c, http.StatusBadRequest, "Validation failed", common.MapValidationErrors(err))
+			// return common.ErrorResponse(c, http.StatusBadRequest, "Validation failed", common.MapValidationErrors(err))
 		}
 	}
 	id, err := h.svc.Register(user.User{Email: in.Email, Name: in.Name})
