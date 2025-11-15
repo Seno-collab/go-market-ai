@@ -1,0 +1,13 @@
+version: 2
+
+sql:
+  - schema: "db/schemas.sql"
+    queries: "db/queries/user.sql"
+    engine: postgresql
+    gen:
+      go:
+        package: "sqlc"
+        out: "internal/infra/sqlc"
+        sql_package: "pgx/v5"
+        emit_interface: false
+        emit_json_tags: true
