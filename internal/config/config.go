@@ -9,21 +9,21 @@ import (
 )
 
 type Config struct {
-	JwtAccessSecret  string `mapstructure:"jwt_access_secret"`
-	JwtRefreshSecret string `mapstructure:"jwt_refresh_secret"`
-	RedisHost        string `mapstructure:"redis_host"`
-	RedisPassword    string `mapstructure:"redis_password"`
-	RedisPort        int    `mapstructure:"redis_port"`
-	RedisDB          int    `mapstructure:"redis_db"`
-	DBName           string `mapstructure:"db_name"`
-	DBHost           string `mapstructure:"db_host"`
-	DBPort           string `mapstructure:"db_port"`
-	DBUser           string `mapstructure:"db_user"`
-	DBPassword       string `mapstructure:"db_password"`
+	JwtAccessSecret  string `mapstructure:"JWT_SECRET"`
+	JwtRefreshSecret string `mapstructure:"JWT_REFRESH_SECRET"`
+	RedisHost        string `mapstructure:"REDIS_HOST"`
+	RedisPassword    string `mapstructure:"REDIS_PASSWORD"`
+	RedisPort        int    `mapstructure:"REDIS_PORT"`
+	RedisDB          int    `mapstructure:"REDIS_DB"`
+	DBName           string `mapstructure:"POSTGRES_DB"`
+	DBHost           string `mapstructure:"POSTGRES_HOST"`
+	DBPort           string `mapstructure:"POSTGRES_PORT"`
+	DBUser           string `mapstructure:"POSTGRES_USER"`
+	DBPassword       string `mapstructure:"POSTGRES_PASSWORD"`
 	DBSSLMode        string `mapstructure:"db_sslmode"`
-	ServerPort       string `mapstructure:"server_port"`
+	ServerPort       string `mapstructure:"PORT"`
 	ServerHost       string `mapstructure:"server_host"`
-	Environment      string `mapstructure:"environment"`
+	Environment      string `mapstructure:"ENVIRONMENT"`
 }
 
 func LoadConfig() (*Config, error) {

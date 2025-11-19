@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -33,12 +34,19 @@ func NewLogger(cfgs ...LoggerConfig) zerolog.Logger {
 	zerolog.TimeFieldFormat = time.RFC3339Nano
 
 	level := parseLogLevel(cfg.Level)
-	logFile, err := os.OpenFile("application.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fileName, _ := getLogFilePath()
+
+	logFile, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
-
-	logger := zerolog.New(logFile).
+	var multi io.Writer
+	if cfg.Pretty {
+		multi = io.MultiWriter(os.Stdout, logFile)
+	} else {
+		multi = io.Writer(logFile)
+	}
+	logger := zerolog.New(multi).
 		Level(level).
 		With().
 		Timestamp().
@@ -68,9 +76,8 @@ type loggerKey struct{}
 
 func buildConfig(cfgs ...LoggerConfig) LoggerConfig {
 	defaultOutput := io.Writer(os.Stdout)
-	pretty := strings.EqualFold(os.Getenv("APP_ENV"), "development")
+	pretty := strings.EqualFold(os.Getenv("ENVIRONMENT"), "development")
 	level := os.Getenv("LOG_LEVEL")
-
 	cfg := LoggerConfig{
 		Level:  level,
 		Pretty: pretty,
@@ -117,7 +124,6 @@ func buildConfig(cfgs ...LoggerConfig) LoggerConfig {
 			}
 		}
 	}
-
 	return cfg
 }
 
@@ -130,4 +136,13 @@ func parseLogLevel(level string) zerolog.Level {
 		return zerolog.InfoLevel
 	}
 	return parsedLevel
+}
+
+func getLogFilePath() (string, error) {
+	logDir := "logs"
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		return "", err
+	}
+	fileName := time.Now().Format("2006-01-02") + ".log"
+	return filepath.Join(logDir, fileName), nil
 }

@@ -1,0 +1,50 @@
+definitions:
+  handler.RegisterReq:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handler.RegisterSuccess:
+    type: object
+  handler.RegisterSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/handler.RegisterSuccess'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with email and full name
+      parameters:
+      - description: User registration payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/handler.RegisterSuccessResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+swagger: "2.0"

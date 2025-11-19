@@ -35,6 +35,6 @@ tmp/
 *.swo
 *~
 .DS_Store
-
+.logs/
 
 *.log

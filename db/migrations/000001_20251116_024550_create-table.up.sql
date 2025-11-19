@@ -28,10 +28,10 @@ CREATE TABLE IF NOT EXISTS "user" (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   full_name      TEXT NOT NULL,
   email          CITEXT UNIQUE,            
-  password_hash  TEXT NOT NULL, 
+  password_hash  TEXT, 
   role_id        INT REFERENCES role(id) ON UPDATE CASCADE ON DELETE SET NULL,
   is_active      BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -242,39 +242,39 @@ FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ====== RÀNG BUỘC DỮ LIỆU THÊM (khuyến nghị) ======
 -- Đảm bảo combo_group.combo_item_id thật sự là combo
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'chk_combo_group_combo_type'
-  ) THEN
-    ALTER TABLE combo_group
-    ADD CONSTRAINT chk_combo_group_combo_type
-    CHECK (
-      EXISTS (
-        SELECT 1
-        FROM menu_item mi
-        WHERE mi.id = combo_item_id
-          AND mi.type = 'combo'
-      )
-    );
-  END IF;
-END $$;
+-- DO $$
+-- BEGIN
+--   IF NOT EXISTS (
+--     SELECT 1 FROM pg_constraint WHERE conname = 'chk_combo_group_combo_type'
+--   ) THEN
+--     ALTER TABLE combo_group
+--     ADD CONSTRAINT chk_combo_group_combo_type
+--     CHECK (
+--       EXISTS (
+--         SELECT 1
+--         FROM menu_item mi
+--         WHERE mi.id = combo_item_id
+--           AND mi.type = 'combo'
+--       )
+--     );
+--   END IF;
+-- END $$;
 
--- Đảm bảo option_item.linked_menu_item (nếu có) phải là loại 'extra'
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'chk_option_link_to_extra'
-  ) THEN
-    ALTER TABLE option_item
-    ADD CONSTRAINT chk_option_link_to_extra
-    CHECK (
-      linked_menu_item IS NULL OR
-      EXISTS (
-        SELECT 1 FROM menu_item mi
-        WHERE mi.id = linked_menu_item
-          AND mi.type = 'extra'
-      )
-    );
-  END IF;
-END $$;
+-- -- Đảm bảo option_item.linked_menu_item (nếu có) phải là loại 'extra'
+-- DO $$
+-- BEGIN
+--   IF NOT EXISTS (
+--     SELECT 1 FROM pg_constraint WHERE conname = 'chk_option_link_to_extra'
+--   ) THEN
+--     ALTER TABLE option_item
+--     ADD CONSTRAINT chk_option_link_to_extra
+--     CHECK (
+--       linked_menu_item IS NULL OR
+--       EXISTS (
+--         SELECT 1 FROM menu_item mi
+--         WHERE mi.id = linked_menu_item
+--           AND mi.type = 'extra'
+--       )
+--     );
+--   END IF;
+-- END $$;

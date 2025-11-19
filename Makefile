@@ -1,28 +1,38 @@
 run:
-	go run cmd/main.go
+	go run cmd/api/main.go
 
-generate-ssql:
-	sqlc generate -f internal/db/sqlc.yaml
+generate-sql:
+	sqlc generate -f sqlc.yaml
 
 .PHONY: migration
 
 migration:
 	@read -p "Migration name: " name; \
-	migrate create -ext sql -dir internal/db/migrations -seq "$$(date +%Y%m%d_%H%M%S)_$${name}"
+	migrate create -ext sql -dir db/migrations -seq "$$(date +%Y%m%d_%H%M%S)_$${name}"
 
-generate-swagger:
-	swag init -g cmd/main.go -o docs
-
-
+swagger:
+	swag init -g cmd/api/main.go
 
 include .env
 export $(shell sed 's/=.*//' .env)
 .PHONY: migrate-up
 
+migrate-down:
+	@read -p "version: " version; \
+		migrate -path db/migrations \
+		-database "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable" \
+		down $${version}
+
+migrate-force:
+		@read -p "version: " version; \
+		migrate -path db/migrations \
+		-database "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable" \
+		force $${version}
+
 migrate-up:
-	migrate -path internal/db/migrations \
-	  -database "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable" \
-	  up
+	migrate -path db/migrations \
+		-database "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable" \
+		up
 
 build: 
 	swag init -g cmd/main.go -o docs

@@ -39,8 +39,12 @@ services:
   redis:
     image: redis:8.2-alpine
     command: ["redis-server", "--appendonly", "yes"]
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PORT: ${REDIS_PORT}
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redisdata:/data
 
