@@ -57,6 +57,11 @@ jobs:
               git reset --hard origin/main
           fi
 
+          echo "🧹 Clearing Docker cache..."
+              docker builder prune -af || true
+              docker system prune -af || true
+              docker buildx prune -af || true
+
           docker compose down
           docker compose up -d --build --remove-orphans
           docker image prune -f
