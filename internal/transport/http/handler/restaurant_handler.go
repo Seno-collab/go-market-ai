@@ -6,7 +6,9 @@ import (
 	"go-ai/internal/transport/http/response"
 	"go-ai/internal/transport/http/status"
 	"go-ai/pkg/logger"
+	"math"
 	"net/http"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -14,14 +16,16 @@ import (
 )
 
 type RestaurantHandler struct {
-	CreateUC *restaurantapp.CreateRestaurantUseCase
-	Logger   zerolog.Logger
+	CreateUC  *restaurantapp.CreateRestaurantUseCase
+	GetByIdUC *restaurantapp.GetByIDUseCase
+	Logger    zerolog.Logger
 }
 
-func NewRestaurantHandler(createUC *restaurantapp.CreateRestaurantUseCase) *RestaurantHandler {
+func NewRestaurantHandler(createUC *restaurantapp.CreateRestaurantUseCase, getByIDUC *restaurantapp.GetByIDUseCase) *RestaurantHandler {
 	return &RestaurantHandler{
-		CreateUC: createUC,
-		Logger:   logger.NewLogger().With().Str("component", "Restaurant handler").Logger(),
+		CreateUC:  createUC,
+		GetByIdUC: getByIDUC,
+		Logger:    logger.NewLogger().With().Str("component", "Restaurant handler").Logger(),
 	}
 }
 
@@ -49,7 +53,7 @@ func (h *RestaurantHandler) Create(c echo.Context) error {
 		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	_, err := h.CreateUC.Execute(in, userUUID)
+	_, err := h.CreateUC.Execute(c.Request().Context(), in, userUUID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("failed create restaurant")
 		details := response.ErrorDetail{}
@@ -95,4 +99,33 @@ func (h *RestaurantHandler) Create(c echo.Context) error {
 		}
 	}
 	return response.Success[any](c, nil, "Create restaurant successfully")
+}
+
+// GetRestaurant godoc
+// @Summary Get restaurant by ID
+// @Description Get detailed information of a restaurant using its ID
+// @Tags Restaurant
+// @Accept json
+// @Produce json
+// @Param id path string true "Restaurant ID"
+// @Success 200 {object} app.GetRestaurantByIDSuccessResponseDoc "Get restaurant successfully"
+// @Failure default {object} app.ErrorResponseDoc "Errors"
+// @Router /api/restaurant/{id} [get]
+func (h *RestaurantHandler) GetByID(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(c, http.StatusBadRequest, "missing restaurant id")
+	}
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return response.Error(c, http.StatusBadRequest, "invalid restaurant id format")
+	}
+	if idInt > math.MaxInt32 || idInt < math.MinInt32 {
+		return response.Error(c, http.StatusBadRequest, "restaurant id out of int32 range")
+	}
+	restaurant, err := h.GetByIdUC.Execute(c.Request().Context(), int32(idInt))
+	if restaurant == nil {
+		return response.Error(c, http.StatusNotFound, "restaurant not found")
+	}
+	return response.Success[restaurantapp.GetRestaurantByIDResponse](c, restaurant, "Get restaurant successfully")
 }

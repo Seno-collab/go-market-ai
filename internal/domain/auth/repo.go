@@ -1,10 +1,14 @@
 package auth
 
-import "github.com/google/uuid"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 type Repository interface {
-	GetById(id uuid.UUID) (*Entity, error)
-	GetByEmail(email string) (*Entity, error)
-	CreateUser(u *Entity) (uuid.UUID, error)
-	GetByName(name string) (*Entity, error)
+	GetById(ctx context.Context, id uuid.UUID) (*Entity, error)
+	GetByEmail(ctx context.Context, email string) (*Entity, error)
+	CreateUser(ctx context.Context, u *Entity) (uuid.UUID, error)
+	GetByName(ctx context.Context, name string) (*Entity, error)
 }

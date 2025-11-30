@@ -1,6 +1,7 @@
 package authapp
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"go-ai/internal/domain/auth"
@@ -24,7 +25,7 @@ func NewRegisterUseCase(repo auth.Repository, cache *cache.AuthCache) *RegisterU
 	}
 }
 
-func (s *RegisterUseCase) Execute(request RegisterRequest) (uuid.UUID, error) {
+func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) (uuid.UUID, error) {
 	if !strings.Contains(request.Email, "@") {
 		return uuid.Nil, status.ErrInvalidEmail
 	}
@@ -35,7 +36,7 @@ func (s *RegisterUseCase) Execute(request RegisterRequest) (uuid.UUID, error) {
 		return uuid.Nil, status.ErrInvalidPassword
 	}
 	// unique email
-	record, err := s.repo.GetByEmail(request.Email)
+	record, err := s.repo.GetByEmail(ctx, request.Email)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
 			return uuid.Nil, err
@@ -44,7 +45,7 @@ func (s *RegisterUseCase) Execute(request RegisterRequest) (uuid.UUID, error) {
 	if record != nil {
 		return uuid.Nil, status.ErrUserAlreadyExists
 	}
-	record, err = s.repo.GetByName(request.FullName)
+	record, err = s.repo.GetByName(ctx, request.FullName)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
 			return uuid.Nil, err
@@ -57,7 +58,7 @@ func (s *RegisterUseCase) Execute(request RegisterRequest) (uuid.UUID, error) {
 	if err != nil {
 		return uuid.Nil, status.ErrInternalServerError
 	}
-	return s.repo.CreateUser(&auth.Entity{
+	return s.repo.CreateUser(ctx, &auth.Entity{
 		FullName: request.FullName,
 		Email:    request.Email,
 		Password: hasedPassword,

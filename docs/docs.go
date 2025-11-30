@@ -204,6 +204,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/restaurant/{id}": {
+            "get": {
+                "description": "Get detailed information of a restaurant using its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Restaurant"
+                ],
+                "summary": "Get restaurant by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Restaurant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get restaurant successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetRestaurantByIDSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                        }
+                    }
+                }
+            }
+        },
         "/api/upload/logo": {
             "post": {
                 "description": "Upload a logo image to storage and return the public URL",
@@ -247,9 +285,6 @@ const docTemplate = `{
         "app.CreateRestaurantSuccessResponseDoc": {
             "type": "object",
             "properties": {
-                "data": {
-                    "$ref": "#/definitions/restaurantapp.CreateRestaurantRequest"
-                },
                 "message": {
                     "type": "string"
                 },
@@ -277,6 +312,20 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/authapp.GetProfileResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.GetRestaurantByIDSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/restaurantapp.GetRestaurantByIDResponse"
                 },
                 "message": {
                     "type": "string"
@@ -465,6 +514,47 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone_number": {
+                    "type": "string"
+                },
+                "website_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "restaurantapp.GetRestaurantByIDResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "banner_url": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "district": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "user_name": {
                     "type": "string"
                 },
                 "website_url": {

@@ -1,6 +1,7 @@
 package authapp
 
 import (
+	"context"
 	"fmt"
 	"go-ai/internal/config"
 	"go-ai/internal/domain/auth"
@@ -24,7 +25,7 @@ func NewRefreshTokenUseCase(repo auth.Repository, cache *cache.AuthCache) *Refre
 	}
 }
 
-func (uc *RefreshTokenUseCase) Execute(request RefreshTokenRequest) (*RefreshTokenResponse, error) {
+func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	if request.RefreshToken == "" {
 		return nil, auth.ErrTokenInvalid
 	}
@@ -61,7 +62,7 @@ func (uc *RefreshTokenUseCase) Execute(request RefreshTokenRequest) (*RefreshTok
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
-	record, err := uc.repo.GetByEmail(email)
+	record, err := uc.repo.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}

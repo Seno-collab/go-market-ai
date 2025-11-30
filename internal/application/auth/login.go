@@ -1,6 +1,7 @@
 package authapp
 
 import (
+	"context"
 	"fmt"
 	"go-ai/internal/config"
 	"go-ai/internal/domain/auth"
@@ -23,7 +24,7 @@ func NewLoginUseCase(repo auth.Repository, cache *cache.AuthCache) *LoginUseCase
 	}
 }
 
-func (s *LoginUseCase) Execute(request LoginRequest) (*LoginResponse, error) {
+func (s *LoginUseCase) Execute(ctx context.Context, request LoginRequest) (*LoginResponse, error) {
 	config, _ := config.LoadConfig()
 
 	if request.Email == "" {
@@ -34,7 +35,7 @@ func (s *LoginUseCase) Execute(request LoginRequest) (*LoginResponse, error) {
 		return nil, status.ErrInvalidPassword
 	}
 
-	storedUser, err := s.repo.GetByEmail(request.Email)
+	storedUser, err := s.repo.GetByEmail(ctx, request.Email)
 	if err != nil {
 		return nil, err
 	}

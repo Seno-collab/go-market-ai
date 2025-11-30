@@ -14,4 +14,5 @@ var (
 	ErrNameAlreadyExists   = errors.New("name already exists")
 	ErrUserInactive        = errors.New("user is inactive")
 	ErrUnauthorizedAccess  = errors.New("unauthorized access")
+	ErrInvalidField        = errors.New("Invalid field")
 )

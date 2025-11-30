@@ -1,8 +1,6 @@
 definitions:
   app.CreateRestaurantSuccessResponseDoc:
     properties:
-      data:
-        $ref: '#/definitions/restaurantapp.CreateRestaurantRequest'
       message:
         type: string
       response_code:
@@ -21,6 +19,15 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/authapp.GetProfileResponse'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.GetRestaurantByIDSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/restaurantapp.GetRestaurantByIDResponse'
       message:
         type: string
       response_code:
@@ -142,6 +149,33 @@ definitions:
       name:
         type: string
       phone_number:
+        type: string
+      website_url:
+        type: string
+    type: object
+  restaurantapp.GetRestaurantByIDResponse:
+    properties:
+      address:
+        type: string
+      banner_url:
+        type: string
+      category:
+        type: string
+      city:
+        type: string
+      description:
+        type: string
+      district:
+        type: string
+      email:
+        type: string
+      logo_url:
+        type: string
+      name:
+        type: string
+      phone_number:
+        type: string
+      user_name:
         type: string
       website_url:
         type: string
@@ -275,6 +309,31 @@ paths:
           schema:
             $ref: '#/definitions/app.ErrorResponseDoc'
       summary: Create restaurant
+      tags:
+      - Restaurant
+  /api/restaurant/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information of a restaurant using its ID
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get restaurant successfully
+          schema:
+            $ref: '#/definitions/app.GetRestaurantByIDSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/app.ErrorResponseDoc'
+      summary: Get restaurant by ID
       tags:
       - Restaurant
   /api/upload/logo:

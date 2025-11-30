@@ -1,6 +1,6 @@
 package restaurantapp
 
-type CreateRestaurantRequest struct {
+type RestaurantBase struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Address     string `json:"address"`
@@ -14,5 +14,15 @@ type CreateRestaurantRequest struct {
 	Email       string `json:"email"`
 }
 
-type UpLoadLogoRequest struct {
+type CreateRestaurantRequest struct {
+	RestaurantBase
+}
+
+type GetRestaurantByIDRequest struct {
+	Id int32 `json:"id"`
+}
+
+type GetRestaurantByIDResponse struct {
+	RestaurantBase
+	UserName string `json:"user_name"`
 }

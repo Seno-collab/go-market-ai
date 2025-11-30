@@ -51,7 +51,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
 	}
-	_, err := h.RegisterUC.Execute(in)
+	_, err := h.RegisterUC.Execute(c.Request().Context(), in)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("failed to register user")
 		switch err {
@@ -100,7 +100,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
 	}
-	responseData, err := h.LoginUC.Execute(in)
+	responseData, err := h.LoginUC.Execute(c.Request().Context(), in)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("failed to login user")
 		switch err {
@@ -146,7 +146,7 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
 	}
 
-	responseData, err := h.RefreshTokenUC.Execute(in)
+	responseData, err := h.RefreshTokenUC.Execute(c.Request().Context(), in)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("Failed to refresh token")
 		switch err {
@@ -185,7 +185,7 @@ func (h *AuthHandler) GetProfile(c echo.Context) error {
 		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	profile, err := h.ProfileUC.Execute(userUUID)
+	profile, err := h.ProfileUC.Execute(c.Request().Context(), userUUID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("failed to get profile")
 		switch err {

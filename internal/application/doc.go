@@ -13,38 +13,41 @@ type ErrorResponseDoc struct {
 	Error        *response.ErrorDetail `json:"error,omitempty"`
 }
 
+type SuccecssResponseBaseDoc struct {
+	Message      string `json:"message"`
+	ResponseCode string `json:"response_code,omitempty"`
+}
+
 type RegisterSuccessResponseDoc struct {
-	Message      string                   `json:"message"`
-	ResponseCode string                   `json:"response_code,omitempty"`
-	Data         *authapp.RegisterSuccess `json:"data,omitempty"`
+	SuccecssResponseBaseDoc
+	Data *authapp.RegisterSuccess `json:"data,omitempty"`
 }
 
 type GetProfileSuccessResponseDoc struct {
-	Message      string                      `json:"message"`
-	ResponseCode string                      `json:"response_code,omitempty"`
-	Data         *authapp.GetProfileResponse `json:"data,omitempty"`
+	SuccecssResponseBaseDoc
+	Data *authapp.GetProfileResponse `json:"data,omitempty"`
 }
 
 type RefreshTokenSuccessResponseDoc struct {
-	Message      string                        `json:"message"`
-	ResponseCode string                        `json:"response_code,omitempty"`
-	Data         *authapp.RefreshTokenResponse `json:"data,omitempty"`
+	SuccecssResponseBaseDoc
+	Data *authapp.RefreshTokenResponse `json:"data,omitempty"`
 }
 
 type LoginSuccessResponseDoc struct {
-	Message      string                 `json:"message"`
-	ResponseCode string                 `json:"response_code,omitempty"`
-	Data         *authapp.LoginResponse `json:"data,omitempty"`
+	SuccecssResponseBaseDoc
+	Data *authapp.LoginResponse `json:"data,omitempty"`
 }
 
 type UploadLogoSuccessResponseDoc struct {
-	Message      string                        `json:"message"`
-	ResponseCode string                        `json:"response_code,omitempty"`
-	Data         *uploadapp.UploadLogoResponse `json:"data,omitempty"`
+	SuccecssResponseBaseDoc
+	Data *uploadapp.UploadLogoResponse `json:"data,omitempty"`
 }
 
 type CreateRestaurantSuccessResponseDoc struct {
-	Message      string                                 `json:"message"`
-	ResponseCode string                                 `json:"response_code,omitempty"`
-	Data         *restaurantapp.CreateRestaurantRequest `json:"data,omitempty"`
+	SuccecssResponseBaseDoc
+}
+
+type GetRestaurantByIDSuccessResponseDoc struct {
+	SuccecssResponseBaseDoc
+	Data *restaurantapp.GetRestaurantByIDResponse `json:"data,omitempty"`
 }

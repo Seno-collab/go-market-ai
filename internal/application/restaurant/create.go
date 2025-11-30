@@ -1,11 +1,14 @@
 package restaurantapp
 
 import (
+	"context"
+	"errors"
 	"go-ai/internal/domain/restaurant"
 	"go-ai/internal/transport/http/status"
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type CreateRestaurantUseCase struct {
@@ -18,7 +21,7 @@ func NewCreateRestaurantUseCase(repo restaurant.Repository) *CreateRestaurantUse
 	}
 }
 
-func (uc *CreateRestaurantUseCase) Execute(request CreateRestaurantRequest, userID uuid.UUID) (int32, error) {
+func (uc *CreateRestaurantUseCase) Execute(ctx context.Context, request CreateRestaurantRequest, userID uuid.UUID) (int32, error) {
 	if !strings.Contains(request.Email, "@") {
 		return 0, status.ErrInvalidEmail
 	}
@@ -40,7 +43,11 @@ func (uc *CreateRestaurantUseCase) Execute(request CreateRestaurantRequest, user
 	if request.PhoneNumber == "" {
 		return 0, restaurant.ErrInvalidPhoneNumber
 	}
-	id, err := uc.repo.CreateRestaurant(&restaurant.Entity{
+	record, err := uc.repo.GetByName(ctx, request.Name)
+	if err != nil || !errors.Is(err, pgx.ErrNoRows) || record != nil {
+		return 0, err
+	}
+	id, err := uc.repo.Create(ctx, &restaurant.Entity{
 		Email:       &request.Email,
 		Name:        request.Name,
 		WebsiteUrl:  &request.WebsiteUrl,

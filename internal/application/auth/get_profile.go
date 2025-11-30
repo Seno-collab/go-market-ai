@@ -1,6 +1,7 @@
 package authapp
 
 import (
+	"context"
 	"fmt"
 	"go-ai/internal/domain/auth"
 	"go-ai/internal/infra/cache"
@@ -21,7 +22,7 @@ func NewGetProfileUseCase(repo auth.Repository, cache *cache.AuthCache) *GetProf
 	}
 }
 
-func (uc *GetProfileUseCase) Execute(userId uuid.UUID) (*GetProfileResponse, error) {
+func (uc *GetProfileUseCase) Execute(ctx context.Context, userId uuid.UUID) (*GetProfileResponse, error) {
 	keyAuth := fmt.Sprintf("profile_%s", userId.String())
 	cacheData, err := uc.cache.GetAuthCache(keyAuth)
 	if err != nil {
@@ -29,7 +30,7 @@ func (uc *GetProfileUseCase) Execute(userId uuid.UUID) (*GetProfileResponse, err
 	}
 	profile := &GetProfileResponse{}
 	if cacheData == nil {
-		record, err := uc.repo.GetById(userId)
+		record, err := uc.repo.GetById(ctx, userId)
 		if err != nil {
 			return nil, err
 		}

@@ -19,8 +19,8 @@ func NewAuthRepo(pool *pgxpool.Pool) *AuthRepo {
 	}
 }
 
-func (au *AuthRepo) GetByEmail(email string) (*auth.Entity, error) {
-	u, err := au.q.GetUserByEmail(context.Background(), &email)
+func (au *AuthRepo) GetByEmail(ctx context.Context, email string) (*auth.Entity, error) {
+	u, err := au.q.GetUserByEmail(ctx, &email)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +35,8 @@ func (au *AuthRepo) GetByEmail(email string) (*auth.Entity, error) {
 	}, nil
 }
 
-func (au *AuthRepo) CreateUser(a *auth.Entity) (uuid.UUID, error) {
-	id, err := au.q.CreateUser(context.Background(), sqlc.CreateUserParams{
+func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, error) {
+	id, err := au.q.CreateUser(ctx, sqlc.CreateUserParams{
 		Email:        &a.Email,
 		PasswordHash: a.Password,
 		FullName:     a.FullName,
@@ -47,8 +47,8 @@ func (au *AuthRepo) CreateUser(a *auth.Entity) (uuid.UUID, error) {
 
 	return id, nil
 }
-func (au *AuthRepo) GetByName(name string) (*auth.Entity, error) {
-	u, err := au.q.GetUserByName(context.Background(), name)
+func (au *AuthRepo) GetByName(ctx context.Context, name string) (*auth.Entity, error) {
+	u, err := au.q.GetUserByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +61,8 @@ func (au *AuthRepo) GetByName(name string) (*auth.Entity, error) {
 	}, nil
 }
 
-func (au *AuthRepo) GetById(id uuid.UUID) (*auth.Entity, error) {
-	u, err := au.q.GetUserByID(context.Background(), id)
+func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, error) {
+	u, err := au.q.GetUserByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}

@@ -40,20 +40,22 @@ func Router(pool *pgxpool.Pool, e *echo.Echo, redis *redis.Client) {
 	}
 
 	minioClient := storage.NewMinioClient()
-	uploadHander := handler.NewUploadHandler(
+	uploadHandler := handler.NewUploadHandler(
 		minioClient,
 	)
 	uploadGroup := api.Group("/upload")
 	{
-		uploadGroup.POST("/logo", uploadHander.UploadLogoHandler())
+		uploadGroup.POST("/logo", uploadHandler.UploadLogoHandler())
 	}
 
 	restaurantRepo := restaurantrepo.NewRestaurantRepo(pool)
 	createRestaurantUC := restaurantapp.NewCreateRestaurantUseCase(restaurantRepo)
-	restaurantHandler := handler.NewRestaurantHandler(createRestaurantUC)
+	getByIdUC := restaurantapp.NewGetByIDUseCase(restaurantRepo, authCache)
+	restaurantHandler := handler.NewRestaurantHandler(createRestaurantUC, getByIdUC)
 
 	restaurantGroup := api.Group("/restaurant")
 	{
-		restaurantGroup.POST("/", restaurantHandler.Create, authMiddleware.Handle)
+		restaurantGroup.POST("", restaurantHandler.Create, authMiddleware.Handle)
+		restaurantGroup.GET("/:id", restaurantHandler.GetByID)
 	}
 }
