@@ -143,6 +143,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 func (h *AuthHandler) RefreshToken(c echo.Context) error {
 	var in authapp.RefreshTokenRequest
 	if err := c.Bind(&in); err != nil {
+		h.Logger.Error().Err(err).Msg("")
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
 	}
 
@@ -150,7 +151,7 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("Failed to refresh token")
 		switch err {
-		case auth.ErrorRefreshTokenEmpty, auth.ErrTokenInvalid, auth.ErrTokenExpired, auth.ErrTokenMalformed:
+		case auth.ErrorRefreshTokenEmpty:
 			details := response.ErrorDetail{}
 			if errors.Is(err, auth.ErrorRefreshTokenEmpty) {
 				details = response.ErrorDetail{
@@ -159,6 +160,8 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 				}
 			}
 			return response.Error(c, http.StatusBadRequest, "Invalid refresh token", details)
+		case auth.ErrTokenInvalid, auth.ErrTokenExpired, auth.ErrTokenMalformed:
+			return response.Error(c, http.StatusBadRequest, err.Error())
 		default:
 			return response.Error(c, http.StatusInternalServerError, "Internal server error")
 		}

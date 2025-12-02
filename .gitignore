@@ -38,3 +38,5 @@ tmp/
 .logs/
 
 *.log
+
+.zed
