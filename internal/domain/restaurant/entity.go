@@ -4,15 +4,22 @@ import "github.com/google/uuid"
 
 type Entity struct {
 	Name        string
-	Description *string
-	Address     *string
-	Category    *string
-	City        *string
-	District    *string
-	LogoUrl     *string
-	BannerUrl   *string
-	PhoneNumber *string
-	WebsiteUrl  *string
-	Email       *string
+	Description string
+	Address     string
+	Category    string
+	City        string
+	District    string
+	LogoUrl     string
+	BannerUrl   string
+	PhoneNumber string
+	WebsiteUrl  string
+	Email       string
 	UserID      uuid.UUID
+	Hours       []Hours
+}
+
+type Hours struct {
+	Day       DayOfWeek
+	OpenTime  string
+	CloseTime string
 }

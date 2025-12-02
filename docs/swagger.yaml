@@ -1,6 +1,15 @@
 definitions:
   app.CreateRestaurantSuccessResponseDoc:
     properties:
+      data:
+        $ref: '#/definitions/restaurantapp.CreateRestaurantResponse'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.DeleteRestaurantSuccessResponseDoc:
+    properties:
       message:
         type: string
       response_code:
@@ -55,6 +64,13 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/authapp.RegisterSuccess'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.UpdateRestaurantSuccessResponseDoc:
+    properties:
       message:
         type: string
       response_code:
@@ -128,6 +144,40 @@ definitions:
       message:
         type: string
     type: object
+  restaurant.DayOfWeek:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-comments:
+      Friday: "5"
+      Monday: "1"
+      Saturday: "6"
+      Sunday: "0"
+      Thursday: "4"
+      Tuesday: "2"
+      Wednesday: "3"
+    x-enum-descriptions:
+    - "0"
+    - "1"
+    - "2"
+    - "3"
+    - "4"
+    - "5"
+    - "6"
+    x-enum-varnames:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
   restaurantapp.CreateRestaurantRequest:
     properties:
       address:
@@ -144,6 +194,10 @@ definitions:
         type: string
       email:
         type: string
+      hours:
+        items:
+          $ref: '#/definitions/restaurantapp.RestaurantHoursBase'
+        type: array
       logo_url:
         type: string
       name:
@@ -152,6 +206,11 @@ definitions:
         type: string
       website_url:
         type: string
+    type: object
+  restaurantapp.CreateRestaurantResponse:
+    properties:
+      id:
+        type: integer
     type: object
   restaurantapp.GetRestaurantByIDResponse:
     properties:
@@ -169,6 +228,12 @@ definitions:
         type: string
       email:
         type: string
+      hours:
+        items:
+          $ref: '#/definitions/restaurantapp.RestaurantHoursBase'
+        type: array
+      is_active:
+        type: boolean
       logo_url:
         type: string
       name:
@@ -176,6 +241,44 @@ definitions:
       phone_number:
         type: string
       user_name:
+        type: string
+      website_url:
+        type: string
+    type: object
+  restaurantapp.RestaurantHoursBase:
+    properties:
+      close_time:
+        type: string
+      day:
+        $ref: '#/definitions/restaurant.DayOfWeek'
+      open_time:
+        type: string
+    type: object
+  restaurantapp.UpdateRestaurantRequest:
+    properties:
+      address:
+        type: string
+      banner_url:
+        type: string
+      category:
+        type: string
+      city:
+        type: string
+      description:
+        type: string
+      district:
+        type: string
+      email:
+        type: string
+      hours:
+        items:
+          $ref: '#/definitions/restaurantapp.RestaurantHoursBase'
+        type: array
+      logo_url:
+        type: string
+      name:
+        type: string
+      phone_number:
         type: string
       website_url:
         type: string
@@ -312,6 +415,30 @@ paths:
       tags:
       - Restaurant
   /api/restaurant/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a restaurant and its related data using its ID
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Restaurant deleted successfully
+          schema:
+            $ref: '#/definitions/app.DeleteRestaurantSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/app.ErrorResponseDoc'
+      summary: Delete restaurant by ID
+      tags:
+      - Restaurant
     get:
       consumes:
       - application/json
@@ -334,6 +461,37 @@ paths:
           schema:
             $ref: '#/definitions/app.ErrorResponseDoc'
       summary: Get restaurant by ID
+      tags:
+      - Restaurant
+    put:
+      consumes:
+      - application/json
+      description: Update restaurant fields such as name, address, contact info, logo,
+        banner, etc.
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Restaurant update payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/restaurantapp.UpdateRestaurantRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update restaurant successfully
+          schema:
+            $ref: '#/definitions/app.UpdateRestaurantSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/app.ErrorResponseDoc'
+      summary: Update restaurant information
       tags:
       - Restaurant
   /api/upload/logo:

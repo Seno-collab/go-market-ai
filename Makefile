@@ -1,12 +1,12 @@
 run:
 	go run cmd/api/main.go
 
-generate-sql:
+sqlc:
 	sqlc generate -f sqlc.yaml
 
-.PHONY: migration
+.PHONY: migrate
 
-migration:
+migrate:
 	@read -p "Migration name: " name; \
 	migrate create -ext sql -dir db/migrations -seq "$$(date +%Y%m%d_%H%M%S)_$${name}"
 
@@ -15,21 +15,21 @@ swagger:
 
 include .env
 export $(shell sed 's/=.*//' .env)
-.PHONY: migrate-up
+.PHONY: up
 
-migrate-down:
+down:
 	@read -p "version: " version; \
 		migrate -path db/migrations \
 		-database "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable" \
 		down $${version}
 
-migrate-force:
+force:
 		@read -p "version: " version; \
 		migrate -path db/migrations \
 		-database "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable" \
 		force $${version}
 
-migrate-up:
+up:
 	migrate -path db/migrations \
 		-database "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable" \
 		up

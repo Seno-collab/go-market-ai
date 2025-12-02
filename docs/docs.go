@@ -240,6 +240,87 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "Update restaurant fields such as name, address, contact info, logo, banner, etc.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Restaurant"
+                ],
+                "summary": "Update restaurant information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Restaurant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Restaurant update payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/restaurantapp.UpdateRestaurantRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update restaurant successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.UpdateRestaurantSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove a restaurant and its related data using its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Restaurant"
+                ],
+                "summary": "Delete restaurant by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Restaurant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Restaurant deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.DeleteRestaurantSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                        }
+                    }
+                }
             }
         },
         "/api/upload/logo": {
@@ -283,6 +364,20 @@ const docTemplate = `{
     },
     "definitions": {
         "app.CreateRestaurantSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/restaurantapp.CreateRestaurantResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.DeleteRestaurantSuccessResponseDoc": {
             "type": "object",
             "properties": {
                 "message": {
@@ -369,6 +464,17 @@ const docTemplate = `{
                 "data": {
                     "$ref": "#/definitions/authapp.RegisterSuccess"
                 },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.UpdateRestaurantSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
                 "message": {
                     "type": "string"
                 },
@@ -483,6 +589,45 @@ const docTemplate = `{
                 }
             }
         },
+        "restaurant.DayOfWeek": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-comments": {
+                "Friday": "5",
+                "Monday": "1",
+                "Saturday": "6",
+                "Sunday": "0",
+                "Thursday": "4",
+                "Tuesday": "2",
+                "Wednesday": "3"
+            },
+            "x-enum-descriptions": [
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6"
+            ],
+            "x-enum-varnames": [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ]
+        },
         "restaurantapp.CreateRestaurantRequest": {
             "type": "object",
             "properties": {
@@ -507,6 +652,12 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "hours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/restaurantapp.RestaurantHoursBase"
+                    }
+                },
                 "logo_url": {
                     "type": "string"
                 },
@@ -518,6 +669,14 @@ const docTemplate = `{
                 },
                 "website_url": {
                     "type": "string"
+                }
+            }
+        },
+        "restaurantapp.CreateRestaurantResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
                 }
             }
         },
@@ -545,6 +704,15 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "hours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/restaurantapp.RestaurantHoursBase"
+                    }
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
                 "logo_url": {
                     "type": "string"
                 },
@@ -555,6 +723,64 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_name": {
+                    "type": "string"
+                },
+                "website_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "restaurantapp.RestaurantHoursBase": {
+            "type": "object",
+            "properties": {
+                "close_time": {
+                    "type": "string"
+                },
+                "day": {
+                    "$ref": "#/definitions/restaurant.DayOfWeek"
+                },
+                "open_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "restaurantapp.UpdateRestaurantRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "banner_url": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "district": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/restaurantapp.RestaurantHoursBase"
+                    }
+                },
+                "logo_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone_number": {
                     "type": "string"
                 },
                 "website_url": {

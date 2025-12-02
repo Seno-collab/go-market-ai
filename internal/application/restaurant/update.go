@@ -2,56 +2,51 @@ package restaurantapp
 
 import (
 	"context"
-	"errors"
 	"go-ai/internal/domain/restaurant"
 	"go-ai/internal/transport/http/status"
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 )
 
-type CreateRestaurantUseCase struct {
+type UpdateRestaurantUseCase struct {
 	repo restaurant.Repository
 }
 
-func NewCreateRestaurantUseCase(repo restaurant.Repository) *CreateRestaurantUseCase {
-	return &CreateRestaurantUseCase{
+func NewUpdateRestaurantUseCase(repo restaurant.Repository) *UpdateRestaurantUseCase {
+	return &UpdateRestaurantUseCase{
 		repo: repo,
 	}
 }
 
-func (uc *CreateRestaurantUseCase) Execute(ctx context.Context, request CreateRestaurantRequest, userID uuid.UUID) (int32, error) {
+func (uc *UpdateRestaurantUseCase) Execute(ctx context.Context, request CreateRestaurantRequest, userID uuid.UUID, id int32) error {
 	if !strings.Contains(request.Email, "@") {
-		return 0, status.ErrInvalidEmail
+		return status.ErrInvalidEmail
 	}
 	if request.Name == "" {
-		return 0, status.ErrInvalidName
+		return status.ErrInvalidName
 	}
 	if request.Address == "" {
-		return 0, restaurant.ErrInvalidAddress
+		return restaurant.ErrInvalidAddress
 	}
 	if request.BannerUrl == "" {
-		return 0, restaurant.ErrInvalidBanner
+		return restaurant.ErrInvalidBanner
 	}
 	if request.LogoUrl == "" {
-		return 0, restaurant.ErrInvalidLogo
+		return restaurant.ErrInvalidLogo
 	}
 	if request.BannerUrl == "" {
-		return 0, restaurant.ErrInvalidBanner
+		return restaurant.ErrInvalidBanner
 	}
 	if request.PhoneNumber == "" {
-		return 0, restaurant.ErrInvalidPhoneNumber
+		return restaurant.ErrInvalidPhoneNumber
 	}
-
-	record, err := uc.repo.GetByName(ctx, request.Name)
+	record, err := uc.repo.GetById(ctx, id)
 	if err != nil {
-		if !errors.Is(err, pgx.ErrNoRows) {
-			return 0, err
-		}
+		return err
 	}
-	if record != nil {
-		return 0, restaurant.ErrRestaurantNameExitis
+	if record == nil {
+		return restaurant.ErrRestaurantNoExitis
 	}
 	hours := make([]restaurant.Hours, 0, len(request.Hours))
 	for _, hour := range request.Hours {
@@ -61,7 +56,7 @@ func (uc *CreateRestaurantUseCase) Execute(ctx context.Context, request CreateRe
 			CloseTime: hour.CloseTime,
 		})
 	}
-	id, err := uc.repo.Create(ctx, &restaurant.Entity{
+	err = uc.repo.Update(ctx, &restaurant.Entity{
 		Email:       request.Email,
 		Name:        request.Name,
 		Description: request.Description,
@@ -75,9 +70,9 @@ func (uc *CreateRestaurantUseCase) Execute(ctx context.Context, request CreateRe
 		District:    request.District,
 		UserID:      userID,
 		Hours:       hours,
-	})
+	}, id)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return id, nil
+	return nil
 }

@@ -17,7 +17,7 @@ import (
 
 func Router(pool *pgxpool.Pool, e *echo.Echo, redis *redis.Client) {
 	api := e.Group("/api")
-	// ---- API AUTH ----
+
 	authRepo := authrepo.NewAuthRepo(pool)
 	authCache := cache.NewAuthCache(redis)
 	authMiddleware := middlewares.NewAuthMiddleware(authCache)
@@ -45,17 +45,20 @@ func Router(pool *pgxpool.Pool, e *echo.Echo, redis *redis.Client) {
 	)
 	uploadGroup := api.Group("/upload")
 	{
-		uploadGroup.POST("/logo", uploadHandler.UploadLogoHandler())
+		uploadGroup.POST("/logo", uploadHandler.UploadLogoHandler(), authMiddleware.Handle)
 	}
 
 	restaurantRepo := restaurantrepo.NewRestaurantRepo(pool)
 	createRestaurantUC := restaurantapp.NewCreateRestaurantUseCase(restaurantRepo)
 	getByIdUC := restaurantapp.NewGetByIDUseCase(restaurantRepo, authCache)
-	restaurantHandler := handler.NewRestaurantHandler(createRestaurantUC, getByIdUC)
-
+	updateRestaurantUC := restaurantapp.NewUpdateRestaurantUseCase(restaurantRepo)
+	deleteRestaurantUC := restaurantapp.NewDeleteUseCase(restaurantRepo)
+	restaurantHandler := handler.NewRestaurantHandler(createRestaurantUC, getByIdUC, updateRestaurantUC, deleteRestaurantUC)
 	restaurantGroup := api.Group("/restaurant")
 	{
 		restaurantGroup.POST("", restaurantHandler.Create, authMiddleware.Handle)
-		restaurantGroup.GET("/:id", restaurantHandler.GetByID)
+		restaurantGroup.GET("/:id", restaurantHandler.GetByID, authMiddleware.Handle)
+		restaurantGroup.PUT("/:id", restaurantHandler.Update, authMiddleware.Handle)
+		restaurantGroup.DELETE("/:id", restaurantHandler.Delete, authMiddleware.Handle)
 	}
 }

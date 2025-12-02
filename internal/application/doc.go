@@ -45,9 +45,18 @@ type UploadLogoSuccessResponseDoc struct {
 
 type CreateRestaurantSuccessResponseDoc struct {
 	SuccecssResponseBaseDoc
+	Data *restaurantapp.CreateRestaurantResponse `json:"data,omitempty"`
 }
 
 type GetRestaurantByIDSuccessResponseDoc struct {
 	SuccecssResponseBaseDoc
 	Data *restaurantapp.GetRestaurantByIDResponse `json:"data,omitempty"`
+}
+
+type UpdateRestaurantSuccessResponseDoc struct {
+	SuccecssResponseBaseDoc
+}
+
+type DeleteRestaurantSuccessResponseDoc struct {
+	SuccecssResponseBaseDoc
 }

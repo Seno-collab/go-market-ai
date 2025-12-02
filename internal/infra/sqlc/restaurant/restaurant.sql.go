@@ -52,56 +52,244 @@ func (q *Queries) CreateRestaurant(ctx context.Context, arg CreateRestaurantPara
 	return id, err
 }
 
-const getById = `-- name: GetById :one
-SELECT id, name, description, address, category, city, district, logo_url, banner_url, phone_number, website_url, email, created_at, updated_at, user_id FROM "restaurant" WHERE id = $1
+const createRestaurantHours = `-- name: CreateRestaurantHours :exec
+INSERT INTO "restaurant_hours" (restaurant_id, day_of_week, open_time, close_time)
+VALUES($1, $2, $3, $4)
 `
 
-func (q *Queries) GetById(ctx context.Context, id int32) (Restaurant, error) {
-	row := q.db.QueryRow(ctx, getById, id)
-	var i Restaurant
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Description,
-		&i.Address,
-		&i.Category,
-		&i.City,
-		&i.District,
-		&i.LogoUrl,
-		&i.BannerUrl,
-		&i.PhoneNumber,
-		&i.WebsiteUrl,
-		&i.Email,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.UserID,
-	)
-	return i, err
+type CreateRestaurantHoursParams struct {
+	RestaurantID int32
+	DayOfWeek    int32
+	OpenTime     string
+	CloseTime    string
 }
 
-const getByName = `-- name: GetByName :one
-SELECT id, name, description, address, category, city, district, logo_url, banner_url, phone_number, website_url, email, created_at, updated_at, user_id FROM "restaurant" WHERE name LIKE $1
+func (q *Queries) CreateRestaurantHours(ctx context.Context, arg CreateRestaurantHoursParams) error {
+	_, err := q.db.Exec(ctx, createRestaurantHours,
+		arg.RestaurantID,
+		arg.DayOfWeek,
+		arg.OpenTime,
+		arg.CloseTime,
+	)
+	return err
+}
+
+const deleteRestaurant = `-- name: DeleteRestaurant :exec
+DELETE FROM "restaurant" WHERE id = $1
 `
 
-func (q *Queries) GetByName(ctx context.Context, name string) (Restaurant, error) {
-	row := q.db.QueryRow(ctx, getByName, name)
-	var i Restaurant
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Description,
-		&i.Address,
-		&i.Category,
-		&i.City,
-		&i.District,
-		&i.LogoUrl,
-		&i.BannerUrl,
-		&i.PhoneNumber,
-		&i.WebsiteUrl,
-		&i.Email,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.UserID,
+func (q *Queries) DeleteRestaurant(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteRestaurant, id)
+	return err
+}
+
+const deleteRestaurantHours = `-- name: DeleteRestaurantHours :exec
+DELETE FROM "restaurant_hours" WHERE restaurant_id = $1
+`
+
+func (q *Queries) DeleteRestaurantHours(ctx context.Context, restaurantID int32) error {
+	_, err := q.db.Exec(ctx, deleteRestaurantHours, restaurantID)
+	return err
+}
+
+const getById = `-- name: GetById :many
+SELECT
+    rs.id,
+    rs.name,
+    rs.description,
+    rs.address,
+    rs.category,
+    rs.city,
+    rs.district,
+    rs.logo_url,
+    rs.banner_url,
+    rs.phone_number,
+    rs.website_url,
+    rs.email,
+    rs.user_id,
+    rsh.day_of_week,
+    rsh.open_time,
+    rsh.close_time
+FROM "restaurant" rs
+INNER JOIN "restaurant_hours" rsh ON rs.id = rsh.restaurant_id
+WHERE id = $1
+`
+
+type GetByIdRow struct {
+	ID          int32
+	Name        string
+	Description *string
+	Address     *string
+	Category    *string
+	City        *string
+	District    *string
+	LogoUrl     *string
+	BannerUrl   *string
+	PhoneNumber *string
+	WebsiteUrl  *string
+	Email       *string
+	UserID      uuid.UUID
+	DayOfWeek   int32
+	OpenTime    string
+	CloseTime   string
+}
+
+func (q *Queries) GetById(ctx context.Context, id int32) ([]GetByIdRow, error) {
+	rows, err := q.db.Query(ctx, getById, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetByIdRow
+	for rows.Next() {
+		var i GetByIdRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Address,
+			&i.Category,
+			&i.City,
+			&i.District,
+			&i.LogoUrl,
+			&i.BannerUrl,
+			&i.PhoneNumber,
+			&i.WebsiteUrl,
+			&i.Email,
+			&i.UserID,
+			&i.DayOfWeek,
+			&i.OpenTime,
+			&i.CloseTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getByName = `-- name: GetByName :many
+SELECT
+    rs.id,
+    rs.name,
+    rs.description,
+    rs.address,
+    rs.category,
+    rs.city,
+    rs.district,
+    rs.logo_url,
+    rs.banner_url,
+    rs.phone_number,
+    rs.website_url,
+    rs.email,
+    rs.user_id,
+    rsh.day_of_week,
+    rsh.open_time,
+    rsh.close_time
+FROM "restaurant" rs
+INNER JOIN "restaurant_hours" rsh ON rs.id = rsh.restaurant_id
+WHERE name LIKE $1
+`
+
+type GetByNameRow struct {
+	ID          int32
+	Name        string
+	Description *string
+	Address     *string
+	Category    *string
+	City        *string
+	District    *string
+	LogoUrl     *string
+	BannerUrl   *string
+	PhoneNumber *string
+	WebsiteUrl  *string
+	Email       *string
+	UserID      uuid.UUID
+	DayOfWeek   int32
+	OpenTime    string
+	CloseTime   string
+}
+
+func (q *Queries) GetByName(ctx context.Context, name string) ([]GetByNameRow, error) {
+	rows, err := q.db.Query(ctx, getByName, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetByNameRow
+	for rows.Next() {
+		var i GetByNameRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Address,
+			&i.Category,
+			&i.City,
+			&i.District,
+			&i.LogoUrl,
+			&i.BannerUrl,
+			&i.PhoneNumber,
+			&i.WebsiteUrl,
+			&i.Email,
+			&i.UserID,
+			&i.DayOfWeek,
+			&i.OpenTime,
+			&i.CloseTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateRestaurant = `-- name: UpdateRestaurant :exec
+UPDATE "restaurant"
+SET name = $1, description = $2, address = $3,
+    category = $4, city = $5, district = $6,
+    logo_url = $7, banner_url = $8, phone_number = $9,
+    website_url = $10, email = $11, user_id = $12
+WHERE id = $13
+`
+
+type UpdateRestaurantParams struct {
+	Name        string
+	Description *string
+	Address     *string
+	Category    *string
+	City        *string
+	District    *string
+	LogoUrl     *string
+	BannerUrl   *string
+	PhoneNumber *string
+	WebsiteUrl  *string
+	Email       *string
+	UserID      uuid.UUID
+	ID          int32
+}
+
+func (q *Queries) UpdateRestaurant(ctx context.Context, arg UpdateRestaurantParams) error {
+	_, err := q.db.Exec(ctx, updateRestaurant,
+		arg.Name,
+		arg.Description,
+		arg.Address,
+		arg.Category,
+		arg.City,
+		arg.District,
+		arg.LogoUrl,
+		arg.BannerUrl,
+		arg.PhoneNumber,
+		arg.WebsiteUrl,
+		arg.Email,
+		arg.UserID,
+		arg.ID,
 	)
-	return i, err
+	return err
 }

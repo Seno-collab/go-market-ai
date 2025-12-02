@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Restaurant struct {
@@ -32,7 +31,7 @@ type Restaurant struct {
 type RestaurantHour struct {
 	RestaurantID int32
 	DayOfWeek    int32
-	OpenTime     pgtype.Time
-	CloseTime    pgtype.Time
+	OpenTime     string
+	CloseTime    string
 	IsClosed     bool
 }

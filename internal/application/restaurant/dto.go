@@ -1,5 +1,7 @@
 package restaurantapp
 
+import "go-ai/internal/domain/restaurant"
+
 type RestaurantBase struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -14,8 +16,20 @@ type RestaurantBase struct {
 	Email       string `json:"email"`
 }
 
+type RestaurantHoursBase struct {
+	Day       restaurant.DayOfWeek `json:"day"`
+	OpenTime  string               `json:"open_time"`
+	CloseTime string               `json:"close_time"`
+	// NextDay   bool                 `json:"next_day"`
+}
+
 type CreateRestaurantRequest struct {
 	RestaurantBase
+	Hours []RestaurantHoursBase `json:"hours"`
+}
+
+type CreateRestaurantResponse struct {
+	Id int32 `json:"id"`
 }
 
 type GetRestaurantByIDRequest struct {
@@ -24,5 +38,12 @@ type GetRestaurantByIDRequest struct {
 
 type GetRestaurantByIDResponse struct {
 	RestaurantBase
-	UserName string `json:"user_name"`
+	UserName string                `json:"user_name"`
+	IsActive bool                  `json:"is_active"`
+	Hours    []RestaurantHoursBase `json:"hours"`
+}
+
+type UpdateRestaurantRequest struct {
+	RestaurantBase
+	Hours []RestaurantHoursBase `json:"hours"`
 }
