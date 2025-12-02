@@ -45,7 +45,7 @@ func main() {
 		Str("server_port", cfg.ServerPort).
 		Str("db_host", cfg.DBHost).
 		Msg("configuration loaded successfully")
-	dsnPg := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
+	dsnPg := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
 	pool, err := db.ConnectPostgres(dsnPg)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Connect db fail")
