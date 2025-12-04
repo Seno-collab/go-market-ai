@@ -27,7 +27,7 @@ func ConnectPostgres(dsn string) (*pgxpool.Pool, error) {
 				cancel()
 				return pool, nil
 			}
-			fmt.Println("Ping error: %v\n", pingErr)
+			fmt.Println("Ping error:", pingErr)
 			pool.Close()
 		}
 		cancel()
