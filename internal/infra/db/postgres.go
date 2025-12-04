@@ -16,7 +16,7 @@ func ConnectPostgres(dsn string) (*pgxpool.Pool, error) {
 	maxRetries := 8
 	backoff := time.Second // start with 1s
 	for attempt := 1; attempt < maxRetries; attempt++ {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 
 		pool, err = pgxpool.New(ctx, dsn)
