@@ -40,3 +40,4 @@ tmp/
 *.log
 
 .zed
+garafan.env
