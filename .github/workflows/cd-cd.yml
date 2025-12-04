@@ -43,6 +43,11 @@ jobs:
           ${{ secrets.ENV_FILE }}
           ENVEOF
 
+          echo "🔧 Creating .env file..."
+          cat << 'ENVEOF' > "$APP_PATH/grafana.env"
+          ${{ secrets.GRAFANA_ENV }}
+          ENVEOF
+
           echo "📂 Checking app folder..."
           if [ ! -d "$APP_PATH" ]; then
             echo "📁 Folder does not exist — creating..."
