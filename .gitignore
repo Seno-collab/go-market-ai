@@ -23,7 +23,8 @@ vendor/
 go.work
 
 # env file
-.env
+*.env
+grafana.env
 
 # Air tmp
 tmp/
@@ -40,4 +41,3 @@ tmp/
 *.log
 
 .zed
-garafan.env
