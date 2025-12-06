@@ -38,7 +38,7 @@
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -67,7 +67,7 @@
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -107,7 +107,7 @@
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -147,7 +147,7 @@
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -187,7 +187,7 @@
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -225,7 +225,7 @@
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -270,7 +270,7 @@
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -306,7 +306,7 @@
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -344,7 +344,7 @@
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -369,20 +369,6 @@
         "app.DeleteRestaurantSuccessResponseDoc": {
             "type": "object",
             "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
-                }
-            }
-        },
-        "app.ErrorResponseDoc": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "$ref": "#/definitions/response.ErrorDetail"
-                },
                 "message": {
                     "type": "string"
                 },
@@ -574,6 +560,20 @@
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ErrorDoc": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/response.ErrorDetail"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
                     "type": "string"
                 }
             }

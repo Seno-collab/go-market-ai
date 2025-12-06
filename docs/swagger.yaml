@@ -15,15 +15,6 @@ definitions:
       response_code:
         type: string
     type: object
-  app.ErrorResponseDoc:
-    properties:
-      error:
-        $ref: '#/definitions/response.ErrorDetail'
-      message:
-        type: string
-      response_code:
-        type: string
-    type: object
   app.GetProfileSuccessResponseDoc:
     properties:
       data:
@@ -142,6 +133,15 @@ definitions:
       field:
         type: string
       message:
+        type: string
+    type: object
+  response.ErrorDoc:
+    properties:
+      error:
+        $ref: '#/definitions/response.ErrorDetail'
+      message:
+        type: string
+      response_code:
         type: string
     type: object
   restaurant.DayOfWeek:
@@ -313,7 +313,7 @@ paths:
         default:
           description: Errors
           schema:
-            $ref: '#/definitions/app.ErrorResponseDoc'
+            $ref: '#/definitions/response.ErrorDoc'
       summary: User login
       tags:
       - Auth
@@ -332,7 +332,7 @@ paths:
         default:
           description: Errors
           schema:
-            $ref: '#/definitions/app.ErrorResponseDoc'
+            $ref: '#/definitions/response.ErrorDoc'
       summary: Get user profile
       tags:
       - Auth
@@ -358,7 +358,7 @@ paths:
         default:
           description: Errors
           schema:
-            $ref: '#/definitions/app.ErrorResponseDoc'
+            $ref: '#/definitions/response.ErrorDoc'
       summary: Refresh access token
       tags:
       - Auth
@@ -384,7 +384,7 @@ paths:
         default:
           description: Errors
           schema:
-            $ref: '#/definitions/app.ErrorResponseDoc'
+            $ref: '#/definitions/response.ErrorDoc'
       summary: Register a new userRegisterRequest
       tags:
       - Auth
@@ -410,7 +410,7 @@ paths:
         default:
           description: Errors
           schema:
-            $ref: '#/definitions/app.ErrorResponseDoc'
+            $ref: '#/definitions/response.ErrorDoc'
       summary: Create restaurant
       tags:
       - Restaurant
@@ -435,7 +435,7 @@ paths:
         default:
           description: Errors
           schema:
-            $ref: '#/definitions/app.ErrorResponseDoc'
+            $ref: '#/definitions/response.ErrorDoc'
       summary: Delete restaurant by ID
       tags:
       - Restaurant
@@ -459,7 +459,7 @@ paths:
         default:
           description: Errors
           schema:
-            $ref: '#/definitions/app.ErrorResponseDoc'
+            $ref: '#/definitions/response.ErrorDoc'
       summary: Get restaurant by ID
       tags:
       - Restaurant
@@ -490,7 +490,7 @@ paths:
         default:
           description: Errors
           schema:
-            $ref: '#/definitions/app.ErrorResponseDoc'
+            $ref: '#/definitions/response.ErrorDoc'
       summary: Update restaurant information
       tags:
       - Restaurant
@@ -515,7 +515,7 @@ paths:
         default:
           description: Errors
           schema:
-            $ref: '#/definitions/app.ErrorResponseDoc'
+            $ref: '#/definitions/response.ErrorDoc'
       summary: Upload logo file
       tags:
       - Upload

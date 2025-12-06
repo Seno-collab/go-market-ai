@@ -3,7 +3,7 @@ version: "2"
 overrides:
   go:
     overrides:
-      - column: "restaurant.user_id"
+      - column: "restaurants.user_id"
         go_type:
           import: "github.com/google/uuid"
           type: "UUID"
@@ -42,27 +42,27 @@ overrides:
         go_type:
           type: "string"
 sql:
-  - schema: "db/schemas/user.schema.sql"
+  - schema: "db/schemas/users.schema.sql"
     queries:
-      - "db/queries/user.sql"
+      - "db/queries/users.sql"
     engine: "postgresql"
     gen:
       go:
         package: "sqlc"
-        out: "internal/infra/sqlc/user"
+        out: "internal/identity/infra/sqlc/user"
         sql_package: "pgx/v5"
         emit_json_tags: false
         emit_interface: false
         emit_pointers_for_null_types: true
 
-  - schema: "db/schemas/restaurant.schema.sql"
+  - schema: "db/schemas/restaurants.schema.sql"
     queries:
-      - "db/queries/restaurant.sql"
+      - "db/queries/restaurants.sql"
     engine: "postgresql"
     gen:
       go:
         package: "sqlc"
-        out: "internal/infra/sqlc/restaurant"
+        out: "internal/restaurant/infra/sqlc/restaurant"
         sql_package: "pgx/v5"
         emit_json_tags: false
         emit_interface: false
@@ -75,3 +75,13 @@ sql:
           - column: "restaurant_hours.close_time"
             go_type:
               type: "string"
+
+          - column: "restaurants.created_by"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+
+          - column: "restaurants.updated_by"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"

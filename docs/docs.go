@@ -49,7 +49,7 @@ const docTemplate = `{
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -78,7 +78,7 @@ const docTemplate = `{
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -118,7 +118,7 @@ const docTemplate = `{
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -158,7 +158,7 @@ const docTemplate = `{
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -198,7 +198,7 @@ const docTemplate = `{
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -236,7 +236,7 @@ const docTemplate = `{
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -281,7 +281,7 @@ const docTemplate = `{
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -317,7 +317,7 @@ const docTemplate = `{
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -355,7 +355,7 @@ const docTemplate = `{
                     "default": {
                         "description": "Errors",
                         "schema": {
-                            "$ref": "#/definitions/app.ErrorResponseDoc"
+                            "$ref": "#/definitions/response.ErrorDoc"
                         }
                     }
                 }
@@ -380,20 +380,6 @@ const docTemplate = `{
         "app.DeleteRestaurantSuccessResponseDoc": {
             "type": "object",
             "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
-                }
-            }
-        },
-        "app.ErrorResponseDoc": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "$ref": "#/definitions/response.ErrorDetail"
-                },
                 "message": {
                     "type": "string"
                 },
@@ -585,6 +571,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ErrorDoc": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/response.ErrorDetail"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
                     "type": "string"
                 }
             }
