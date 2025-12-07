@@ -30,6 +30,19 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 	return id, err
 }
 
+const getPasswordByID = `-- name: GetPasswordByID :one
+SELECT password_hash
+FROM "users"
+WHERE id = $1
+`
+
+func (q *Queries) GetPasswordByID(ctx context.Context, id uuid.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, getPasswordByID, id)
+	var password_hash string
+	err := row.Scan(&password_hash)
+	return password_hash, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT u.id, u.email, u.full_name, r.role_name, u.password_hash, u.is_active, u.created_at, u.updated_at FROM "users" u
 LEFT JOIN  "roles" r ON r.id = u.role_id
@@ -143,11 +156,26 @@ func (q *Queries) GetUserRole(ctx context.Context, arg GetUserRoleParams) (*stri
 	return role_name, err
 }
 
-const updateUser = `-- name: UpdateUser :one
+const updatePasswordByID = `-- name: UpdatePasswordByID :exec
+UPDATE "users"
+SET password_hash = $1
+WHERE id = $2
+`
+
+type UpdatePasswordByIDParams struct {
+	PasswordHash string
+	ID           uuid.UUID
+}
+
+func (q *Queries) UpdatePasswordByID(ctx context.Context, arg UpdatePasswordByIDParams) error {
+	_, err := q.db.Exec(ctx, updatePasswordByID, arg.PasswordHash, arg.ID)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :exec
 UPDATE "users"
 SET full_name = $1, email = $2, password_hash = $3, is_active = $4, updated_at = NOW()
 WHERE id = $5
-RETURNING id, full_name, email, password_hash, role_id, is_active, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -158,24 +186,13 @@ type UpdateUserParams struct {
 	ID           uuid.UUID
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUser,
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser,
 		arg.FullName,
 		arg.Email,
 		arg.PasswordHash,
 		arg.IsActive,
 		arg.ID,
 	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.FullName,
-		&i.Email,
-		&i.PasswordHash,
-		&i.RoleID,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	return err
 }

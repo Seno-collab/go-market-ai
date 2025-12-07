@@ -11,17 +11,17 @@ import (
 )
 
 type AuthRepo struct {
-	q *sqlc.Queries
+	Sqlc *sqlc.Queries
 }
 
 func NewAuthRepo(pool *pgxpool.Pool) *AuthRepo {
 	return &AuthRepo{
-		q: sqlc.New(pool),
+		Sqlc: sqlc.New(pool),
 	}
 }
 
 func (au *AuthRepo) GetByEmail(ctx context.Context, email string) (*auth.Entity, error) {
-	u, err := au.q.GetUserByEmail(ctx, &email)
+	u, err := au.Sqlc.GetUserByEmail(ctx, &email)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, 
 	email := a.Email.String()
 	password := a.Password.String()
 
-	id, err := au.q.CreateUser(ctx, sqlc.CreateUserParams{
+	id, err := au.Sqlc.CreateUser(ctx, sqlc.CreateUserParams{
 		Email:        &email,
 		PasswordHash: password,
 		FullName:     a.FullName,
@@ -60,7 +60,7 @@ func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, 
 	return id, nil
 }
 func (au *AuthRepo) GetByName(ctx context.Context, name string) (*auth.Entity, error) {
-	u, err := au.q.GetUserByName(ctx, name)
+	u, err := au.Sqlc.GetUserByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +75,12 @@ func (au *AuthRepo) GetByName(ctx context.Context, name string) (*auth.Entity, e
 }
 
 func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, error) {
-	u, err := au.q.GetUserByID(ctx, id)
+	u, err := au.Sqlc.GetUserByID(ctx, id)
 	if err != nil {
 		return nil, err
+	}
+	if u.ID == uuid.Nil {
+		return nil, auth.ErrUserNotFound
 	}
 	em, err := utils.NewEmail(*u.Email)
 	return &auth.Entity{
@@ -87,4 +90,15 @@ func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, er
 		Role:     *u.RoleName,
 		IsActive: u.IsActive,
 	}, nil
+}
+
+func (au *AuthRepo) ChangePassword(ctx context.Context, NewPasswordHash string, userID uuid.UUID) error {
+	return au.Sqlc.UpdatePasswordByID(ctx, sqlc.UpdatePasswordByIDParams{
+		PasswordHash: NewPasswordHash,
+		ID:           userID,
+	})
+}
+
+func (au *AuthRepo) GetPasswordByID(ctx context.Context, id uuid.UUID) (string, error) {
+	return au.Sqlc.GetPasswordByID(ctx, id)
 }

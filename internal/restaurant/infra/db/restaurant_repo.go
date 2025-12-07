@@ -13,25 +13,25 @@ import (
 )
 
 type RestaurantRepo struct {
-	pool *pgxpool.Pool
-	q    *sqlc.Queries
+	Pool *pgxpool.Pool
+	Sqlc *sqlc.Queries
 }
 
 func NewRestaurantRepo(pool *pgxpool.Pool) *RestaurantRepo {
 	return &RestaurantRepo{
-		q:    sqlc.New(pool),
-		pool: pool,
+		Sqlc: sqlc.New(pool),
+		Pool: pool,
 	}
 }
 
-func (rr *RestaurantRepo) Create(ctx context.Context, r *restaurant.Entity) (int32, error) {
+func (rr *RestaurantRepo) Create(ctx context.Context, r *restaurant.Entity, userID uuid.UUID) (int32, error) {
 
-	tx, err := rr.pool.Begin(ctx)
+	tx, err := rr.Pool.Begin(ctx)
 	if err != nil {
 		return 0, err
 	}
 	defer tx.Rollback(ctx)
-	qtx := rr.q.WithTx(tx)
+	qtx := rr.Sqlc.WithTx(tx)
 	_, err = qtx.GetByName(ctx, r.Name)
 	if err != nil {
 		if !errors.Is(err, pgx.ErrNoRows) {
@@ -71,6 +71,14 @@ func (rr *RestaurantRepo) Create(ctx context.Context, r *restaurant.Entity) (int
 			return 0, err
 		}
 	}
+	err = qtx.UpsertRestaurantUser(ctx, sqlc.UpsertRestaurantUserParams{
+		RestaurantID: id,
+		UserID:       userID,
+		Role:         restaurant.Owner,
+	})
+	if err != nil {
+		return 0, err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return 0, err
 	}
@@ -78,9 +86,12 @@ func (rr *RestaurantRepo) Create(ctx context.Context, r *restaurant.Entity) (int
 }
 
 func (rr *RestaurantRepo) GetById(ctx context.Context, id int32) (*restaurant.Entity, error) {
-	records, err := rr.q.GetById(ctx, id)
+	records, err := rr.Sqlc.GetById(ctx, id)
 	if err != nil {
 		return nil, err
+	}
+	if records == nil {
+		return nil, restaurant.ErrRestaurantNotExists
 	}
 	hours := []restaurant.Hours{}
 	for _, r := range records {
@@ -138,9 +149,12 @@ func (rr *RestaurantRepo) GetById(ctx context.Context, id int32) (*restaurant.En
 }
 
 func (rr *RestaurantRepo) GetByName(ctx context.Context, name string) (*restaurant.Entity, error) {
-	records, err := rr.q.GetByName(ctx, name)
+	records, err := rr.Sqlc.GetByName(ctx, name)
 	if err != nil {
 		return nil, err
+	}
+	if records == nil {
+		return nil, restaurant.ErrRestaurantNotExists
 	}
 	hours := []restaurant.Hours{}
 	for _, r := range records {
@@ -198,18 +212,18 @@ func (rr *RestaurantRepo) GetByName(ctx context.Context, name string) (*restaura
 }
 
 func (rr *RestaurantRepo) Update(ctx context.Context, r *restaurant.Entity, id int32) error {
-	tx, err := rr.pool.Begin(ctx)
+	tx, err := rr.Pool.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	qtx := rr.q.WithTx(tx)
+	qtx := rr.Sqlc.WithTx(tx)
 	banner := r.BannerUrl.String()
 	phone := r.PhoneNumber.String()
 	website := r.WebsiteUrl.String()
 	email := r.Email.String()
 	logo := r.LogoUrl.String()
-	err = rr.q.UpdateRestaurant(ctx, sqlc.UpdateRestaurantParams{
+	err = rr.Sqlc.UpdateRestaurant(ctx, sqlc.UpdateRestaurantParams{
 		ID:          id,
 		Name:        r.Name,
 		Description: &r.Description,
@@ -248,12 +262,12 @@ func (rr *RestaurantRepo) Update(ctx context.Context, r *restaurant.Entity, id i
 }
 
 func (rr *RestaurantRepo) SoftDelete(ctx context.Context, id int32, userID uuid.UUID) error {
-	tx, err := rr.pool.Begin(ctx)
+	tx, err := rr.Pool.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	qtx := rr.q.WithTx(tx)
+	qtx := rr.Sqlc.WithTx(tx)
 	if err := qtx.SoftDeleteRestaurant(ctx, sqlc.SoftDeleteRestaurantParams{
 		ID:        id,
 		UpdatedBy: userID,

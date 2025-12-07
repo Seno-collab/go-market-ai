@@ -32,12 +32,13 @@ func InitIdentityModule(pool *pgxpool.Pool, redis *redis.Client, config *config.
 	loginUC := authapp.NewLoginUseCase(authRepo, authCache, config)
 	refreshUC := authapp.NewRefreshTokenUseCase(authRepo, authCache, config)
 	profileUC := authapp.NewGetProfileUseCase(authRepo, authCache)
-
+	changePasswordUC := authapp.NewChangePasswordUseCase(authRepo)
 	handler := identityhttp.NewAuthHandler(
 		registerUC,
 		loginUC,
 		refreshUC,
 		profileUC,
+		changePasswordUC,
 		log,
 	)
 

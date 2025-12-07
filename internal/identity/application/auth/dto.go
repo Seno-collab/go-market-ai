@@ -37,3 +37,9 @@ type GetProfileResponse struct {
 	Role     string `json:"role"`
 	IsActive bool   `json:"is_active"`
 }
+
+type ChangePasswordRequest struct {
+	NewPassword     string `json:"new_password"`
+	OldPassword     string `json:"old_password"`
+	ConfirmPassword string `json:"confirm_password"`
+}

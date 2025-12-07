@@ -27,7 +27,7 @@ type Restaurant struct {
 	UpdatedAt   time.Time
 	CreatedBy   uuid.UUID
 	UpdatedBy   uuid.UUID
-	DeleteAt    time.Time
+	DeletedAt   time.Time
 	Status      string
 }
 
@@ -37,6 +37,7 @@ type RestaurantHour struct {
 	OpenTime     string
 	CloseTime    string
 	IsClosed     bool
+	DeletedAt    time.Time
 }
 
 type RestaurantUser struct {
@@ -46,5 +47,5 @@ type RestaurantUser struct {
 	Role         string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	DeleteAt     time.Time
+	DeletedAt    time.Time
 }

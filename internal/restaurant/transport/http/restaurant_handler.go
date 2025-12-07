@@ -182,7 +182,8 @@ func (h *RestaurantHandler) Delete(c echo.Context) error {
 	}
 	err = h.DeleteUC.Execute(c.Request().Context(), int32(idInt), userUUID)
 	if err != nil {
-		return response.Error(c, http.StatusInternalServerError, err.Error())
+		h.Logger.Error().Err(err).Msg("Delete restaurant failed")
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success[any](c, nil, "Restaurant deleted successfully")
 }

@@ -17,13 +17,23 @@ WHERE full_name = $1 LIMIT 1;
 INSERT INTO "users" (email, full_name, password_hash, role_id) VALUES ($1, $2, $3,(SELECT id FROM "roles" WHERE role_name = 'user'))
 RETURNING id;
 
--- name: UpdateUser :one
+-- name: UpdateUser :exec
 UPDATE "users"
 SET full_name = $1, email = $2, password_hash = $3, is_active = $4, updated_at = NOW()
-WHERE id = $5
-RETURNING *;
+WHERE id = $5;
 
 -- name: GetUserRole :one
 SELECT  r.role_name FROM "users" u
 LEFT JOIN  "roles" r ON r.id = u.role_id
 WHERE u.id = $1 AND u.is_active = $2 LIMIT 1;
+
+-- name: GetPasswordByID :one
+SELECT password_hash
+FROM "users"
+WHERE id = $1;
+
+
+-- name: UpdatePasswordByID :exec
+UPDATE "users"
+SET password_hash = $1
+WHERE id = $2;

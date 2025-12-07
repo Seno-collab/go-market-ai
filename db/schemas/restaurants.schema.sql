@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_by     UUID REFERENCES users(id),
     updated_by     UUID REFERENCES users(id),
-    delete_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     status         TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended'))
 );
 
@@ -33,6 +33,7 @@ CREATE TABLE restaurant_hours (
     open_time     TIME,
     close_time    TIME,
     is_closed     BOOLEAN NOT NULL DEFAULT FALSE,
+    deleted_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (restaurant_id, day_of_week)
 );
 
@@ -44,7 +45,7 @@ CREATE TABLE IF NOT EXISTS restaurant_users (
     role          TEXT NOT NULL CHECK (role IN ('owner', 'manager', 'staff')),
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    delete_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (restaurant_id, user_id)
 );
 

@@ -24,3 +24,7 @@ type LoginSuccessResponseDoc struct {
 	response.SuccecssBaseDoc
 	Data *authapp.LoginResponse `json:"data,omitempty"`
 }
+
+type ChangePasswordSuccessResponseDoc struct {
+	response.SuccecssBaseDoc
+}

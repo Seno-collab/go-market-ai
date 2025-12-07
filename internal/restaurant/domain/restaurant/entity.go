@@ -7,6 +7,12 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	Owner   = "owner"
+	Manager = "manager"
+	Staff   = "staff"
+)
+
 type Entity struct {
 	ID          uuid.UUID
 	Name        string

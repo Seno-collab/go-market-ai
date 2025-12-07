@@ -37,7 +37,7 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 		return nil, auth.ErrUserInactive
 	}
 	if !security.CheckPasswordHash(req.Password, storedUser.Password.String()) {
-		return nil, auth.ErrPasswordVerifyFail
+		return nil, auth.ErrInvalidCredentials
 	}
 	accessToken, err := security.GenerateToken(storedUser.ID, storedUser.Email.String(), s.Config.JwtAccessSecret, s.Config.JwtExpiresIn)
 	if err != nil {

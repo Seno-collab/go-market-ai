@@ -15,6 +15,46 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/auth/change-password": {
+            "patch": {
+                "description": "Allows the authenticated user to change their password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Change user password",
+                "parameters": [
+                    {
+                        "description": "Old and new password",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/authapp.ChangePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.ChangePasswordSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/login": {
             "post": {
                 "description": "Authenticate user and return access and refresh tokens",
@@ -363,6 +403,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "app.ChangePasswordSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
         "app.CreateRestaurantSuccessResponseDoc": {
             "type": "object",
             "properties": {
@@ -483,6 +534,20 @@ const docTemplate = `{
                 }
             }
         },
+        "authapp.ChangePasswordRequest": {
+            "type": "object",
+            "properties": {
+                "confirm_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
+                    "type": "string"
+                }
+            }
+        },
         "authapp.GetProfileResponse": {
             "type": "object",
             "properties": {
@@ -564,23 +629,9 @@ const docTemplate = `{
         "authapp.RegisterSuccess": {
             "type": "object"
         },
-        "response.ErrorDetail": {
-            "type": "object",
-            "properties": {
-                "field": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "response.ErrorDoc": {
             "type": "object",
             "properties": {
-                "error": {
-                    "$ref": "#/definitions/response.ErrorDetail"
-                },
                 "message": {
                     "type": "string"
                 },

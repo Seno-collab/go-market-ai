@@ -12,11 +12,12 @@ import (
 )
 
 type AuthHandler struct {
-	RegisterUC     *authapp.RegisterUseCase
-	LoginUC        *authapp.LoginUseCase
-	RefreshTokenUC *authapp.RefreshTokenUseCase
-	ProfileUC      *authapp.GetProfileUseCase
-	Logger         zerolog.Logger
+	RegisterUC       *authapp.RegisterUseCase
+	LoginUC          *authapp.LoginUseCase
+	RefreshTokenUC   *authapp.RefreshTokenUseCase
+	ProfileUC        *authapp.GetProfileUseCase
+	ChangePasswordUC *authapp.ChangePasswordUseCase
+	Logger           zerolog.Logger
 }
 
 func NewAuthHandler(
@@ -24,13 +25,15 @@ func NewAuthHandler(
 	loginUC *authapp.LoginUseCase,
 	refreshUC *authapp.RefreshTokenUseCase,
 	profileUC *authapp.GetProfileUseCase,
+	changePasswordUC *authapp.ChangePasswordUseCase,
 	logger zerolog.Logger) *AuthHandler {
 	return &AuthHandler{
-		RegisterUC:     regUC,
-		LoginUC:        loginUC,
-		RefreshTokenUC: refreshUC,
-		ProfileUC:      profileUC,
-		Logger:         logger.With().Str("component", "Auth handler").Logger(),
+		RegisterUC:       regUC,
+		LoginUC:          loginUC,
+		RefreshTokenUC:   refreshUC,
+		ProfileUC:        profileUC,
+		ChangePasswordUC: changePasswordUC,
+		Logger:           logger.With().Str("component", "Auth handler").Logger(),
 	}
 }
 
@@ -102,7 +105,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 func (h *AuthHandler) RefreshToken(c echo.Context) error {
 	var in authapp.RefreshTokenRequest
 	if err := c.Bind(&in); err != nil {
-		h.Logger.Error().Err(err).Msg("")
+		h.Logger.Error().Err(err).Msg("Bind json")
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
 	}
 
@@ -149,4 +152,39 @@ func (h *AuthHandler) GetProfile(c echo.Context) error {
 		IsActive: profile.IsActive,
 	}
 	return response.Success[authapp.GetProfileResponse](c, resp, "Profile retrieved successfully")
+}
+
+// ChangePassword godoc
+// @Summary Change user password
+// @Description Allows the authenticated user to change their password
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body authapp.ChangePasswordRequest true "Old and new password"
+// @Success 200 {object} app.ChangePasswordSuccessResponseDoc "Password changed successfully"
+// @Failure default {object} response.ErrorDoc "Errors"
+// @Router /api/auth/change-password [patch]
+func (h *AuthHandler) ChangePassword(c echo.Context) error {
+	var in authapp.ChangePasswordRequest
+	if err := c.Bind(&in); err != nil {
+		h.Logger.Error().Err(err).Msg("Bind json")
+		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+	}
+	userID := c.Get("user_id")
+	if userID == nil {
+		return response.Error(c, http.StatusUnauthorized, "Unauthorized")
+	}
+	userUUID, ok := userID.(uuid.UUID)
+	if !ok {
+		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
+	}
+	err := h.ChangePasswordUC.Execute(c.Request().Context(), in, userUUID)
+	if err != nil {
+		if ae, ok := err.(domainerr.AppError); ok {
+			return response.Error(c, ae.Status, ae.Msg)
+		}
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
+	}
+	return response.Success[any](c, nil, "Password changed successfully")
 }

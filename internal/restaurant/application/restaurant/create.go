@@ -67,7 +67,7 @@ func (uc *CreateRestaurantUseCase) Execute(ctx context.Context, req CreateRestau
 	if err != nil {
 		return 0, err
 	}
-	id, err := uc.Repo.Create(ctx, entity)
+	id, err := uc.Repo.Create(ctx, entity, userID)
 	if err != nil {
 		return 0, err
 	}
