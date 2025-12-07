@@ -8,10 +8,9 @@ import (
 )
 
 type ResponseDTO[T any] struct {
-	Message      string    `json:"message"`
-	ResponseCode string    `json:"response_code,omitempty"`
-	Data         *T        `json:"data,omitempty"`
-	Error        *ErrorObj `json:"error,omitempty"`
+	Message      string `json:"message"`
+	ResponseCode string `json:"response_code,omitempty"`
+	Data         *T     `json:"data,omitempty"`
 }
 
 type ErrorDetail struct {
@@ -19,14 +18,9 @@ type ErrorDetail struct {
 	Message string `json:"message,omitempty"`
 }
 
-type ErrorObj struct {
-	Details []ErrorDetail `json:"details,omitempty"`
-}
-
 type ErrorDoc struct {
-	ResponseCode string       `json:"response_code,omitempty"`
-	Message      string       `json:"message"`
-	Error        *ErrorDetail `json:"error,omitempty"`
+	ResponseCode string `json:"response_code,omitempty"`
+	Message      string `json:"message"`
 }
 
 type SuccecssBaseDoc struct {
@@ -44,12 +38,11 @@ func Success[T any](ctx echo.Context, data *T, message string) error {
 	return ctx.JSON(http.StatusOK, resp)
 }
 
-func Error(ctx echo.Context, code int, msg string, details ...ErrorDetail) error {
+func Error(ctx echo.Context, code int, msg string) error {
 	setJSON(ctx)
 	resp := &ResponseDTO[any]{
 		Message:      msg,
 		ResponseCode: strconv.Itoa(code),
-		Error:        &ErrorObj{Details: details},
 	}
 	return ctx.JSON(code, resp)
 }

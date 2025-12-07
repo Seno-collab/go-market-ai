@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-ai/internal/identity/domain/auth"
 	"go-ai/internal/identity/infra/cache"
+	domainerr "go-ai/pkg/domain_err"
 
 	"time"
 
@@ -27,22 +28,22 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 	keyAuth := fmt.Sprintf("profile_%s", userID.String())
 	cacheData, err := uc.Cache.GetAuthCache(keyAuth)
 	if err != nil {
-		return nil, err
+		return nil, domainerr.ErrInternalServerError
 	}
 	profile := &GetProfileResponse{}
 	if cacheData == nil {
 		record, err := uc.Repo.GetById(ctx, userID)
 		if err != nil {
-			return nil, err
+			return nil, auth.ErrUserNotFound
 		}
 		profile = &GetProfileResponse{
-			Email:    record.Email,
+			Email:    record.Email.String(),
 			FullName: record.FullName,
 			Role:     record.Role,
 			IsActive: record.IsActive,
 		}
 		authData := &cache.AuthData{
-			Email:    record.Email,
+			Email:    record.Email.String(),
 			FullName: record.FullName,
 			Role:     record.Role,
 			IsActive: record.IsActive,

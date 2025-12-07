@@ -51,7 +51,7 @@ SELECT
     rsh.close_time
 FROM "restaurants" rs
 INNER JOIN "restaurant_hours" rsh ON rs.id = rsh.restaurant_id
-WHERE name LIKE $1 AND rs.delete_at IS NULL;
+WHERE name LIKE $1 AND rs.deleted_at IS NULL;
 
 -- name: GetById :many
 SELECT
@@ -73,7 +73,7 @@ SELECT
     rsh.close_time
 FROM "restaurants" rs
 INNER JOIN "restaurant_hours" rsh ON rs.id = rsh.restaurant_id
-WHERE id = $1 AND rs.delete_ath IS NULL;
+WHERE id = $1 AND rs.deleted_at IS NULL;
 
 -- name: UpdateRestaurant :exec
 UPDATE "restaurants"
@@ -85,10 +85,10 @@ WHERE id = $13;
 
 -- name: SoftDeleteRestaurantHours :exec
 UPDATE "restaurant_hours"
-SET delete_at = NOW()
+SET deleted_at = NOW()
 WHERE restaurant_id = $1;
 
 -- name: SoftDeleteRestaurant :exec
 UPDATE restaurants
-SET delete_at = NOW(), updated_by = $1
+SET deleted_at = NOW(), updated_by = $1
 WHERE id = $2;

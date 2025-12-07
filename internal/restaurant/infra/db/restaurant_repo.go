@@ -2,10 +2,13 @@ package restaurantrepo
 
 import (
 	"context"
+	"errors"
 	"go-ai/internal/restaurant/domain/restaurant"
 	sqlc "go-ai/internal/restaurant/infra/sqlc/restaurant"
+	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -22,12 +25,24 @@ func NewRestaurantRepo(pool *pgxpool.Pool) *RestaurantRepo {
 }
 
 func (rr *RestaurantRepo) Create(ctx context.Context, r *restaurant.Entity) (int32, error) {
+
 	tx, err := rr.pool.Begin(ctx)
 	if err != nil {
 		return 0, err
 	}
 	defer tx.Rollback(ctx)
 	qtx := rr.q.WithTx(tx)
+	_, err = qtx.GetByName(ctx, r.Name)
+	if err != nil {
+		if !errors.Is(err, pgx.ErrNoRows) {
+			return 0, err
+		}
+	}
+	banner := r.BannerUrl.String()
+	phone := r.PhoneNumber.String()
+	website := r.WebsiteUrl.String()
+	email := r.Email.String()
+	logo := r.LogoUrl.String()
 	id, err := qtx.CreateRestaurant(ctx, sqlc.CreateRestaurantParams{
 		Name:        r.Name,
 		Description: &r.Description,
@@ -35,12 +50,12 @@ func (rr *RestaurantRepo) Create(ctx context.Context, r *restaurant.Entity) (int
 		Category:    &r.Category,
 		City:        &r.City,
 		District:    &r.District,
-		LogoUrl:     &r.LogoUrl,
-		BannerUrl:   &r.BannerUrl,
-		PhoneNumber: &r.PhoneNumber,
-		WebsiteUrl:  &r.WebsiteUrl,
-		Email:       &r.Email,
-		CreatedBy:   r.UserID,
+		LogoUrl:     &logo,
+		BannerUrl:   &banner,
+		PhoneNumber: &phone,
+		WebsiteUrl:  &website,
+		Email:       &email,
+		CreatedBy:   r.CreatedBy,
 	})
 	if err != nil {
 		return 0, err
@@ -80,6 +95,30 @@ func (rr *RestaurantRepo) GetById(ctx context.Context, id int32) (*restaurant.En
 		})
 	}
 	first := records[0]
+	logoUrl, err := restaurant.NewUrl(*first.LogoUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	bannerUrl, err := restaurant.NewUrl(*first.BannerUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	phone, err := restaurant.NewPhone(*first.PhoneNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	websiteUrl, err := restaurant.NewUrl(*first.WebsiteUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	email, err := utils.NewEmail(*first.Email)
+	if err != nil {
+		return nil, err
+	}
 	entity := &restaurant.Entity{
 		Name:        first.Name,
 		Description: *first.Description,
@@ -87,12 +126,12 @@ func (rr *RestaurantRepo) GetById(ctx context.Context, id int32) (*restaurant.En
 		Category:    *first.Category,
 		City:        *first.City,
 		District:    *first.District,
-		LogoUrl:     *first.LogoUrl,
-		BannerUrl:   *first.BannerUrl,
-		PhoneNumber: *first.PhoneNumber,
-		WebsiteUrl:  *first.WebsiteUrl,
-		Email:       *first.Email,
-		UserID:      first.CreatedBy,
+		LogoUrl:     logoUrl,
+		BannerUrl:   bannerUrl,
+		PhoneNumber: phone,
+		WebsiteUrl:  websiteUrl,
+		Email:       email,
+		CreatedBy:   first.CreatedBy,
 		Hours:       hours,
 	}
 	return entity, nil
@@ -116,6 +155,30 @@ func (rr *RestaurantRepo) GetByName(ctx context.Context, name string) (*restaura
 		})
 	}
 	first := records[0]
+	logoUrl, err := restaurant.NewUrl(*first.LogoUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	bannerUrl, err := restaurant.NewUrl(*first.BannerUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	phone, err := restaurant.NewPhone(*first.PhoneNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	websiteUrl, err := restaurant.NewUrl(*first.WebsiteUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	email, err := utils.NewEmail(*first.Email)
+	if err != nil {
+		return nil, err
+	}
 	entity := &restaurant.Entity{
 		Name:        first.Name,
 		Description: *first.Description,
@@ -123,12 +186,12 @@ func (rr *RestaurantRepo) GetByName(ctx context.Context, name string) (*restaura
 		Category:    *first.Category,
 		City:        *first.City,
 		District:    *first.District,
-		LogoUrl:     *first.LogoUrl,
-		BannerUrl:   *first.BannerUrl,
-		PhoneNumber: *first.PhoneNumber,
-		WebsiteUrl:  *first.WebsiteUrl,
-		Email:       *first.Email,
-		UserID:      first.CreatedBy,
+		LogoUrl:     logoUrl,
+		BannerUrl:   bannerUrl,
+		PhoneNumber: phone,
+		WebsiteUrl:  websiteUrl,
+		Email:       email,
+		CreatedBy:   first.CreatedBy,
 		Hours:       hours,
 	}
 	return entity, nil
@@ -141,6 +204,11 @@ func (rr *RestaurantRepo) Update(ctx context.Context, r *restaurant.Entity, id i
 	}
 	defer tx.Rollback(ctx)
 	qtx := rr.q.WithTx(tx)
+	banner := r.BannerUrl.String()
+	phone := r.PhoneNumber.String()
+	website := r.WebsiteUrl.String()
+	email := r.Email.String()
+	logo := r.LogoUrl.String()
 	err = rr.q.UpdateRestaurant(ctx, sqlc.UpdateRestaurantParams{
 		ID:          id,
 		Name:        r.Name,
@@ -149,12 +217,12 @@ func (rr *RestaurantRepo) Update(ctx context.Context, r *restaurant.Entity, id i
 		Category:    &r.Category,
 		City:        &r.City,
 		District:    &r.District,
-		LogoUrl:     &r.LogoUrl,
-		BannerUrl:   &r.BannerUrl,
-		PhoneNumber: &r.PhoneNumber,
-		WebsiteUrl:  &r.WebsiteUrl,
-		Email:       &r.Email,
-		UpdatedBy:   r.UserID,
+		LogoUrl:     &logo,
+		BannerUrl:   &banner,
+		PhoneNumber: &phone,
+		WebsiteUrl:  &website,
+		Email:       &email,
+		UpdatedBy:   r.UpdateBy,
 	})
 	if err != nil {
 		return err

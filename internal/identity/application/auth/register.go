@@ -8,8 +8,8 @@ import (
 	"go-ai/internal/identity/domain/auth"
 	"go-ai/internal/identity/infra/cache"
 	"go-ai/internal/platform/security"
-	"go-ai/internal/transport/response"
-	"strings"
+	domainerr "go-ai/pkg/domain_err"
+	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"
 )
@@ -27,15 +27,7 @@ func NewRegisterUseCase(repo auth.Repository, cache *cache.AuthCache) *RegisterU
 }
 
 func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) (uuid.UUID, error) {
-	if !strings.Contains(request.Email, "@") {
-		return uuid.Nil, response.ErrInvalidEmail
-	}
-	if request.FullName == "" {
-		return uuid.Nil, response.ErrInvalidName
-	}
-	if request.Password == "" {
-		return uuid.Nil, response.ErrInvalidPassword
-	}
+
 	// unique email
 	record, err := s.Repo.GetByEmail(ctx, request.Email)
 	if err != nil {
@@ -44,7 +36,7 @@ func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) 
 		}
 	}
 	if record != nil {
-		return uuid.Nil, response.ErrUserAlreadyExists
+		return uuid.Nil, auth.ErrUserAlreadyExists
 	}
 	record, err = s.Repo.GetByName(ctx, request.FullName)
 	if err != nil {
@@ -53,15 +45,20 @@ func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) 
 		}
 	}
 	if record != nil {
-		return uuid.Nil, response.ErrNameAlreadyExists
+		return uuid.Nil, auth.ErrNameAlreadyExists
+	}
+	email, err := utils.NewEmail(request.Email)
+	if err != nil {
+		return uuid.Nil, err
 	}
 	hasedPassword, err := security.HashPassword(request.Password)
 	if err != nil {
-		return uuid.Nil, response.ErrInternalServerError
+		return uuid.Nil, domainerr.ErrInternalServerError
 	}
+	pw, _ := auth.NewPasswordFromHash(hasedPassword)
 	return s.Repo.CreateUser(ctx, &auth.Entity{
 		FullName: request.FullName,
-		Email:    request.Email,
-		Password: hasedPassword,
+		Email:    email,
+		Password: pw,
 	})
 }

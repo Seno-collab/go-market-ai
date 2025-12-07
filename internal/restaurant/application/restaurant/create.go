@@ -2,13 +2,10 @@ package restaurantapp
 
 import (
 	"context"
-	"errors"
 	"go-ai/internal/restaurant/domain/restaurant"
-	"go-ai/internal/transport/response"
-	"strings"
+	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 )
 
 type CreateRestaurantUseCase struct {
@@ -21,61 +18,56 @@ func NewCreateRestaurantUseCase(repo restaurant.Repository) *CreateRestaurantUse
 	}
 }
 
-func (uc *CreateRestaurantUseCase) Execute(ctx context.Context, request CreateRestaurantRequest, userID uuid.UUID) (int32, error) {
-	if !strings.Contains(request.Email, "@") {
-		return 0, response.ErrInvalidEmail
+func (uc *CreateRestaurantUseCase) Execute(ctx context.Context, req CreateRestaurantRequest, userID uuid.UUID) (int32, error) {
+	email, err := utils.NewEmail(req.Email)
+	if err != nil {
+		return 0, err
 	}
-	if request.Name == "" {
-		return 0, response.ErrInvalidName
-	}
-	if request.Address == "" {
-		return 0, response.ErrInvalidAddress
-	}
-	if request.BannerUrl == "" {
-		return 0, response.ErrInvalidBanner
-	}
-	if request.LogoUrl == "" {
-		return 0, response.ErrInvalidLogo
-	}
-	if request.BannerUrl == "" {
-		return 0, response.ErrInvalidBanner
-	}
-	if request.PhoneNumber == "" {
-		return 0, response.ErrInvalidPhoneNumber
+	phone, err := restaurant.NewPhone(req.PhoneNumber)
+	if err != nil {
+		return 0, err
 	}
 
-	record, err := uc.Repo.GetByName(ctx, request.Name)
+	logoUrl, err := restaurant.NewUrl(req.LogoUrl)
 	if err != nil {
-		if !errors.Is(err, pgx.ErrNoRows) {
-			return 0, err
-		}
+		return 0, err
 	}
-	if record != nil {
-		return 0, response.ErrRestaurantNameExitis
+
+	websiteUrl, err := restaurant.NewUrl(req.WebsiteUrl)
+	if err != nil {
+		return 0, err
 	}
-	hours := make([]restaurant.Hours, 0, len(request.Hours))
-	for _, hour := range request.Hours {
+	bannerUrl, err := restaurant.NewUrl(req.BannerUrl)
+	if err != nil {
+		return 0, err
+	}
+	hours := make([]restaurant.Hours, 0, len(req.Hours))
+	for _, hour := range req.Hours {
 		hours = append(hours, restaurant.Hours{
 			Day:       hour.Day,
 			OpenTime:  hour.OpenTime,
 			CloseTime: hour.CloseTime,
 		})
 	}
-	id, err := uc.Repo.Create(ctx, &restaurant.Entity{
-		Email:       request.Email,
-		Name:        request.Name,
-		Description: request.Description,
-		Category:    request.Category,
-		WebsiteUrl:  request.WebsiteUrl,
-		LogoUrl:     request.LogoUrl,
-		BannerUrl:   request.BannerUrl,
-		PhoneNumber: request.PhoneNumber,
-		Address:     request.PhoneNumber,
-		City:        request.City,
-		District:    request.District,
-		UserID:      userID,
-		Hours:       hours,
-	})
+	entity, err := restaurant.NewEntity(
+		req.Name,
+		req.Description,
+		req.Address,
+		req.Category,
+		req.City,
+		req.District,
+		logoUrl,
+		bannerUrl, // banner optional example
+		phone,
+		websiteUrl,
+		email,
+		userID,
+		hours,
+	)
+	if err != nil {
+		return 0, err
+	}
+	id, err := uc.Repo.Create(ctx, entity)
 	if err != nil {
 		return 0, err
 	}

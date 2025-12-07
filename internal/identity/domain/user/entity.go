@@ -1,15 +1,17 @@
 package user
 
 import (
+	"go-ai/pkg/utils"
+
 	"github.com/google/uuid"
 )
 
-type User struct {
+type Entity struct {
 	ID       uuid.UUID
 	FullName string
-	Email    string
-	Password string
-	RoleId   int
+	Email    utils.Email
+	Role     string
+	IsActive bool
 }
 
 // func (u *User) Validate() error {

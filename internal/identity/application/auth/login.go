@@ -7,7 +7,7 @@ import (
 	"go-ai/internal/identity/infra/cache"
 	"go-ai/internal/platform/config"
 	"go-ai/internal/platform/security"
-	"go-ai/internal/transport/response"
+	"go-ai/pkg/utils"
 
 	"time"
 )
@@ -26,38 +26,31 @@ func NewLoginUseCase(repo auth.Repository, cache *cache.AuthCache, config *confi
 	}
 }
 
-func (s *LoginUseCase) Execute(ctx context.Context, request LoginRequest) (*LoginResponse, error) {
+func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginResponse, error) {
 
-	if request.Email == "" {
-		return nil, response.ErrInvalidEmail
-	}
-
-	if request.Password == "" {
-		return nil, response.ErrInvalidPassword
-	}
-
-	storedUser, err := s.Repo.GetByEmail(ctx, request.Email)
+	email, err := utils.NewEmail(req.Email)
+	storedUser, err := s.Repo.GetByEmail(ctx, email.String())
 	if err != nil {
 		return nil, err
 	}
 	if storedUser.IsActive == false {
-		return nil, response.ErrUserInactive
+		return nil, auth.ErrUserInactive
 	}
-	if !security.CheckPasswordHash(request.Password, storedUser.Password) {
-		return nil, response.ErrPasswordVerifyFail
+	if !security.CheckPasswordHash(req.Password, storedUser.Password.String()) {
+		return nil, auth.ErrPasswordVerifyFail
 	}
-	accessToken, err := security.GenerateToken(storedUser.ID, storedUser.Email, s.Config.JwtAccessSecret, s.Config.JwtExpiresIn)
+	accessToken, err := security.GenerateToken(storedUser.ID, storedUser.Email.String(), s.Config.JwtAccessSecret, s.Config.JwtExpiresIn)
 	if err != nil {
-		return nil, response.ErrTokenGenerateFail
+		return nil, auth.ErrTokenGenerateFail
 	}
-	refreshToken, err := security.GenerateToken(storedUser.ID, storedUser.Email, s.Config.JwtRefreshSecret, s.Config.JwtRefreshExpiresIn)
+	refreshToken, err := security.GenerateToken(storedUser.ID, storedUser.Email.String(), s.Config.JwtRefreshSecret, s.Config.JwtRefreshExpiresIn)
 	if err != nil {
-		return nil, response.ErrTokenGenerateFail
+		return nil, auth.ErrTokenGenerateFail
 	}
 	dataCache := &cache.AuthData{
 		UserID:   storedUser.ID,
 		Role:     storedUser.Role,
-		Email:    storedUser.Email,
+		Email:    storedUser.Email.String(),
 		IsActive: storedUser.IsActive,
 		FullName: storedUser.FullName,
 	}

@@ -3,7 +3,7 @@ package restaurantapp
 import (
 	"context"
 	"go-ai/internal/restaurant/domain/restaurant"
-	"go-ai/internal/transport/response"
+	domainerr "go-ai/pkg/domain_err"
 )
 
 type GetByIDUseCase struct {
@@ -17,8 +17,8 @@ func NewGetByIDUseCase(repo restaurant.Repository) *GetByIDUseCase {
 }
 
 func (uc *GetByIDUseCase) Execute(ctx context.Context, id int32) (*GetRestaurantByIDResponse, error) {
-	if id == 0 {
-		return nil, response.ErrInvalidField
+	if id <= 0 {
+		return nil, domainerr.ErrInvalidField
 	}
 	record, err := uc.Repo.GetById(ctx, id)
 	if err != nil {
@@ -37,7 +37,7 @@ func (uc *GetByIDUseCase) Execute(ctx context.Context, id int32) (*GetRestaurant
 			CloseTime: hour.CloseTime,
 		})
 	}
-	return &GetRestaurantByIDResponse{
+	resp := &GetRestaurantByIDResponse{
 		RestaurantBase: RestaurantBase{
 			Name:        record.Name,
 			Description: record.Description,
@@ -45,14 +45,15 @@ func (uc *GetByIDUseCase) Execute(ctx context.Context, id int32) (*GetRestaurant
 			Category:    record.Category,
 			City:        record.City,
 			District:    record.District,
-			LogoUrl:     record.LogoUrl,
-			BannerUrl:   record.BannerUrl,
-			PhoneNumber: record.PhoneNumber,
-			WebsiteUrl:  record.WebsiteUrl,
-			Email:       record.Email,
+			LogoUrl:     record.LogoUrl.String(),
+			BannerUrl:   record.BannerUrl.String(),
+			PhoneNumber: record.PhoneNumber.String(),
+			WebsiteUrl:  record.WebsiteUrl.String(),
+			Email:       record.Email.String(),
 		},
 		Hours:    hours,
 		IsActive: len(hours) > 0,
-		// UserName: profile.FullName,
-	}, nil
+	}
+
+	return resp, nil
 }

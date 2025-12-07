@@ -1,6 +1,9 @@
 package restaurant
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type DayOfWeek int
 
@@ -33,6 +36,33 @@ func (d DayOfWeek) String() string {
 	default:
 		return "Unknown"
 	}
+}
+
+func ValidateHours(hours []Hours) error {
+	for _, h := range hours {
+
+		// Validate day
+		if h.Day < 0 || h.Day > 6 {
+			return ErrHoursInvalidDay
+		}
+
+		// Parse time format
+		openT, err := time.Parse("15:04", h.OpenTime)
+		if err != nil {
+			return ErrHoursTimeFormat
+		}
+
+		closeT, err := time.Parse("15:04", h.CloseTime)
+		if err != nil {
+			return ErrHoursTimeFormat
+		}
+
+		// Must be open < close
+		if !openT.Before(closeT) {
+			return ErrHoursInvalidTime
+		}
+	}
+	return nil
 }
 
 func ParseDayOfWeek(i int32) (DayOfWeek, error) {

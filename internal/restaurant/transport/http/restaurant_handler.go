@@ -3,6 +3,7 @@ package restauranthttp
 import (
 	restaurantapp "go-ai/internal/restaurant/application/restaurant"
 	"go-ai/internal/transport/response"
+	domainerr "go-ai/pkg/domain_err"
 	"math"
 	"net/http"
 	"strconv"
@@ -62,49 +63,10 @@ func (h *RestaurantHandler) Create(c echo.Context) error {
 	id, err := h.CreateUC.Execute(c.Request().Context(), in, userUUID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("failed create restaurant")
-		details := response.ErrorDetail{}
-		switch err {
-		case response.ErrInvalidEmail:
-			details = response.ErrorDetail{
-				Field:   "email",
-				Message: "Email is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidName:
-			details = response.ErrorDetail{
-				Field:   "name",
-				Message: "Name is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidAddress:
-			details = response.ErrorDetail{
-				Field:   "address",
-				Message: "Address is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidBanner:
-			details = response.ErrorDetail{
-				Field:   "banner_url",
-				Message: "Banner url is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidLogo:
-			details = response.ErrorDetail{
-				Field:   "logo_url",
-				Message: "Logo url is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidPhoneNumber:
-			details = response.ErrorDetail{
-				Field:   "phone_numer",
-				Message: "Phone number is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrRestaurantNameExitis:
-			return response.Error(c, http.StatusBadRequest, response.ErrRestaurantNameExitis.Error())
-		default:
-			return response.Error(c, http.StatusInternalServerError, "Internal server error")
+		if ae, ok := err.(domainerr.AppError); ok {
+			return response.Error(c, ae.Status, ae.Msg)
 		}
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success[restaurantapp.CreateRestaurantResponse](c, &restaurantapp.CreateRestaurantResponse{
 		Id: id,
@@ -179,49 +141,10 @@ func (h *RestaurantHandler) Update(c echo.Context) error {
 
 	if err := h.UpdateUC.Execute(c.Request().Context(), in, userUUID, int32(idInt)); err != nil {
 		h.Logger.Error().Err(err).Msg("failed create restaurant")
-		details := response.ErrorDetail{}
-		switch err {
-		case response.ErrInvalidEmail:
-			details = response.ErrorDetail{
-				Field:   "email",
-				Message: "Email is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidName:
-			details = response.ErrorDetail{
-				Field:   "name",
-				Message: "Name is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidAddress:
-			details = response.ErrorDetail{
-				Field:   "address",
-				Message: "Address is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidBanner:
-			details = response.ErrorDetail{
-				Field:   "banner_url",
-				Message: "Banner url is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidLogo:
-			details = response.ErrorDetail{
-				Field:   "logo_url",
-				Message: "Logo url is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrInvalidPhoneNumber:
-			details = response.ErrorDetail{
-				Field:   "phone_numer",
-				Message: "Phone number is a required field",
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrRestaurantNoExitis:
-			return response.Error(c, http.StatusBadRequest, response.ErrRestaurantNoExitis.Error())
-		default:
-			return response.Error(c, http.StatusInternalServerError, "Internal server error")
+		if ae, ok := err.(domainerr.AppError); ok {
+			return response.Error(c, ae.Status, ae.Msg)
 		}
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success[any](c, nil, "Create restaurant successfully")
 }

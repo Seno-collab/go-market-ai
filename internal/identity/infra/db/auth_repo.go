@@ -4,6 +4,7 @@ import (
 	"context"
 	"go-ai/internal/identity/domain/auth"
 	sqlc "go-ai/internal/identity/infra/sqlc/user"
+	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,21 +25,32 @@ func (au *AuthRepo) GetByEmail(ctx context.Context, email string) (*auth.Entity,
 	if err != nil {
 		return nil, err
 	}
-
+	em, err := utils.NewEmail(*u.Email)
+	if err != nil {
+		return nil, auth.ErrInvalidEmail
+	}
+	role := ""
+	if u.RoleName != nil {
+		role = *u.RoleName
+	}
+	pw, _ := auth.NewPasswordFromHash(u.PasswordHash)
 	return &auth.Entity{
 		ID:       u.ID,
-		Email:    *u.Email,
+		Email:    em,
 		FullName: u.FullName,
-		Password: u.PasswordHash,
-		Role:     *u.RoleName,
+		Password: pw,
+		Role:     role,
 		IsActive: u.IsActive,
 	}, nil
 }
 
 func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, error) {
+	email := a.Email.String()
+	password := a.Password.String()
+
 	id, err := au.q.CreateUser(ctx, sqlc.CreateUserParams{
-		Email:        &a.Email,
-		PasswordHash: a.Password,
+		Email:        &email,
+		PasswordHash: password,
 		FullName:     a.FullName,
 	})
 	if err != nil {
@@ -52,9 +64,10 @@ func (au *AuthRepo) GetByName(ctx context.Context, name string) (*auth.Entity, e
 	if err != nil {
 		return nil, err
 	}
+	em, err := utils.NewEmail(*u.Email)
 	return &auth.Entity{
 		ID:       u.ID,
-		Email:    *u.Email,
+		Email:    em,
 		FullName: u.FullName,
 		Role:     *u.RoleName,
 		IsActive: u.IsActive,
@@ -66,9 +79,10 @@ func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, er
 	if err != nil {
 		return nil, err
 	}
+	em, err := utils.NewEmail(*u.Email)
 	return &auth.Entity{
 		ID:       u.ID,
-		Email:    *u.Email,
+		Email:    em,
 		FullName: u.FullName,
 		Role:     *u.RoleName,
 		IsActive: u.IsActive,

@@ -7,7 +7,6 @@ import (
 	"go-ai/internal/identity/infra/cache"
 	"go-ai/internal/platform/config"
 	"go-ai/internal/platform/security"
-	"go-ai/internal/transport/response"
 	"time"
 
 	"github.com/google/uuid"
@@ -29,19 +28,19 @@ func NewRefreshTokenUseCase(repo auth.Repository, cache *cache.AuthCache, config
 
 func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	if request.RefreshToken == "" {
-		return nil, response.ErrTokenInvalid
+		return nil, auth.ErrTokenInvalid
 	}
 	claims, err := security.VerifyToken(request.RefreshToken, uc.Config.JwtRefreshSecret)
 	if err != nil {
-		return nil, response.ErrTokenNotActive
+		return nil, auth.ErrTokenNotActive
 	}
 	userID := claims.UserID
 	if userID == uuid.Nil {
-		return nil, response.ErrTokenMissing
+		return nil, auth.ErrTokenMissing
 	}
 	email := claims.Email
 	if email == "" {
-		return nil, response.ErrTokenMissing
+		return nil, auth.ErrTokenMissing
 	}
 	keyRefreshToken := fmt.Sprintf("refresh_token_%s", userID)
 	cachedRefreshToken, err := uc.Cache.GetRefreshTokenCache(keyRefreshToken)
@@ -49,15 +48,15 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 		return nil, err
 	}
 	if cachedRefreshToken != request.RefreshToken {
-		return nil, response.ErrTokenMalformed
+		return nil, auth.ErrTokenMalformed
 	}
 	accessToken, err := security.GenerateToken(userID, email, uc.Config.JwtAccessSecret, uc.Config.JwtExpiresIn)
 	if err != nil {
-		return nil, response.ErrTokenGenerateFail
+		return nil, auth.ErrTokenGenerateFail
 	}
 	refreshToken, err := security.GenerateToken(userID, email, uc.Config.JwtRefreshSecret, uc.Config.JwtRefreshExpiresIn)
 	if err != nil {
-		return nil, response.ErrTokenGenerateFail
+		return nil, auth.ErrTokenGenerateFail
 	}
 	record, err := uc.Repo.GetByEmail(ctx, email)
 	if err != nil {
@@ -66,7 +65,7 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	dataCache := &cache.AuthData{
 		UserID:   record.ID,
 		Role:     record.Role,
-		Email:    record.Email,
+		Email:    record.Email.String(),
 		IsActive: record.IsActive,
 		FullName: record.FullName,
 	}

@@ -1,10 +1,9 @@
 package identityhttp
 
 import (
-	"errors"
-
 	authapp "go-ai/internal/identity/application/auth"
 	"go-ai/internal/transport/response"
+	domainerr "go-ai/pkg/domain_err"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -52,34 +51,10 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	}
 	_, err := h.RegisterUC.Execute(c.Request().Context(), in)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("failed to register user")
-		switch err {
-		case response.ErrInvalidEmail, response.ErrInvalidName, response.ErrInvalidPassword, response.ErrUserAlreadyExists, response.ErrNameAlreadyExists:
-			details := response.ErrorDetail{}
-			if errors.Is(err, response.ErrInvalidEmail) {
-				details = response.ErrorDetail{
-					Field:   "email",
-					Message: "Email is a required field",
-				}
-			}
-			if errors.Is(err, response.ErrInvalidPassword) {
-				details = response.ErrorDetail{
-					Field:   "password",
-					Message: "Password is a required field",
-				}
-			}
-			if errors.Is(err, response.ErrInvalidName) {
-				details = response.ErrorDetail{
-					Field:   "name",
-					Message: "Name is a required field",
-				}
-			}
-			return response.Error(c, http.StatusBadRequest, err.Error(), details)
-		case response.ErrConflict:
-			return response.Error(c, http.StatusConflict, err.Error())
-		default:
-			return response.Error(c, http.StatusInternalServerError, "Internal server error")
+		if ae, ok := err.(domainerr.AppError); ok {
+			return response.Error(c, ae.Status, ae.Msg)
 		}
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success[any](c, nil, "Create user success")
 }
@@ -102,25 +77,10 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	responseData, err := h.LoginUC.Execute(c.Request().Context(), in)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("failed to login user")
-		switch err {
-		case response.ErrInvalidEmail, response.ErrInvalidPassword, response.ErrNotFound, response.ErrPasswordVerifyFail, response.ErrUserInactive:
-			details := response.ErrorDetail{}
-			if errors.Is(err, response.ErrInvalidEmail) {
-				details = response.ErrorDetail{
-					Field:   "email",
-					Message: "Email is a required field",
-				}
-			}
-			if errors.Is(err, response.ErrInvalidPassword) {
-				details = response.ErrorDetail{
-					Field:   "password",
-					Message: "Password is a required field",
-				}
-			}
-			return response.Error(c, http.StatusBadRequest, "Invalid email or password", details)
-		default:
-			return response.Error(c, http.StatusInternalServerError, "Internal server error")
+		if ae, ok := err.(domainerr.AppError); ok {
+			return response.Error(c, ae.Status, ae.Msg)
 		}
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	if responseData.AccessToken == "" || responseData.RefreshToken == "" {
 		h.Logger.Error().Msg("Failed to login user: invalid credentials")
@@ -148,22 +108,10 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 
 	responseData, err := h.RefreshTokenUC.Execute(c.Request().Context(), in)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("Failed to refresh token")
-		switch err {
-		case response.ErrorRefreshTokenEmpty:
-			details := response.ErrorDetail{}
-			if errors.Is(err, response.ErrorRefreshTokenEmpty) {
-				details = response.ErrorDetail{
-					Field:   "refresh_token",
-					Message: "Refresh token is a required field",
-				}
-			}
-			return response.Error(c, http.StatusBadRequest, "Invalid refresh token", details)
-		case response.ErrTokenInvalid, response.ErrTokenExpired, response.ErrTokenMalformed:
-			return response.Error(c, http.StatusBadRequest, err.Error())
-		default:
-			return response.Error(c, http.StatusInternalServerError, "Internal server error")
+		if ae, ok := err.(domainerr.AppError); ok {
+			return response.Error(c, ae.Status, ae.Msg)
 		}
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success[authapp.RefreshTokenResponse](c, responseData, "Token refreshed successfully")
 }
@@ -189,13 +137,10 @@ func (h *AuthHandler) GetProfile(c echo.Context) error {
 	}
 	profile, err := h.ProfileUC.Execute(c.Request().Context(), userUUID)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("failed to get profile")
-		switch err {
-		case response.ErrNotFound:
-			return response.Error(c, http.StatusNotFound, "User not found")
-		default:
-			return response.Error(c, http.StatusInternalServerError, "Internal server error")
+		if ae, ok := err.(domainerr.AppError); ok {
+			return response.Error(c, ae.Status, ae.Msg)
 		}
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	resp := &authapp.GetProfileResponse{
 		Email:    profile.Email,
