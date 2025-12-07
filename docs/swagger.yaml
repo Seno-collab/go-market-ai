@@ -49,6 +49,13 @@ definitions:
       response_code:
         type: string
     type: object
+  app.LogoutSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
   app.RefreshTokenSuccessResponseDoc:
     properties:
       data:
@@ -348,6 +355,25 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorDoc'
       summary: User login
+      tags:
+      - Auth
+  /api/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidates the current user's authentication token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged out
+          schema:
+            $ref: '#/definitions/app.LogoutSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Logout user
       tags:
       - Auth
   /api/auth/profile:

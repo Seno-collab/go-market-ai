@@ -95,6 +95,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/auth/logout": {
+            "post": {
+                "description": "Invalidates the current user's authentication token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout user",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged out",
+                        "schema": {
+                            "$ref": "#/definitions/app.LogoutSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/profile": {
             "get": {
                 "description": "Retrieve the profile information of the authenticated user",
@@ -473,6 +502,17 @@ const docTemplate = `{
                 "data": {
                     "$ref": "#/definitions/authapp.LoginResponse"
                 },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.LogoutSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
                 "message": {
                     "type": "string"
                 },

@@ -30,7 +30,6 @@ func (uc *ChangePasswordUseCase) Execute(ctx context.Context, req ChangePassword
 	if req.ConfirmPassword != req.NewPassword {
 		return auth.ErrConfirmPassword
 	}
-
 	newPassword, err := auth.NewPassword(req.NewPassword)
 	if err != nil {
 		return err

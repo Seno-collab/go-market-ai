@@ -28,3 +28,7 @@ type LoginSuccessResponseDoc struct {
 type ChangePasswordSuccessResponseDoc struct {
 	response.SuccecssBaseDoc
 }
+
+type LogoutSuccessResponseDoc struct {
+	response.SuccecssBaseDoc
+}

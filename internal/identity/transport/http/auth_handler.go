@@ -17,6 +17,7 @@ type AuthHandler struct {
 	RefreshTokenUC   *authapp.RefreshTokenUseCase
 	ProfileUC        *authapp.GetProfileUseCase
 	ChangePasswordUC *authapp.ChangePasswordUseCase
+	LogoutUC         *authapp.LogoutUseCase
 	Logger           zerolog.Logger
 }
 
@@ -26,6 +27,7 @@ func NewAuthHandler(
 	refreshUC *authapp.RefreshTokenUseCase,
 	profileUC *authapp.GetProfileUseCase,
 	changePasswordUC *authapp.ChangePasswordUseCase,
+	logoutUC *authapp.LogoutUseCase,
 	logger zerolog.Logger) *AuthHandler {
 	return &AuthHandler{
 		RegisterUC:       regUC,
@@ -33,6 +35,7 @@ func NewAuthHandler(
 		RefreshTokenUC:   refreshUC,
 		ProfileUC:        profileUC,
 		ChangePasswordUC: changePasswordUC,
+		LogoutUC:         logoutUC,
 		Logger:           logger.With().Str("component", "Auth handler").Logger(),
 	}
 }
@@ -184,7 +187,34 @@ func (h *AuthHandler) ChangePassword(c echo.Context) error {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
 		}
+		return response.Error(c, http.StatusInternalServerError, "internal server error")
+	}
+	return response.Success[any](c, nil, "password changed successfully")
+}
+
+// Logout godoc
+// @Summary Logout user
+// @Description Invalidates the current user's authentication token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} app.LogoutSuccessResponseDoc "Successfully logged out"
+// @Failure default {object} response.ErrorDoc "Errors"
+// @Router /api/auth/logout [post]
+func (h *AuthHandler) Logout(c echo.Context) error {
+	userID := c.Get("user_id")
+	if userID == nil {
+		return response.Error(c, http.StatusUnauthorized, "Unauthorized")
+	}
+	userUUID, ok := userID.(uuid.UUID)
+	if !ok {
+		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	return response.Success[any](c, nil, "Password changed successfully")
+	err := h.LogoutUC.Execute(c.Request().Context(), userUUID)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg("Delete cache error")
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
+	}
+	return response.Success[any](c, nil, "Log out successfully")
 }

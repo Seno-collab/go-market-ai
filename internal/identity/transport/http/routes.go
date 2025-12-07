@@ -13,4 +13,5 @@ func RegisterIdentityRoutes(api *echo.Group, h *AuthHandler, m *middlewares.Iden
 	r.POST("/refresh-token", h.RefreshToken)
 	r.GET("/profile", h.GetProfile, m.Handler)
 	r.PATCH("/change-password", h.ChangePassword, m.Handler)
+	r.POST("/logout", h.Logout, m.Handler)
 }
