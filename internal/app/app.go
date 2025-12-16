@@ -4,6 +4,7 @@ import (
 	"go-ai/internal/container"
 	identityhttp "go-ai/internal/identity/transport/http"
 	uploadhttp "go-ai/internal/media/transport/http"
+	menuhttp "go-ai/internal/menu/transport/http"
 	"go-ai/internal/platform/config"
 	restauranthttp "go-ai/internal/restaurant/transport/http"
 
@@ -24,4 +25,8 @@ func BuildApp(e *echo.Echo, pool *pgxpool.Pool, redis *redis.Client, cfg *config
 
 	mediaModule := container.InitMediaModule(initIdentityModule.Middleware, log)
 	uploadhttp.RegisterMediaRoutes(api, mediaModule.Handler, mediaModule.Auth)
+
+	menuModule := container.InitMenuModule(pool, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant, log)
+	menuhttp.RegisterMenuRoutes(api, menuModule.MenuHandler, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant)
+
 }

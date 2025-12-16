@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"go-ai/internal/identity/domain/auth"
-	"go-ai/internal/identity/infra/cache"
+	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/internal/platform/security"
 	domainerr "go-ai/pkg/domain_err"
 	"go-ai/pkg/utils"

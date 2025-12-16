@@ -21,10 +21,10 @@ type Entity struct {
 	Category    string
 	City        string
 	District    string
-	LogoUrl     Url
-	BannerUrl   Url
+	LogoUrl     utils.Url
+	BannerUrl   utils.Url
 	PhoneNumber Phone
-	WebsiteUrl  Url
+	WebsiteUrl  utils.Url
 	Email       utils.Email
 	CreatedBy   uuid.UUID
 	UpdateBy    uuid.UUID
@@ -44,10 +44,10 @@ func NewEntity(
 	category string,
 	city string,
 	district string,
-	logoUrl Url,
-	bannerUrl Url,
+	logoUrl utils.Url,
+	bannerUrl utils.Url,
 	phone Phone,
-	website Url,
+	website utils.Url,
 	email utils.Email,
 	userID uuid.UUID,
 	hours []Hours,

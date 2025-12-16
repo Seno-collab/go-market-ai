@@ -27,6 +27,7 @@ func RequirePermission(s rbac.Service, perm string) echo.MiddlewareFunc {
 			if has {
 				return next(c)
 			}
+			c.Set("role", perm)
 			return response.Error(c, http.StatusForbidden, "Permission denied")
 		}
 	}

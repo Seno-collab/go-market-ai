@@ -20,6 +20,5 @@ var (
 	ErrHoursInvalidDay     = domainerr.New(http.StatusBadRequest, "invalid day of week")
 	ErrHoursInvalidTime    = domainerr.New(http.StatusBadRequest, "open time must be before close time")
 	ErrHoursTimeFormat     = domainerr.New(http.StatusBadRequest, "invalid time format (must be HH:mm)")
-	ErrInvalidUrl          = domainerr.New(http.StatusBadRequest, "invalid url")
 	ErrRestaurantNotExists = domainerr.New(http.StatusNotFound, "restaurant does not exist")
 )

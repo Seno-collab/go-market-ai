@@ -14,25 +14,26 @@ import (
 )
 
 type RestaurantHandler struct {
-	CreateUC  *restaurantapp.CreateRestaurantUseCase
-	GetByIdUC *restaurantapp.GetByIDUseCase
-	UpdateUC  *restaurantapp.UpdateRestaurantUseCase
-	DeleteUC  *restaurantapp.DeleteUseCase
-	Logger    zerolog.Logger
+	CreateUseCase  *restaurantapp.CreateRestaurantUseCase
+	GetByIDUseCase *restaurantapp.GetByIDUseCase
+	UpdateUseCase  *restaurantapp.UpdateRestaurantUseCase
+	DeleteUseCase  *restaurantapp.DeleteUseCase
+	Logger         zerolog.Logger
 }
 
 func NewRestaurantHandler(
-	createUC *restaurantapp.CreateRestaurantUseCase,
-	getByIDUC *restaurantapp.GetByIDUseCase,
-	updateUC *restaurantapp.UpdateRestaurantUseCase,
-	deleteUC *restaurantapp.DeleteUseCase,
-	logger zerolog.Logger) *RestaurantHandler {
+	createUseCase *restaurantapp.CreateRestaurantUseCase,
+	getByIDUseCase *restaurantapp.GetByIDUseCase,
+	updateUseCase *restaurantapp.UpdateRestaurantUseCase,
+	deleteUseCase *restaurantapp.DeleteUseCase,
+	logger zerolog.Logger,
+) *RestaurantHandler {
 	return &RestaurantHandler{
-		CreateUC:  createUC,
-		GetByIdUC: getByIDUC,
-		UpdateUC:  updateUC,
-		DeleteUC:  deleteUC,
-		Logger:    logger.With().Str("component", "Restaurant handler").Logger(),
+		CreateUseCase:  createUseCase,
+		GetByIDUseCase: getByIDUseCase,
+		UpdateUseCase:  updateUseCase,
+		DeleteUseCase:  deleteUseCase,
+		Logger:         logger.With().Str("component", "RestaurantHandler").Logger(),
 	}
 }
 
@@ -60,7 +61,7 @@ func (h *RestaurantHandler) Create(c echo.Context) error {
 		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	id, err := h.CreateUC.Execute(c.Request().Context(), in, userUUID)
+	id, err := h.CreateUseCase.Execute(c.Request().Context(), in, userUUID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("failed create restaurant")
 		if ae, ok := err.(domainerr.AppError); ok {
@@ -95,7 +96,7 @@ func (h *RestaurantHandler) GetByID(c echo.Context) error {
 	if idInt > math.MaxInt32 || idInt < math.MinInt32 {
 		return response.Error(c, http.StatusBadRequest, "restaurant id out of int32 range")
 	}
-	restaurant, err := h.GetByIdUC.Execute(c.Request().Context(), int32(idInt))
+	restaurant, err := h.GetByIDUseCase.Execute(c.Request().Context(), int32(idInt))
 	if restaurant == nil {
 		return response.Error(c, http.StatusNotFound, "restaurant not found")
 	}
@@ -139,7 +140,7 @@ func (h *RestaurantHandler) Update(c echo.Context) error {
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 
-	if err := h.UpdateUC.Execute(c.Request().Context(), in, userUUID, int32(idInt)); err != nil {
+	if err := h.UpdateUseCase.Execute(c.Request().Context(), in, userUUID, int32(idInt)); err != nil {
 		h.Logger.Error().Err(err).Msg("failed create restaurant")
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
@@ -180,7 +181,7 @@ func (h *RestaurantHandler) Delete(c echo.Context) error {
 		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	err = h.DeleteUC.Execute(c.Request().Context(), int32(idInt), userUUID)
+	err = h.DeleteUseCase.Execute(c.Request().Context(), int32(idInt), userUUID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("Delete restaurant failed")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")

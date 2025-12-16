@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"fmt"
-	"go-ai/internal/identity/infra/cache"
+	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/internal/platform/config"
 	security "go-ai/internal/platform/security"
 	"go-ai/internal/transport/response"

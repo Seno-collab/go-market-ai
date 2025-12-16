@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"go-ai/internal/identity/domain/auth"
-	sqlc "go-ai/internal/identity/infra/sqlc/user"
+	sqlc "go-ai/internal/identity/infrastructure/sqlc/user"
 	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"

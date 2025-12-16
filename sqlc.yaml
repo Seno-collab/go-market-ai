@@ -49,7 +49,7 @@ sql:
     gen:
       go:
         package: "sqlc"
-        out: "internal/identity/infra/sqlc/user"
+        out: "internal/identity/infrastructure/sqlc/user"
         sql_package: "pgx/v5"
         emit_json_tags: false
         emit_interface: false
@@ -62,7 +62,7 @@ sql:
     gen:
       go:
         package: "sqlc"
-        out: "internal/restaurant/infra/sqlc/restaurant"
+        out: "internal/restaurant/infrastructure/sqlc/restaurant"
         sql_package: "pgx/v5"
         emit_json_tags: false
         emit_interface: false
@@ -85,3 +85,15 @@ sql:
             go_type:
               import: "github.com/google/uuid"
               type: "UUID"
+  - schema: "db/schemas/menus.schema.sql"
+    queries:
+      - "db/queries/menus.sql"
+    engine: "postgresql"
+    gen:
+      go:
+        package: "sqlc"
+        out: "internal/menu/infrastructure/sqlc/"
+        sql_package: "pgx/v5"
+        emit_json_tags: false
+        emit_interface: false
+        emit_pointers_for_null_types: true

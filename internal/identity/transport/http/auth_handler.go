@@ -12,31 +12,32 @@ import (
 )
 
 type AuthHandler struct {
-	RegisterUC       *authapp.RegisterUseCase
-	LoginUC          *authapp.LoginUseCase
-	RefreshTokenUC   *authapp.RefreshTokenUseCase
-	ProfileUC        *authapp.GetProfileUseCase
-	ChangePasswordUC *authapp.ChangePasswordUseCase
-	LogoutUC         *authapp.LogoutUseCase
-	Logger           zerolog.Logger
+	RegisterUseCase       *authapp.RegisterUseCase
+	LoginUseCase          *authapp.LoginUseCase
+	RefreshTokenUseCase   *authapp.RefreshTokenUseCase
+	ProfileUseCase        *authapp.GetProfileUseCase
+	ChangePasswordUseCase *authapp.ChangePasswordUseCase
+	LogoutUseCase         *authapp.LogoutUseCase
+	Logger                zerolog.Logger
 }
 
 func NewAuthHandler(
-	regUC *authapp.RegisterUseCase,
-	loginUC *authapp.LoginUseCase,
-	refreshUC *authapp.RefreshTokenUseCase,
-	profileUC *authapp.GetProfileUseCase,
-	changePasswordUC *authapp.ChangePasswordUseCase,
-	logoutUC *authapp.LogoutUseCase,
-	logger zerolog.Logger) *AuthHandler {
+	registerUseCase *authapp.RegisterUseCase,
+	loginUseCase *authapp.LoginUseCase,
+	refreshTokenUseCase *authapp.RefreshTokenUseCase,
+	profileUseCase *authapp.GetProfileUseCase,
+	changePasswordUseCase *authapp.ChangePasswordUseCase,
+	logoutUseCase *authapp.LogoutUseCase,
+	logger zerolog.Logger,
+) *AuthHandler {
 	return &AuthHandler{
-		RegisterUC:       regUC,
-		LoginUC:          loginUC,
-		RefreshTokenUC:   refreshUC,
-		ProfileUC:        profileUC,
-		ChangePasswordUC: changePasswordUC,
-		LogoutUC:         logoutUC,
-		Logger:           logger.With().Str("component", "Auth handler").Logger(),
+		RegisterUseCase:       registerUseCase,
+		LoginUseCase:          loginUseCase,
+		RefreshTokenUseCase:   refreshTokenUseCase,
+		ProfileUseCase:        profileUseCase,
+		ChangePasswordUseCase: changePasswordUseCase,
+		LogoutUseCase:         logoutUseCase,
+		Logger:                logger.With().Str("component", "AuthHandler").Logger(),
 	}
 }
 
@@ -55,7 +56,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
 	}
-	_, err := h.RegisterUC.Execute(c.Request().Context(), in)
+	_, err := h.RegisterUseCase.Execute(c.Request().Context(), in)
 	if err != nil {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
@@ -80,7 +81,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
 	}
-	responseData, err := h.LoginUC.Execute(c.Request().Context(), in)
+	responseData, err := h.LoginUseCase.Execute(c.Request().Context(), in)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("failed to login user")
 		if ae, ok := err.(domainerr.AppError); ok {
@@ -112,7 +113,7 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
 	}
 
-	responseData, err := h.RefreshTokenUC.Execute(c.Request().Context(), in)
+	responseData, err := h.RefreshTokenUseCase.Execute(c.Request().Context(), in)
 	if err != nil {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
@@ -141,7 +142,7 @@ func (h *AuthHandler) GetProfile(c echo.Context) error {
 		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	profile, err := h.ProfileUC.Execute(c.Request().Context(), userUUID)
+	profile, err := h.ProfileUseCase.Execute(c.Request().Context(), userUUID)
 	if err != nil {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
@@ -182,7 +183,7 @@ func (h *AuthHandler) ChangePassword(c echo.Context) error {
 		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	err := h.ChangePasswordUC.Execute(c.Request().Context(), in, userUUID)
+	err := h.ChangePasswordUseCase.Execute(c.Request().Context(), in, userUUID)
 	if err != nil {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
@@ -211,7 +212,7 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	err := h.LogoutUC.Execute(c.Request().Context(), userUUID)
+	err := h.LogoutUseCase.Execute(c.Request().Context(), userUUID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("Delete cache error")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")

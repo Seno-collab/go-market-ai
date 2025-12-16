@@ -3,10 +3,10 @@ package container
 import (
 	authapp "go-ai/internal/identity/application/auth"
 	"go-ai/internal/identity/domain/rbac"
-	"go-ai/internal/identity/infra/cache"
-	"go-ai/internal/identity/infra/db"
+	"go-ai/internal/identity/infrastructure/cache"
+	"go-ai/internal/identity/infrastructure/db"
 	identityhttp "go-ai/internal/identity/transport/http"
-	middlewares "go-ai/internal/identity/transport/middelwares"
+	middlewares "go-ai/internal/identity/transport/middlewares"
 	"go-ai/internal/platform/config"
 
 	"github.com/jackc/pgx/v5/pgxpool"

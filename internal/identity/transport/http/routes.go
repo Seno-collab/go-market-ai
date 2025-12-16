@@ -1,7 +1,7 @@
 package identityhttp
 
 import (
-	middlewares "go-ai/internal/identity/transport/middelwares"
+	middlewares "go-ai/internal/identity/transport/middlewares"
 
 	"github.com/labstack/echo/v4"
 )

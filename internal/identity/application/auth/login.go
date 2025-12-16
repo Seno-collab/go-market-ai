@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go-ai/internal/identity/domain/auth"
-	"go-ai/internal/identity/infra/cache"
+	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/internal/platform/config"
 	"go-ai/internal/platform/security"
 	"go-ai/pkg/utils"

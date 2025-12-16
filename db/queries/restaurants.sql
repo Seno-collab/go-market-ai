@@ -92,3 +92,7 @@ WHERE restaurant_id = $1;
 UPDATE restaurants
 SET deleted_at = NOW(), updated_by = $1
 WHERE id = $2;
+
+
+-- name: GetRestaurantByUserID :one
+SELECT restaurant_id FROM restaurant_users WHERE user_id = $1;

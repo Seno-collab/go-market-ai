@@ -37,17 +37,17 @@ func (uc *UpdateRestaurantUseCase) Execute(ctx context.Context, req CreateRestau
 	if err != nil {
 		return err
 	}
-	logoUrl, err := restaurant.NewUrl(req.LogoUrl)
+	logoUrl, err := utils.NewUrl(req.LogoUrl)
 	if err != nil {
 		return err
 	}
 
-	bannerUrl, err := restaurant.NewUrl(req.BannerUrl)
+	bannerUrl, err := utils.NewUrl(req.BannerUrl)
 	if err != nil {
 		return err
 	}
 
-	websiteUrl, err := restaurant.NewUrl(req.WebsiteUrl)
+	websiteUrl, err := utils.NewUrl(req.WebsiteUrl)
 	if err != nil {
 		return err
 	}

@@ -1,8 +1,8 @@
 package container
 
 import (
-	middlewares "go-ai/internal/identity/transport/middelwares"
-	"go-ai/internal/media/infra/storage"
+	middlewares "go-ai/internal/identity/transport/middlewares"
+	"go-ai/internal/media/infrastructure/storage"
 	uploadhttp "go-ai/internal/media/transport/http"
 
 	"github.com/rs/zerolog"

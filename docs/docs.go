@@ -233,6 +233,86 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/menu/item": {
+            "post": {
+                "description": "Create a new menu item with name, price, description and optional image/logo",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Create a new menu item",
+                "parameters": [
+                    {
+                        "description": "Menu item data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/menuitemapp.CreateMenuItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create menu item success",
+                        "schema": {
+                            "$ref": "#/definitions/app.CreateMenuItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/topic": {
+            "post": {
+                "description": "Create a new topic with name, price, description, and optional image or logo",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Topic"
+                ],
+                "summary": "Create a new topic",
+                "parameters": [
+                    {
+                        "description": "Topic data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/topicapp.CreateTopicRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create topic success",
+                        "schema": {
+                            "$ref": "#/definitions/app.CreateTopicSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
         "/api/restaurant": {
             "post": {
                 "description": "Create a new restaurant with name, email, phone, logo_url, banner_url,...",
@@ -443,12 +523,34 @@ const docTemplate = `{
                 }
             }
         },
+        "app.CreateMenuItemSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
         "app.CreateRestaurantSuccessResponseDoc": {
             "type": "object",
             "properties": {
                 "data": {
                     "$ref": "#/definitions/restaurantapp.CreateRestaurantResponse"
                 },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CreateTopicSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
                 "message": {
                     "type": "string"
                 },
@@ -669,6 +771,47 @@ const docTemplate = `{
         "authapp.RegisterSuccess": {
             "type": "object"
         },
+        "domain.MenuItemType": {
+            "type": "string",
+            "enum": [
+                "dish",
+                "beverage",
+                "extra",
+                "combo"
+            ],
+            "x-enum-varnames": [
+                "ItemDish",
+                "ItemDrink",
+                "ItemExtra",
+                "ItemCombo"
+            ]
+        },
+        "menuitemapp.CreateMenuItemRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "topic_id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.MenuItemType"
+                }
+            }
+        },
         "response.ErrorDoc": {
             "type": "object",
             "properties": {
@@ -879,6 +1022,26 @@ const docTemplate = `{
                 }
             }
         },
+        "topicapp.CreateTopicRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "restaurant_id": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
         "uploadapp.UploadLogoResponse": {
             "type": "object",
             "properties": {
@@ -900,6 +1063,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

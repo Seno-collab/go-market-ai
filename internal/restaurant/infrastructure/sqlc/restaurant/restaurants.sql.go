@@ -253,6 +253,17 @@ func (q *Queries) GetByName(ctx context.Context, name string) ([]GetByNameRow, e
 	return items, nil
 }
 
+const getRestaurantByUserID = `-- name: GetRestaurantByUserID :one
+SELECT restaurant_id FROM restaurant_users WHERE user_id = $1
+`
+
+func (q *Queries) GetRestaurantByUserID(ctx context.Context, userID uuid.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, getRestaurantByUserID, userID)
+	var restaurant_id int32
+	err := row.Scan(&restaurant_id)
+	return restaurant_id, err
+}
+
 const softDeleteRestaurant = `-- name: SoftDeleteRestaurant :exec
 UPDATE restaurants
 SET deleted_at = NOW(), updated_by = $1

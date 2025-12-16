@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func NumericToFloat(n pgtype.Numeric) (float64, error) {
@@ -55,4 +55,26 @@ func NumericToString(n pgtype.Numeric) (string, error) {
 	}
 
 	return s, nil
+}
+
+func NumericToMoney(n pgtype.Numeric) (Money, error) {
+	if !n.Valid {
+		return 0, nil
+	}
+
+	if n.Exp != 0 {
+		return 0, fmt.Errorf("numeric has decimal part, cannot convert to Money")
+	}
+
+	v := n.Int.Int64()
+
+	return NewMoney(v)
+}
+
+func NumericFromMoney(m Money) pgtype.Numeric {
+	return pgtype.Numeric{
+		Int:   big.NewInt(int64(m)),
+		Exp:   0, // integer, 10^0
+		Valid: true,
+	}
 }

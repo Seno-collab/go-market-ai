@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"go-ai/internal/restaurant/domain/restaurant"
-	sqlc "go-ai/internal/restaurant/infra/sqlc/restaurant"
+	sqlc "go-ai/internal/restaurant/infrastructure/sqlc/restaurant"
 	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"
@@ -106,12 +106,12 @@ func (rr *RestaurantRepo) GetById(ctx context.Context, id int32) (*restaurant.En
 		})
 	}
 	first := records[0]
-	logoUrl, err := restaurant.NewUrl(*first.LogoUrl)
+	logoUrl, err := utils.NewUrl(*first.LogoUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	bannerUrl, err := restaurant.NewUrl(*first.BannerUrl)
+	bannerUrl, err := utils.NewUrl(*first.BannerUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (rr *RestaurantRepo) GetById(ctx context.Context, id int32) (*restaurant.En
 		return nil, err
 	}
 
-	websiteUrl, err := restaurant.NewUrl(*first.WebsiteUrl)
+	websiteUrl, err := utils.NewUrl(*first.WebsiteUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -169,12 +169,12 @@ func (rr *RestaurantRepo) GetByName(ctx context.Context, name string) (*restaura
 		})
 	}
 	first := records[0]
-	logoUrl, err := restaurant.NewUrl(*first.LogoUrl)
+	logoUrl, err := utils.NewUrl(*first.LogoUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	bannerUrl, err := restaurant.NewUrl(*first.BannerUrl)
+	bannerUrl, err := utils.NewUrl(*first.BannerUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func (rr *RestaurantRepo) GetByName(ctx context.Context, name string) (*restaura
 		return nil, err
 	}
 
-	websiteUrl, err := restaurant.NewUrl(*first.WebsiteUrl)
+	websiteUrl, err := utils.NewUrl(*first.WebsiteUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (rr *RestaurantRepo) Update(ctx context.Context, r *restaurant.Entity, id i
 	website := r.WebsiteUrl.String()
 	email := r.Email.String()
 	logo := r.LogoUrl.String()
-	err = rr.Sqlc.UpdateRestaurant(ctx, sqlc.UpdateRestaurantParams{
+	err = qtx.UpdateRestaurant(ctx, sqlc.UpdateRestaurantParams{
 		ID:          id,
 		Name:        r.Name,
 		Description: &r.Description,
@@ -281,4 +281,8 @@ func (rr *RestaurantRepo) SoftDelete(ctx context.Context, id int32, userID uuid.
 		return err
 	}
 	return nil
+}
+
+func (rr *RestaurantRepo) GetRestaurantByUserID(ctx context.Context, userID uuid.UUID) (int32, error) {
+	return rr.Sqlc.GetRestaurantByUserID(ctx, userID)
 }

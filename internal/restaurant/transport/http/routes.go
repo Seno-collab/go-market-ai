@@ -2,7 +2,7 @@ package restauranthttp
 
 import (
 	"go-ai/internal/identity/domain/rbac"
-	middlewares "go-ai/internal/identity/transport/middelwares"
+	middlewares "go-ai/internal/identity/transport/middlewares"
 
 	"github.com/labstack/echo/v4"
 )

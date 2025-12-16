@@ -2,7 +2,7 @@ package uploadhttp
 
 import (
 	uploadapp "go-ai/internal/media/application/upload"
-	"go-ai/internal/media/infra/storage"
+	"go-ai/internal/media/infrastructure/storage"
 	"go-ai/internal/transport/response"
 	"net/http"
 

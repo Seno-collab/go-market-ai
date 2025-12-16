@@ -6,10 +6,24 @@ definitions:
       response_code:
         type: string
     type: object
+  app.CreateMenuItemSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
   app.CreateRestaurantSuccessResponseDoc:
     properties:
       data:
         $ref: '#/definitions/restaurantapp.CreateRestaurantResponse'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.CreateTopicSuccessResponseDoc:
+    properties:
       message:
         type: string
       response_code:
@@ -150,6 +164,35 @@ definitions:
         type: string
     type: object
   authapp.RegisterSuccess:
+    type: object
+  domain.MenuItemType:
+    enum:
+    - dish
+    - beverage
+    - extra
+    - combo
+    type: string
+    x-enum-varnames:
+    - ItemDish
+    - ItemDrink
+    - ItemExtra
+    - ItemCombo
+  menuitemapp.CreateMenuItemRequest:
+    properties:
+      description:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      sku:
+        type: string
+      topic_id:
+        type: integer
+      type:
+        $ref: '#/definitions/domain.MenuItemType'
     type: object
   response.ErrorDoc:
     properties:
@@ -296,6 +339,19 @@ definitions:
         type: string
       website_url:
         type: string
+    type: object
+  topicapp.CreateTopicRequest:
+    properties:
+      name:
+        type: string
+      parent_id:
+        type: integer
+      restaurant_id:
+        type: integer
+      slug:
+        type: string
+      sort_order:
+        type: integer
     type: object
   uploadapp.UploadLogoResponse:
     properties:
@@ -447,6 +503,60 @@ paths:
       summary: Register a new userRegisterRequest
       tags:
       - Auth
+  /api/menu/item:
+    post:
+      consumes:
+      - application/json
+      description: Create a new menu item with name, price, description and optional
+        image/logo
+      parameters:
+      - description: Menu item data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/menuitemapp.CreateMenuItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create menu item success
+          schema:
+            $ref: '#/definitions/app.CreateMenuItemSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Create a new menu item
+      tags:
+      - Menu
+  /api/menu/topic:
+    post:
+      consumes:
+      - application/json
+      description: Create a new topic with name, price, description, and optional
+        image or logo
+      parameters:
+      - description: Topic data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/topicapp.CreateTopicRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create topic success
+          schema:
+            $ref: '#/definitions/app.CreateTopicSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Create a new topic
+      tags:
+      - Topic
   /api/restaurant:
     post:
       consumes:
