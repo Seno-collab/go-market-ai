@@ -19,8 +19,8 @@ func NewTopicRepo(pool *pgxpool.Pool) *TopicRepo {
 		Pool: pool,
 	}
 }
-func (tr *MenuRepo) GetTopics(ctx context.Context, restaurant int32) ([]domain.Topic, error) {
-	rows, err := tr.Sqlc.GetTopicsByRestaurant(ctx, restaurant)
+func (tr *TopicRepo) GetTopics(ctx context.Context, restaurantID int32) ([]domain.Topic, error) {
+	rows, err := tr.Sqlc.GetTopicsByRestaurant(ctx, restaurantID)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,25 @@ func (tr *MenuRepo) GetTopics(ctx context.Context, restaurant int32) ([]domain.T
 	return topics, nil
 }
 
-func (tr *MenuRepo) CreateTopic(ctx context.Context, t *domain.Topic) (domain.TopicID, error) {
+func (tr *TopicRepo) GetTopic(ctx context.Context, id domain.TopicID, restaurantID int32) (domain.Topic, error) {
+	row, err := tr.Sqlc.GetTopic(ctx, sqlc.GetTopicParams{
+		ID:           int64(id),
+		RestaurantID: restaurantID,
+	})
+	if err != nil {
+		return domain.Topic{}, err
+	}
+	return domain.Topic{
+		RestaurantID: row.RestaurantID,
+		Name:         row.Name,
+		Slug:         *row.Slug,
+		SortOrder:    row.SortOrder,
+		IsActive:     row.IsActive,
+		ParentID:     (*domain.TopicID)(row.ParentID),
+	}, nil
+}
+
+func (tr *TopicRepo) CreateTopic(ctx context.Context, t *domain.Topic) (domain.TopicID, error) {
 	row, err := tr.Sqlc.CreateTopic(ctx, sqlc.CreateTopicParams{
 		RestaurantID: t.RestaurantID,
 		Name:         t.Name,
@@ -53,11 +71,11 @@ func (tr *MenuRepo) CreateTopic(ctx context.Context, t *domain.Topic) (domain.To
 	return domain.TopicID(row.ID), err
 }
 
-func (tr *MenuRepo) DeleteTopic(ctx context.Context, id domain.TopicID) error {
-	return tr.Sqlc.DeleteTopic(ctx, int64(id))
-}
+// func (tr *TopicRepo) DeleteTopic(ctx context.Context, id domain.TopicID) error {
+// 	return tr.Sqlc.DeleteTopic(ctx, int64(id))
+// }
 
-func (tr *MenuRepo) UpdateTopic(ctx context.Context, t *domain.Topic) error {
+func (tr *TopicRepo) UpdateTopic(ctx context.Context, t *domain.Topic) error {
 	if err := tr.Sqlc.UpdateTopic(ctx, sqlc.UpdateTopicParams{
 		Name:         t.Name,
 		ID:           int64(t.ID),

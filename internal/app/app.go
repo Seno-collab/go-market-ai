@@ -26,7 +26,9 @@ func BuildApp(e *echo.Echo, pool *pgxpool.Pool, redis *redis.Client, cfg *config
 	mediaModule := container.InitMediaModule(initIdentityModule.Middleware, log)
 	uploadhttp.RegisterMediaRoutes(api, mediaModule.Handler, mediaModule.Auth)
 
-	menuModule := container.InitMenuModule(pool, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant, log)
-	menuhttp.RegisterMenuRoutes(api, menuModule.MenuHandler, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant)
+	menuModule := container.InitMenuItemModule(pool, log)
+	menuhttp.RegisterMenuItemRoutes(api, menuModule.MenuItemHandler, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant)
 
+	topicModule := container.InitTopicModule(pool, log)
+	menuhttp.RegisterTopicRoutes(api, topicModule.TopicHandler, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant)
 }

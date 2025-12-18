@@ -4,11 +4,15 @@ FROM topic
 WHERE restaurant_id = $1
 ORDER BY sort_order, id;
 
+
+-- name: GetTopic :one
+SELECT * FROM topic WHERE id = $1 AND restaurant_id = $2;
+
+
 -- name: CreateTopic :one
 INSERT INTO topic (restaurant_id, name, slug, parent_id, sort_order)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
-
 
 -- name: UpdateTopic :exec
 UPDATE topic
@@ -28,7 +32,7 @@ ORDER BY sort_order, id;
 -- name: GetMenuItemByID :one
 SELECT *
 FROM menu_item
-WHERE id = $1;
+WHERE id = $1 and restaurant_id = $2;
 
 -- name: CreateMenuItem :one
 INSERT INTO menu_item (
@@ -38,7 +42,7 @@ INSERT INTO menu_item (
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE, $9)
 RETURNING id;
 
--- name: UpdateMenuItem :one
+-- name: UpdateMenuItem :exec
 UPDATE menu_item
 SET
     topic_id = $2,
@@ -51,12 +55,10 @@ SET
     is_active = $9,
     sort_order = $10,
     updated_at = NOW()
-WHERE id = $1
-RETURNING *;
-
+WHERE id = $1 and restaurant_id = $11;
 
 -- name: DeleteMenuItem :exec
-DELETE FROM menu_item WHERE id = $1;
+DELETE FROM menu_item WHERE id = $1 AND restaurant_id = $2;
 
 -- name: GetVariantsByItem :many
 SELECT *

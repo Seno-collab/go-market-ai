@@ -3,12 +3,13 @@ package domain
 import (
 	"errors"
 	"go-ai/pkg/utils"
+	"time"
 )
 
 type MenuItem struct {
 	ID           int64
 	RestaurantID int32
-	TopicID      *int64
+	TopicID      *TopicID
 	Name         string
 	Description  string
 	BasePrice    utils.Money
@@ -16,12 +17,14 @@ type MenuItem struct {
 	ImageUrl     utils.Url
 	Sku          string
 	IsActive     bool
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 	Variants     []Variant
 	OptionGroups []OptionGroup
 	ComboGroups  []ComboGroup
 }
 
-func NewMenuItem(name string, price utils.Money, t MenuItemType, url utils.Url, description, sku string, restaurantID int32, topicID int64) (*MenuItem, error) {
+func NewMenuItem(name string, price utils.Money, t MenuItemType, url utils.Url, description, sku string, restaurantID int32, topicID TopicID) (*MenuItem, error) {
 	if name == "" {
 		return nil, ErrNameRequired
 	}

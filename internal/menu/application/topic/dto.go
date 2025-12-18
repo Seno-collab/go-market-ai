@@ -1,11 +1,10 @@
 package topicapp
 
 type CreateTopicRequest struct {
-	RestaurantID int32  `json:"restaurant_id"`
-	Name         string `json:"name"`
-	Slug         string `json:"slug"`
-	ParentID     int64  `json:"parent_id"`
-	SortOrder    int32  `json:"sort_order"`
+	Name      string `json:"name"`
+	Slug      string `json:"slug"`
+	ParentID  int64  `json:"parent_id"`
+	SortOrder int32  `json:"sort_order"`
 }
 
 type GetTopicRequest struct {
@@ -18,4 +17,8 @@ type GetTopicResponse struct {
 	Slug         string `json:"slug"`
 	ParentID     int64  `json:"parent_id"`
 	SortOrder    int32  `json:"sort_order"`
+}
+
+type GetTopicsResponse struct {
+	Items []GetTopicResponse `json:"items"`
 }

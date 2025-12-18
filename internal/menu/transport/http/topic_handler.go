@@ -4,20 +4,25 @@ import (
 	topicapp "go-ai/internal/menu/application/topic"
 	"go-ai/internal/transport/response"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog"
 )
 
 type TopicHandler struct {
-	CreateUseCase *topicapp.CreateUseCase
-	Logger        zerolog.Logger
+	CreateUseCase    *topicapp.CreateUseCase
+	GetUseCase       *topicapp.GetUseCase
+	GetTopicsUseCase *topicapp.GetTopicsUseCase
+	Logger           zerolog.Logger
 }
 
-func NewTopicHandler(createUseCase *topicapp.CreateUseCase, logger zerolog.Logger) *TopicHandler {
+func NewTopicHandler(createUseCase *topicapp.CreateUseCase, getUseCase *topicapp.GetUseCase, getTopicesUseCase *topicapp.GetTopicsUseCase, logger zerolog.Logger) *TopicHandler {
 	return &TopicHandler{
-		CreateUseCase: createUseCase,
-		Logger:        logger,
+		CreateUseCase:    createUseCase,
+		GetUseCase:       getUseCase,
+		GetTopicsUseCase: getTopicesUseCase,
+		Logger:           logger,
 	}
 }
 
@@ -41,7 +46,7 @@ func (h *TopicHandler) Create(c echo.Context) error {
 		h.Logger.Error().Msg("restaurantID is nil")
 		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
 	}
-	err := h.CreateUseCase.Execute(c.Request().Context(), in)
+	err := h.CreateUseCase.Execute(c.Request().Context(), in, restaurantID.(int32))
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("Create topic error")
 		return response.Error(c, http.StatusBadRequest, "Failed to create topic")
@@ -64,12 +69,43 @@ func (h *TopicHandler) Get(c echo.Context) error {
 	if id == "" {
 		return response.Error(c, http.StatusBadRequest, "missing topic id")
 	}
-	// idInt, err := strconv.Atoi(id)
-	// if err != nil {
-	// 	return response.Error(c, http.StatusBadRequest, "invalid topic id format")
-	// }
-	// if idInt > math.MaxInt64 || idInt < math.MinInt64 {
-	// 	return response.Error(c, http.StatusBadRequest, "topic id out of int64 range")
-	// }
-	return response.Success[any](c, nil, "Get topic successfully")
+	idInt64, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return response.Error(c, http.StatusBadRequest, "invalid topic id format")
+	}
+	restaurantID := c.Get("restaurant_id")
+	if restaurantID == nil {
+		h.Logger.Error().Msg("restaurantID is nil")
+		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	}
+	resp, err := h.GetUseCase.Execute(c.Request().Context(), idInt64, restaurantID.(int32))
+	if err != nil {
+		h.Logger.Error().Err(err).Msg("Get topic error")
+		return response.Error(c, http.StatusBadRequest, "Failed to get topic")
+	}
+	return response.Success(c, resp, "Get topic successfully")
+}
+
+// GetTopicsByRestaurantHandler godoc
+// @Summary Get topics by restaurant
+// @Description Get list of topics by restaurant ID
+// @Tags Topic
+// @Accept json
+// @Produce json
+// @Param restaurant_id path string true "Restaurant ID"
+// @Success 200 {object} app.GetTopicsByRestaurantSuccessResponseDoc "Get topics by restaurant successfully"
+// @Failure default {object} response.ErrorDoc "Errors"
+// @Router /api/menu/restaurant/topics [get]
+func (h *TopicHandler) GetTopcis(c echo.Context) error {
+	restaurantID := c.Get("restaurant_id")
+	if restaurantID == nil {
+		h.Logger.Error().Msg("restaurantID is nil")
+		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	}
+	resp, err := h.GetTopicsUseCase.Execute(c.Request().Context(), restaurantID.(int32))
+	if err != nil {
+		h.Logger.Error().Err(err).Msg("Get topic error")
+		return response.Error(c, http.StatusBadRequest, "Failed to get topics")
+	}
+	return response.Success(c, resp, "Get topics successfully")
 }

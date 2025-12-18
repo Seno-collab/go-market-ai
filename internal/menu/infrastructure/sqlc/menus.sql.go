@@ -332,11 +332,16 @@ func (q *Queries) DeleteComboGroupItem(ctx context.Context, id int64) error {
 }
 
 const deleteMenuItem = `-- name: DeleteMenuItem :exec
-DELETE FROM menu_item WHERE id = $1
+DELETE FROM menu_item WHERE id = $1 AND restaurant_id = $2
 `
 
-func (q *Queries) DeleteMenuItem(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteMenuItem, id)
+type DeleteMenuItemParams struct {
+	ID           int64
+	RestaurantID int32
+}
+
+func (q *Queries) DeleteMenuItem(ctx context.Context, arg DeleteMenuItemParams) error {
+	_, err := q.db.Exec(ctx, deleteMenuItem, arg.ID, arg.RestaurantID)
 	return err
 }
 
@@ -586,11 +591,16 @@ func (q *Queries) GetFullMenu(ctx context.Context, restaurantID int32) ([]GetFul
 const getMenuItemByID = `-- name: GetMenuItemByID :one
 SELECT id, restaurant_id, topic_id, type, name, description, image_url, sku, base_price, is_active, sort_order, created_at, updated_at
 FROM menu_item
-WHERE id = $1
+WHERE id = $1 and restaurant_id = $2
 `
 
-func (q *Queries) GetMenuItemByID(ctx context.Context, id int64) (MenuItem, error) {
-	row := q.db.QueryRow(ctx, getMenuItemByID, id)
+type GetMenuItemByIDParams struct {
+	ID           int64
+	RestaurantID int32
+}
+
+func (q *Queries) GetMenuItemByID(ctx context.Context, arg GetMenuItemByIDParams) (MenuItem, error) {
+	row := q.db.QueryRow(ctx, getMenuItemByID, arg.ID, arg.RestaurantID)
 	var i MenuItem
 	err := row.Scan(
 		&i.ID,
@@ -728,6 +738,32 @@ func (q *Queries) GetOptionItemsByGroup(ctx context.Context, optionGroupID int64
 	return items, nil
 }
 
+const getTopic = `-- name: GetTopic :one
+SELECT id, restaurant_id, name, slug, parent_id, sort_order, is_active, created_at, updated_at FROM topic WHERE id = $1 AND restaurant_id = $2
+`
+
+type GetTopicParams struct {
+	ID           int64
+	RestaurantID int32
+}
+
+func (q *Queries) GetTopic(ctx context.Context, arg GetTopicParams) (Topic, error) {
+	row := q.db.QueryRow(ctx, getTopic, arg.ID, arg.RestaurantID)
+	var i Topic
+	err := row.Scan(
+		&i.ID,
+		&i.RestaurantID,
+		&i.Name,
+		&i.Slug,
+		&i.ParentID,
+		&i.SortOrder,
+		&i.IsActive,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getTopicsByRestaurant = `-- name: GetTopicsByRestaurant :many
 SELECT id, restaurant_id, name, slug, parent_id, sort_order, is_active, created_at, updated_at
 FROM topic
@@ -843,7 +879,7 @@ func (q *Queries) UpdateComboGroup(ctx context.Context, arg UpdateComboGroupPara
 	return i, err
 }
 
-const updateMenuItem = `-- name: UpdateMenuItem :one
+const updateMenuItem = `-- name: UpdateMenuItem :exec
 UPDATE menu_item
 SET
     topic_id = $2,
@@ -856,25 +892,25 @@ SET
     is_active = $9,
     sort_order = $10,
     updated_at = NOW()
-WHERE id = $1
-RETURNING id, restaurant_id, topic_id, type, name, description, image_url, sku, base_price, is_active, sort_order, created_at, updated_at
+WHERE id = $1 and restaurant_id = $11
 `
 
 type UpdateMenuItemParams struct {
-	ID          int64
-	TopicID     *int64
-	Type        interface{}
-	Name        string
-	Description *string
-	ImageUrl    *string
-	Sku         *string
-	BasePrice   pgtype.Numeric
-	IsActive    bool
-	SortOrder   int32
+	ID           int64
+	TopicID      *int64
+	Type         interface{}
+	Name         string
+	Description  *string
+	ImageUrl     *string
+	Sku          *string
+	BasePrice    pgtype.Numeric
+	IsActive     bool
+	SortOrder    int32
+	RestaurantID int32
 }
 
-func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) (MenuItem, error) {
-	row := q.db.QueryRow(ctx, updateMenuItem,
+func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) error {
+	_, err := q.db.Exec(ctx, updateMenuItem,
 		arg.ID,
 		arg.TopicID,
 		arg.Type,
@@ -885,24 +921,9 @@ func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) 
 		arg.BasePrice,
 		arg.IsActive,
 		arg.SortOrder,
+		arg.RestaurantID,
 	)
-	var i MenuItem
-	err := row.Scan(
-		&i.ID,
-		&i.RestaurantID,
-		&i.TopicID,
-		&i.Type,
-		&i.Name,
-		&i.Description,
-		&i.ImageUrl,
-		&i.Sku,
-		&i.BasePrice,
-		&i.IsActive,
-		&i.SortOrder,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	return err
 }
 
 const updateOptionGroup = `-- name: UpdateOptionGroup :one

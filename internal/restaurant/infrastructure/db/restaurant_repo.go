@@ -25,7 +25,6 @@ func NewRestaurantRepo(pool *pgxpool.Pool) *RestaurantRepo {
 }
 
 func (rr *RestaurantRepo) Create(ctx context.Context, r *restaurant.Entity, userID uuid.UUID) (int32, error) {
-
 	tx, err := rr.Pool.Begin(ctx)
 	if err != nil {
 		return 0, err

@@ -273,6 +273,177 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/menu/item/{id}": {
+            "get": {
+                "description": "Get a menu item detail by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Get menu item by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Menu item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get menu item successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetMenuItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update menu item by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Update menu item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Menu item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update menu item data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/menuitemapp.UpdateMenuItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update menu item successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.UpdateMenuItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/restaurant/items": {
+            "get": {
+                "description": "Get list of menu items by restaurant ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Get menu items by restaurant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Restaurant ID",
+                        "name": "restaurant_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get menu items by restaurant successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetMenuItemsByRestaurantSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/restaurant/topics": {
+            "get": {
+                "description": "Get list of topics by restaurant ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Topic"
+                ],
+                "summary": "Get topics by restaurant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Restaurant ID",
+                        "name": "restaurant_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get topics by restaurant successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetTopicsByRestaurantSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
         "/api/menu/topic": {
             "post": {
                 "description": "Create a new topic with name, price, description, and optional image or logo",
@@ -302,6 +473,44 @@ const docTemplate = `{
                         "description": "Create topic success",
                         "schema": {
                             "$ref": "#/definitions/app.CreateTopicSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/topic/{id}": {
+            "get": {
+                "description": "Get detailed information of a restaurant using its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Restaurant"
+                ],
+                "summary": "Get restaurant by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Topic ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get topic successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetTopicSuccessResponseDoc"
                         }
                     },
                     "default": {
@@ -570,6 +779,37 @@ const docTemplate = `{
                 }
             }
         },
+        "app.GetMenuItemSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/menuitemapp.GetMenuItemResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.GetMenuItemsByRestaurantSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/menuitemapp.GetMenuItemResponse"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
         "app.GetProfileSuccessResponseDoc": {
             "type": "object",
             "properties": {
@@ -589,6 +829,34 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/restaurantapp.GetRestaurantByIDResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.GetTopicSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.GetTopicsByRestaurantSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/topicapp.GetTopicResponse"
+                    }
                 },
                 "message": {
                     "type": "string"
@@ -643,6 +911,17 @@ const docTemplate = `{
                 "data": {
                     "$ref": "#/definitions/authapp.RegisterSuccess"
                 },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.UpdateMenuItemSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
                 "message": {
                     "type": "string"
                 },
@@ -806,6 +1085,52 @@ const docTemplate = `{
                 },
                 "topic_id": {
                     "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.MenuItemType"
+                }
+            }
+        },
+        "menuitemapp.GetMenuItemResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.MenuItemType"
+                }
+            }
+        },
+        "menuitemapp.UpdateMenuItemRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
                 },
                 "type": {
                     "$ref": "#/definitions/domain.MenuItemType"
@@ -1023,6 +1348,23 @@ const docTemplate = `{
             }
         },
         "topicapp.CreateTopicRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "topicapp.GetTopicResponse": {
             "type": "object",
             "properties": {
                 "name": {

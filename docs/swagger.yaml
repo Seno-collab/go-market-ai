@@ -36,6 +36,26 @@ definitions:
       response_code:
         type: string
     type: object
+  app.GetMenuItemSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/menuitemapp.GetMenuItemResponse'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.GetMenuItemsByRestaurantSuccessResponseDoc:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/menuitemapp.GetMenuItemResponse'
+        type: array
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
   app.GetProfileSuccessResponseDoc:
     properties:
       data:
@@ -49,6 +69,24 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/restaurantapp.GetRestaurantByIDResponse'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.GetTopicSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.GetTopicsByRestaurantSuccessResponseDoc:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/topicapp.GetTopicResponse'
+        type: array
       message:
         type: string
       response_code:
@@ -83,6 +121,13 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/authapp.RegisterSuccess'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.UpdateMenuItemSuccessResponseDoc:
+    properties:
       message:
         type: string
       response_code:
@@ -191,6 +236,36 @@ definitions:
         type: string
       topic_id:
         type: integer
+      type:
+        $ref: '#/definitions/domain.MenuItemType'
+    type: object
+  menuitemapp.GetMenuItemResponse:
+    properties:
+      description:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      sku:
+        type: string
+      type:
+        $ref: '#/definitions/domain.MenuItemType'
+    type: object
+  menuitemapp.UpdateMenuItemRequest:
+    properties:
+      description:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      sku:
+        type: string
       type:
         $ref: '#/definitions/domain.MenuItemType'
     type: object
@@ -341,6 +416,17 @@ definitions:
         type: string
     type: object
   topicapp.CreateTopicRequest:
+    properties:
+      name:
+        type: string
+      parent_id:
+        type: integer
+      slug:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  topicapp.GetTopicResponse:
     properties:
       name:
         type: string
@@ -530,6 +616,119 @@ paths:
       summary: Create a new menu item
       tags:
       - Menu
+  /api/menu/item/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a menu item detail by its ID
+      parameters:
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get menu item successfully
+          schema:
+            $ref: '#/definitions/app.GetMenuItemSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get menu item by ID
+      tags:
+      - Menu
+    put:
+      consumes:
+      - application/json
+      description: Update menu item by ID
+      parameters:
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update menu item data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/menuitemapp.UpdateMenuItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update menu item successfully
+          schema:
+            $ref: '#/definitions/app.UpdateMenuItemSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Update menu item
+      tags:
+      - Menu
+  /api/menu/restaurant/items:
+    get:
+      consumes:
+      - application/json
+      description: Get list of menu items by restaurant ID
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: restaurant_id
+        required: true
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get menu items by restaurant successfully
+          schema:
+            $ref: '#/definitions/app.GetMenuItemsByRestaurantSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get menu items by restaurant
+      tags:
+      - Menu
+  /api/menu/restaurant/topics:
+    get:
+      consumes:
+      - application/json
+      description: Get list of topics by restaurant ID
+      parameters:
+      - description: Restaurant ID
+        in: path
+        name: restaurant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get topics by restaurant successfully
+          schema:
+            $ref: '#/definitions/app.GetTopicsByRestaurantSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get topics by restaurant
+      tags:
+      - Topic
   /api/menu/topic:
     post:
       consumes:
@@ -557,6 +756,31 @@ paths:
       summary: Create a new topic
       tags:
       - Topic
+  /api/menu/topic/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information of a restaurant using its ID
+      parameters:
+      - description: Topic ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get topic successfully
+          schema:
+            $ref: '#/definitions/app.GetTopicSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get restaurant by ID
+      tags:
+      - Restaurant
   /api/restaurant:
     post:
       consumes:

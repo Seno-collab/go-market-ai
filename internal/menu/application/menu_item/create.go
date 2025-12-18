@@ -7,10 +7,10 @@ import (
 )
 
 type CreateUseCase struct {
-	Repo domain.MenuRepository
+	Repo domain.MenuItemRepository
 }
 
-func NewCreateUseCase(repo domain.MenuRepository) *CreateUseCase {
+func NewCreateUseCase(repo domain.MenuItemRepository) *CreateUseCase {
 	return &CreateUseCase{
 		Repo: repo,
 	}
@@ -25,7 +25,13 @@ func (useCase *CreateUseCase) Execute(ctx context.Context, req CreateMenuItemReq
 	if err != nil {
 		return err
 	}
+	if !req.Type.Valid() {
+		return domain.ErrRecordUpdateFailed
+	}
 	entity, err := domain.NewMenuItem(req.Name, price, req.Type, url, req.Description, req.Sku, restaurantID, req.TopicID)
+	if err := entity.Validate(); err != nil {
+		return err
+	}
 	_, err = useCase.Repo.CreateMenuItem(ctx, entity)
 	if err != nil {
 		return err

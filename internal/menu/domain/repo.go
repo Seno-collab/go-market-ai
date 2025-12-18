@@ -1,21 +1,23 @@
 package domain
 
-import "context"
+import (
+	"context"
+)
 
-type MenuRepository interface {
-	// Menu Items
-	// GetMenuItems(ctx context.Context, restaurantID int64) ([]MenuItem, error)
-	// GetMenuItemByID(ctx context.Context, id int64) (*MenuItem, error)
+type MenuItemRepository interface {
+	GetMenuItems(ctx context.Context, restaurantID int32) ([]MenuItem, error)
+	GetMenuItemByID(ctx context.Context, id int64, restaurantID int32) (MenuItem, error)
 	CreateMenuItem(ctx context.Context, item *MenuItem) (int64, error)
-	// UpdateMenuItem(ctx context.Context, item *MenuItem) error
-	// DeleteMenuItem(ctx context.Context, id int64) error
+	UpdateMenuItem(ctx context.Context, item *MenuItem) error
+	DeleteMenuItem(ctx context.Context, id int64, restaurantID int32) error
 }
 
 type TopicRepository interface {
-	GetTopics(ctx context.Context, restaurantID int64) ([]Topic, error)
+	GetTopics(ctx context.Context, restaurantID int32) ([]Topic, error)
 	CreateTopic(ctx context.Context, t *Topic) (TopicID, error)
-	UpdateTopic(ctx context.Context, t *Topic) error
-	DeleteTopic(ctx context.Context, id TopicID) error
+	GetTopic(ctx context.Context, id TopicID, restaurantID int32) (Topic, error)
+	// UpdateTopic(ctx context.Context, t *Topic) error
+	// DeleteTopic(ctx context.Context, id TopicID) error
 }
 
 type ComboRepository interface {
@@ -35,7 +37,6 @@ type VariantsRepository interface {
 }
 
 type OptionItemRepository interface {
-	// Option Items
 	GetOptionItems(ctx context.Context, groCreateMenuItempID int64) ([]OptionItem, error)
 	CreateOptionItem(ctx context.Context, o *OptionItem) (int64, error)
 	UpdateOptionItem(ctx context.Context, o *OptionItem) error
