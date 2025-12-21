@@ -29,12 +29,11 @@ func (q *Queries) AttachOptionGroupToItem(ctx context.Context, arg AttachOptionG
 	return err
 }
 
-const createComboGroup = `-- name: CreateComboGroup :one
+const createComboGroup = `-- name: CreateComboGroup :exec
 INSERT INTO combo_group (
     combo_item_id, name, min_select, max_select, sort_order
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, combo_item_id, name, min_select, max_select, sort_order, created_at, updated_at
 `
 
 type CreateComboGroupParams struct {
@@ -45,36 +44,24 @@ type CreateComboGroupParams struct {
 	SortOrder   int32
 }
 
-func (q *Queries) CreateComboGroup(ctx context.Context, arg CreateComboGroupParams) (ComboGroup, error) {
-	row := q.db.QueryRow(ctx, createComboGroup,
+func (q *Queries) CreateComboGroup(ctx context.Context, arg CreateComboGroupParams) error {
+	_, err := q.db.Exec(ctx, createComboGroup,
 		arg.ComboItemID,
 		arg.Name,
 		arg.MinSelect,
 		arg.MaxSelect,
 		arg.SortOrder,
 	)
-	var i ComboGroup
-	err := row.Scan(
-		&i.ID,
-		&i.ComboItemID,
-		&i.Name,
-		&i.MinSelect,
-		&i.MaxSelect,
-		&i.SortOrder,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	return err
 }
 
-const createComboGroupItem = `-- name: CreateComboGroupItem :one
+const createComboGroupItem = `-- name: CreateComboGroupItem :exec
 INSERT INTO combo_group_item (
     combo_group_id, menu_item_id,
     price_delta, quantity_default, quantity_min,
     quantity_max, sort_order
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, combo_group_id, menu_item_id, price_delta, quantity_default, quantity_min, quantity_max, sort_order, created_at, updated_at
 `
 
 type CreateComboGroupItemParams struct {
@@ -87,8 +74,8 @@ type CreateComboGroupItemParams struct {
 	SortOrder       int32
 }
 
-func (q *Queries) CreateComboGroupItem(ctx context.Context, arg CreateComboGroupItemParams) (ComboGroupItem, error) {
-	row := q.db.QueryRow(ctx, createComboGroupItem,
+func (q *Queries) CreateComboGroupItem(ctx context.Context, arg CreateComboGroupItemParams) error {
+	_, err := q.db.Exec(ctx, createComboGroupItem,
 		arg.ComboGroupID,
 		arg.MenuItemID,
 		arg.PriceDelta,
@@ -97,20 +84,7 @@ func (q *Queries) CreateComboGroupItem(ctx context.Context, arg CreateComboGroup
 		arg.QuantityMax,
 		arg.SortOrder,
 	)
-	var i ComboGroupItem
-	err := row.Scan(
-		&i.ID,
-		&i.ComboGroupID,
-		&i.MenuItemID,
-		&i.PriceDelta,
-		&i.QuantityDefault,
-		&i.QuantityMin,
-		&i.QuantityMax,
-		&i.SortOrder,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	return err
 }
 
 const createMenuItem = `-- name: CreateMenuItem :one
@@ -156,7 +130,7 @@ INSERT INTO option_group (
     restaurant_id, name, min_select, max_select, is_required, sort_order
 )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, restaurant_id, name, min_select, max_select, is_required, sort_order, created_at, updated_at
+RETURNING id
 `
 
 type CreateOptionGroupParams struct {
@@ -168,7 +142,7 @@ type CreateOptionGroupParams struct {
 	SortOrder    int32
 }
 
-func (q *Queries) CreateOptionGroup(ctx context.Context, arg CreateOptionGroupParams) (OptionGroup, error) {
+func (q *Queries) CreateOptionGroup(ctx context.Context, arg CreateOptionGroupParams) (int64, error) {
 	row := q.db.QueryRow(ctx, createOptionGroup,
 		arg.RestaurantID,
 		arg.Name,
@@ -177,19 +151,9 @@ func (q *Queries) CreateOptionGroup(ctx context.Context, arg CreateOptionGroupPa
 		arg.IsRequired,
 		arg.SortOrder,
 	)
-	var i OptionGroup
-	err := row.Scan(
-		&i.ID,
-		&i.RestaurantID,
-		&i.Name,
-		&i.MinSelect,
-		&i.MaxSelect,
-		&i.IsRequired,
-		&i.SortOrder,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createOptionItem = `-- name: CreateOptionItem :one
@@ -198,7 +162,7 @@ INSERT INTO option_item (
     price_delta, quantity_min, quantity_max, sort_order
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, option_group_id, name, linked_menu_item, price_delta, quantity_min, quantity_max, sort_order, is_active, created_at, updated_at
+RETURNING id
 `
 
 type CreateOptionItemParams struct {
@@ -211,7 +175,7 @@ type CreateOptionItemParams struct {
 	SortOrder      int32
 }
 
-func (q *Queries) CreateOptionItem(ctx context.Context, arg CreateOptionItemParams) (OptionItem, error) {
+func (q *Queries) CreateOptionItem(ctx context.Context, arg CreateOptionItemParams) (int64, error) {
 	row := q.db.QueryRow(ctx, createOptionItem,
 		arg.OptionGroupID,
 		arg.Name,
@@ -221,21 +185,9 @@ func (q *Queries) CreateOptionItem(ctx context.Context, arg CreateOptionItemPara
 		arg.QuantityMax,
 		arg.SortOrder,
 	)
-	var i OptionItem
-	err := row.Scan(
-		&i.ID,
-		&i.OptionGroupID,
-		&i.Name,
-		&i.LinkedMenuItem,
-		&i.PriceDelta,
-		&i.QuantityMin,
-		&i.QuantityMax,
-		&i.SortOrder,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createTopic = `-- name: CreateTopic :one
@@ -275,12 +227,12 @@ func (q *Queries) CreateTopic(ctx context.Context, arg CreateTopicParams) (Topic
 	return i, err
 }
 
-const createVariant = `-- name: CreateVariant :one
+const createVariant = `-- name: CreateVariant :exec
 INSERT INTO menu_item_variant (
     menu_item_id, name, price_delta, is_default, sort_order
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, menu_item_id, name, price_delta, is_default, sort_order, created_at, updated_at
+RETURNING id
 `
 
 type CreateVariantParams struct {
@@ -291,26 +243,15 @@ type CreateVariantParams struct {
 	SortOrder  int32
 }
 
-func (q *Queries) CreateVariant(ctx context.Context, arg CreateVariantParams) (MenuItemVariant, error) {
-	row := q.db.QueryRow(ctx, createVariant,
+func (q *Queries) CreateVariant(ctx context.Context, arg CreateVariantParams) error {
+	_, err := q.db.Exec(ctx, createVariant,
 		arg.MenuItemID,
 		arg.Name,
 		arg.PriceDelta,
 		arg.IsDefault,
 		arg.SortOrder,
 	)
-	var i MenuItemVariant
-	err := row.Scan(
-		&i.ID,
-		&i.MenuItemID,
-		&i.Name,
-		&i.PriceDelta,
-		&i.IsDefault,
-		&i.SortOrder,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	return err
 }
 
 const deleteComboGroup = `-- name: DeleteComboGroup :exec
@@ -348,38 +289,50 @@ func (q *Queries) DeleteMenuItem(ctx context.Context, arg DeleteMenuItemParams) 
 const deleteOptionGroup = `-- name: DeleteOptionGroup :exec
 DELETE FROM option_group
 WHERE id = $1
+  AND restaurant_id = $2
 `
 
-func (q *Queries) DeleteOptionGroup(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteOptionGroup, id)
+type DeleteOptionGroupParams struct {
+	ID           int64
+	RestaurantID int32
+}
+
+func (q *Queries) DeleteOptionGroup(ctx context.Context, arg DeleteOptionGroupParams) error {
+	_, err := q.db.Exec(ctx, deleteOptionGroup, arg.ID, arg.RestaurantID)
 	return err
 }
 
 const deleteOptionItem = `-- name: DeleteOptionItem :exec
-DELETE FROM option_item WHERE id = $1
+DELETE FROM option_item oi
+USING option_group og
+WHERE oi.id = $1
+  AND oi.option_group_id = og.id
+  AND og.restaurant_id = $2
 `
 
-func (q *Queries) DeleteOptionItem(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteOptionItem, id)
+type DeleteOptionItemParams struct {
+	ID           int64
+	RestaurantID int32
+}
+
+func (q *Queries) DeleteOptionItem(ctx context.Context, arg DeleteOptionItemParams) error {
+	_, err := q.db.Exec(ctx, deleteOptionItem, arg.ID, arg.RestaurantID)
 	return err
 }
 
 const deleteTopic = `-- name: DeleteTopic :exec
 DELETE FROM topic
 WHERE id = $1
+  AND restaurant_id = $2
 `
 
-func (q *Queries) DeleteTopic(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteTopic, id)
-	return err
+type DeleteTopicParams struct {
+	ID           int64
+	RestaurantID int32
 }
 
-const deleteVariant = `-- name: DeleteVariant :exec
-DELETE FROM menu_item_variant WHERE id = $1
-`
-
-func (q *Queries) DeleteVariant(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteVariant, id)
+func (q *Queries) DeleteTopic(ctx context.Context, arg DeleteTopicParams) error {
+	_, err := q.db.Exec(ctx, deleteTopic, arg.ID, arg.RestaurantID)
 	return err
 }
 
@@ -661,16 +614,51 @@ func (q *Queries) GetMenuItemsByRestaurant(ctx context.Context, restaurantID int
 	return items, nil
 }
 
+const getOptionGroup = `-- name: GetOptionGroup :one
+SELECT id, restaurant_id, name, min_select, max_select, is_required, sort_order, created_at, updated_at
+FROM option_group
+WHERE id = $1
+  AND restaurant_id = $2
+`
+
+type GetOptionGroupParams struct {
+	ID           int64
+	RestaurantID int32
+}
+
+func (q *Queries) GetOptionGroup(ctx context.Context, arg GetOptionGroupParams) (OptionGroup, error) {
+	row := q.db.QueryRow(ctx, getOptionGroup, arg.ID, arg.RestaurantID)
+	var i OptionGroup
+	err := row.Scan(
+		&i.ID,
+		&i.RestaurantID,
+		&i.Name,
+		&i.MinSelect,
+		&i.MaxSelect,
+		&i.IsRequired,
+		&i.SortOrder,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getOptionGroupsByItem = `-- name: GetOptionGroupsByItem :many
 SELECT og.id, og.restaurant_id, og.name, og.min_select, og.max_select, og.is_required, og.sort_order, og.created_at, og.updated_at
 FROM option_group og
 JOIN menu_item_option_group mig ON mig.option_group_id = og.id
 WHERE mig.menu_item_id = $1
+  AND og.restaurant_id = $2
 ORDER BY og.sort_order, og.id
 `
 
-func (q *Queries) GetOptionGroupsByItem(ctx context.Context, menuItemID int64) ([]OptionGroup, error) {
-	rows, err := q.db.Query(ctx, getOptionGroupsByItem, menuItemID)
+type GetOptionGroupsByItemParams struct {
+	MenuItemID   int64
+	RestaurantID int32
+}
+
+func (q *Queries) GetOptionGroupsByItem(ctx context.Context, arg GetOptionGroupsByItemParams) ([]OptionGroup, error) {
+	rows, err := q.db.Query(ctx, getOptionGroupsByItem, arg.MenuItemID, arg.RestaurantID)
 	if err != nil {
 		return nil, err
 	}
@@ -699,15 +687,54 @@ func (q *Queries) GetOptionGroupsByItem(ctx context.Context, menuItemID int64) (
 	return items, nil
 }
 
-const getOptionItemsByGroup = `-- name: GetOptionItemsByGroup :many
-SELECT id, option_group_id, name, linked_menu_item, price_delta, quantity_min, quantity_max, sort_order, is_active, created_at, updated_at
-FROM option_item
-WHERE option_group_id = $1
-ORDER BY sort_order, id
+const getOptionItem = `-- name: GetOptionItem :one
+SELECT oi.id, oi.option_group_id, oi.name, oi.linked_menu_item, oi.price_delta, oi.quantity_min, oi.quantity_max, oi.sort_order, oi.is_active, oi.created_at, oi.updated_at
+FROM option_item oi
+JOIN option_group og ON og.id = oi.option_group_id
+WHERE oi.id = $1
+  AND og.restaurant_id = $2
 `
 
-func (q *Queries) GetOptionItemsByGroup(ctx context.Context, optionGroupID int64) ([]OptionItem, error) {
-	rows, err := q.db.Query(ctx, getOptionItemsByGroup, optionGroupID)
+type GetOptionItemParams struct {
+	ID           int64
+	RestaurantID int32
+}
+
+func (q *Queries) GetOptionItem(ctx context.Context, arg GetOptionItemParams) (OptionItem, error) {
+	row := q.db.QueryRow(ctx, getOptionItem, arg.ID, arg.RestaurantID)
+	var i OptionItem
+	err := row.Scan(
+		&i.ID,
+		&i.OptionGroupID,
+		&i.Name,
+		&i.LinkedMenuItem,
+		&i.PriceDelta,
+		&i.QuantityMin,
+		&i.QuantityMax,
+		&i.SortOrder,
+		&i.IsActive,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getOptionItemsByGroup = `-- name: GetOptionItemsByGroup :many
+SELECT oi.id, oi.option_group_id, oi.name, oi.linked_menu_item, oi.price_delta, oi.quantity_min, oi.quantity_max, oi.sort_order, oi.is_active, oi.created_at, oi.updated_at
+FROM option_item oi
+JOIN option_group og ON og.id = oi.option_group_id
+WHERE oi.option_group_id = $1
+  AND og.restaurant_id = $2
+ORDER BY oi.sort_order, oi.id
+`
+
+type GetOptionItemsByGroupParams struct {
+	OptionGroupID int64
+	RestaurantID  int32
+}
+
+func (q *Queries) GetOptionItemsByGroup(ctx context.Context, arg GetOptionItemsByGroupParams) ([]OptionItem, error) {
+	rows, err := q.db.Query(ctx, getOptionItemsByGroup, arg.OptionGroupID, arg.RestaurantID)
 	if err != nil {
 		return nil, err
 	}
@@ -837,7 +864,7 @@ func (q *Queries) GetVariantsByItem(ctx context.Context, menuItemID int64) ([]Me
 	return items, nil
 }
 
-const updateComboGroup = `-- name: UpdateComboGroup :one
+const updateComboGroup = `-- name: UpdateComboGroup :exec
 UPDATE combo_group
 SET
     name = $2,
@@ -846,7 +873,6 @@ SET
     sort_order = $5,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, combo_item_id, name, min_select, max_select, sort_order, created_at, updated_at
 `
 
 type UpdateComboGroupParams struct {
@@ -857,26 +883,15 @@ type UpdateComboGroupParams struct {
 	SortOrder int32
 }
 
-func (q *Queries) UpdateComboGroup(ctx context.Context, arg UpdateComboGroupParams) (ComboGroup, error) {
-	row := q.db.QueryRow(ctx, updateComboGroup,
+func (q *Queries) UpdateComboGroup(ctx context.Context, arg UpdateComboGroupParams) error {
+	_, err := q.db.Exec(ctx, updateComboGroup,
 		arg.ID,
 		arg.Name,
 		arg.MinSelect,
 		arg.MaxSelect,
 		arg.SortOrder,
 	)
-	var i ComboGroup
-	err := row.Scan(
-		&i.ID,
-		&i.ComboItemID,
-		&i.Name,
-		&i.MinSelect,
-		&i.MaxSelect,
-		&i.SortOrder,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	return err
 }
 
 const updateMenuItem = `-- name: UpdateMenuItem :exec
@@ -926,54 +941,44 @@ func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) 
 	return err
 }
 
-const updateOptionGroup = `-- name: UpdateOptionGroup :one
+const updateOptionGroup = `-- name: UpdateOptionGroup :exec
 UPDATE option_group
 SET
-    name = $2,
-    min_select = $3,
-    max_select = $4,
-    is_required = $5,
-    sort_order = $6,
+    name = $3,
+    min_select = $4,
+    max_select = $5,
+    is_required = $6,
+    sort_order = $7,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, restaurant_id, name, min_select, max_select, is_required, sort_order, created_at, updated_at
+  AND restaurant_id = $2
 `
 
 type UpdateOptionGroupParams struct {
-	ID         int64
-	Name       string
-	MinSelect  int32
-	MaxSelect  int
-	IsRequired bool
-	SortOrder  int32
+	ID           int64
+	RestaurantID int32
+	Name         string
+	MinSelect    int32
+	MaxSelect    int
+	IsRequired   bool
+	SortOrder    int32
 }
 
-func (q *Queries) UpdateOptionGroup(ctx context.Context, arg UpdateOptionGroupParams) (OptionGroup, error) {
-	row := q.db.QueryRow(ctx, updateOptionGroup,
+func (q *Queries) UpdateOptionGroup(ctx context.Context, arg UpdateOptionGroupParams) error {
+	_, err := q.db.Exec(ctx, updateOptionGroup,
 		arg.ID,
+		arg.RestaurantID,
 		arg.Name,
 		arg.MinSelect,
 		arg.MaxSelect,
 		arg.IsRequired,
 		arg.SortOrder,
 	)
-	var i OptionGroup
-	err := row.Scan(
-		&i.ID,
-		&i.RestaurantID,
-		&i.Name,
-		&i.MinSelect,
-		&i.MaxSelect,
-		&i.IsRequired,
-		&i.SortOrder,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	return err
 }
 
-const updateOptionItem = `-- name: UpdateOptionItem :one
-UPDATE option_item
+const updateOptionItem = `-- name: UpdateOptionItem :exec
+UPDATE option_item oi
 SET
     name = $2,
     linked_menu_item = $3,
@@ -982,8 +987,10 @@ SET
     quantity_max = $6,
     sort_order = $7,
     updated_at = NOW()
-WHERE id = $1
-RETURNING id, option_group_id, name, linked_menu_item, price_delta, quantity_min, quantity_max, sort_order, is_active, created_at, updated_at
+FROM option_group og
+WHERE oi.id = $1
+  AND oi.option_group_id = og.id
+  AND og.restaurant_id = $8
 `
 
 type UpdateOptionItemParams struct {
@@ -994,10 +1001,11 @@ type UpdateOptionItemParams struct {
 	QuantityMin    int32
 	QuantityMax    int
 	SortOrder      int32
+	RestaurantID   int32
 }
 
-func (q *Queries) UpdateOptionItem(ctx context.Context, arg UpdateOptionItemParams) (OptionItem, error) {
-	row := q.db.QueryRow(ctx, updateOptionItem,
+func (q *Queries) UpdateOptionItem(ctx context.Context, arg UpdateOptionItemParams) error {
+	_, err := q.db.Exec(ctx, updateOptionItem,
 		arg.ID,
 		arg.Name,
 		arg.LinkedMenuItem,
@@ -1005,50 +1013,45 @@ func (q *Queries) UpdateOptionItem(ctx context.Context, arg UpdateOptionItemPara
 		arg.QuantityMin,
 		arg.QuantityMax,
 		arg.SortOrder,
-	)
-	var i OptionItem
-	err := row.Scan(
-		&i.ID,
-		&i.OptionGroupID,
-		&i.Name,
-		&i.LinkedMenuItem,
-		&i.PriceDelta,
-		&i.QuantityMin,
-		&i.QuantityMax,
-		&i.SortOrder,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const updateTopic = `-- name: UpdateTopic :exec
-UPDATE topic
-SET restaurant_id = $1, name = $2, slug = $3, parent_id = $4
-WHERE id = $5
-`
-
-type UpdateTopicParams struct {
-	RestaurantID int32
-	Name         string
-	Slug         *string
-	ParentID     *int64
-	ID           int64
-}
-
-func (q *Queries) UpdateTopic(ctx context.Context, arg UpdateTopicParams) error {
-	_, err := q.db.Exec(ctx, updateTopic,
 		arg.RestaurantID,
-		arg.Name,
-		arg.Slug,
-		arg.ParentID,
-		arg.ID,
 	)
 	return err
 }
 
-const updateVariant = `-- name: UpdateVariant :one
+const updateTopic = `-- name: UpdateTopic :exec
+UPDATE topic
+SET
+    name = $3,
+    slug = $4,
+    parent_id = $5,
+    sort_order = $6,
+    updated_at = NOW()
+WHERE id = $1
+  AND restaurant_id = $2
+`
+
+type UpdateTopicParams struct {
+	ID           int64
+	RestaurantID int32
+	Name         string
+	Slug         *string
+	ParentID     *int64
+	SortOrder    int32
+}
+
+func (q *Queries) UpdateTopic(ctx context.Context, arg UpdateTopicParams) error {
+	_, err := q.db.Exec(ctx, updateTopic,
+		arg.ID,
+		arg.RestaurantID,
+		arg.Name,
+		arg.Slug,
+		arg.ParentID,
+		arg.SortOrder,
+	)
+	return err
+}
+
+const updateVariant = `-- name: UpdateVariant :exec
 UPDATE menu_item_variant
 SET
     name = $2,
@@ -1057,7 +1060,6 @@ SET
     sort_order = $5,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, menu_item_id, name, price_delta, is_default, sort_order, created_at, updated_at
 `
 
 type UpdateVariantParams struct {
@@ -1068,24 +1070,13 @@ type UpdateVariantParams struct {
 	SortOrder  int32
 }
 
-func (q *Queries) UpdateVariant(ctx context.Context, arg UpdateVariantParams) (MenuItemVariant, error) {
-	row := q.db.QueryRow(ctx, updateVariant,
+func (q *Queries) UpdateVariant(ctx context.Context, arg UpdateVariantParams) error {
+	_, err := q.db.Exec(ctx, updateVariant,
 		arg.ID,
 		arg.Name,
 		arg.PriceDelta,
 		arg.IsDefault,
 		arg.SortOrder,
 	)
-	var i MenuItemVariant
-	err := row.Scan(
-		&i.ID,
-		&i.MenuItemID,
-		&i.Name,
-		&i.PriceDelta,
-		&i.IsDefault,
-		&i.SortOrder,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	return err
 }

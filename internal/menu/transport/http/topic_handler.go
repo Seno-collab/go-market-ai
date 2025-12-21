@@ -14,14 +14,25 @@ type TopicHandler struct {
 	CreateUseCase    *topicapp.CreateUseCase
 	GetUseCase       *topicapp.GetUseCase
 	GetTopicsUseCase *topicapp.GetTopicsUseCase
+	UpdateUseCase    *topicapp.UpdateUseCase
+	DeleteUseCase    *topicapp.DeleteUseCase
 	Logger           zerolog.Logger
 }
 
-func NewTopicHandler(createUseCase *topicapp.CreateUseCase, getUseCase *topicapp.GetUseCase, getTopicesUseCase *topicapp.GetTopicsUseCase, logger zerolog.Logger) *TopicHandler {
+func NewTopicHandler(
+	createUseCase *topicapp.CreateUseCase,
+	getUseCase *topicapp.GetUseCase,
+	getTopicsUseCase *topicapp.GetTopicsUseCase,
+	updateUseCase *topicapp.UpdateUseCase,
+	deleteUseCase *topicapp.DeleteUseCase,
+	logger zerolog.Logger,
+) *TopicHandler {
 	return &TopicHandler{
 		CreateUseCase:    createUseCase,
 		GetUseCase:       getUseCase,
-		GetTopicsUseCase: getTopicesUseCase,
+		GetTopicsUseCase: getTopicsUseCase,
+		UpdateUseCase:    updateUseCase,
+		DeleteUseCase:    deleteUseCase,
 		Logger:           logger,
 	}
 }
@@ -54,10 +65,10 @@ func (h *TopicHandler) Create(c echo.Context) error {
 	return response.Success[any](c, nil, "Create topic successfully")
 }
 
-// GetRestaurant godoc
-// @Summary Get restaurant by ID
-// @Description Get detailed information of a restaurant using its ID
-// @Tags Restaurant
+// GetTopic godoc
+// @Summary Get topic by ID
+// @Description Get detailed information of a topic using its ID
+// @Tags Topic
 // @Accept json
 // @Produce json
 // @Param id path string true "Topic ID"
@@ -86,6 +97,42 @@ func (h *TopicHandler) Get(c echo.Context) error {
 	return response.Success(c, resp, "Get topic successfully")
 }
 
+// UpdateTopicHandler godoc
+// @Summary Update topic
+// @Description Update topic information by ID
+// @Tags Topic
+// @Accept json
+// @Produce json
+// @Param id path string true "Topic ID"
+// @Param data body topicapp.UpdateTopicRequest true "Topic data"
+// @Success 200 {object} app.UpdateTopicSuccessResponseDoc "Update topic successfully"
+// @Failure default {object} response.ErrorDoc "Errors"
+// @Router /api/menu/topic/{id} [put]
+func (h *TopicHandler) Update(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(c, http.StatusBadRequest, "missing topic id")
+	}
+	idInt64, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return response.Error(c, http.StatusBadRequest, "invalid topic id format")
+	}
+	var in topicapp.UpdateTopicRequest
+	if err := c.Bind(&in); err != nil {
+		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+	}
+	restaurantID := c.Get("restaurant_id")
+	if restaurantID == nil {
+		h.Logger.Error().Msg("restaurantID is nil")
+		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	}
+	if err := h.UpdateUseCase.Execute(c.Request().Context(), idInt64, in, restaurantID.(int32)); err != nil {
+		h.Logger.Error().Err(err).Msg("Update topic error")
+		return response.Error(c, http.StatusBadRequest, "Failed to update topic")
+	}
+	return response.Success[any](c, nil, "Update topic successfully")
+}
+
 // GetTopicsByRestaurantHandler godoc
 // @Summary Get topics by restaurant
 // @Description Get list of topics by restaurant ID
@@ -96,7 +143,7 @@ func (h *TopicHandler) Get(c echo.Context) error {
 // @Success 200 {object} app.GetTopicsByRestaurantSuccessResponseDoc "Get topics by restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/restaurant/topics [get]
-func (h *TopicHandler) GetTopcis(c echo.Context) error {
+func (h *TopicHandler) GetTopics(c echo.Context) error {
 	restaurantID := c.Get("restaurant_id")
 	if restaurantID == nil {
 		h.Logger.Error().Msg("restaurantID is nil")
@@ -108,4 +155,35 @@ func (h *TopicHandler) GetTopcis(c echo.Context) error {
 		return response.Error(c, http.StatusBadRequest, "Failed to get topics")
 	}
 	return response.Success(c, resp, "Get topics successfully")
+}
+
+// DeleteTopicHandler godoc
+// @Summary Delete topic
+// @Description Delete topic by ID
+// @Tags Topic
+// @Accept json
+// @Produce json
+// @Param id path string true "Topic ID"
+// @Success 200 {object} app.DeleteTopicSuccessResponseDoc "Delete topic successfully"
+// @Failure default {object} response.ErrorDoc "Errors"
+// @Router /api/menu/topic/{id} [delete]
+func (h *TopicHandler) Delete(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(c, http.StatusBadRequest, "missing topic id")
+	}
+	idInt64, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return response.Error(c, http.StatusBadRequest, "invalid topic id format")
+	}
+	restaurantID := c.Get("restaurant_id")
+	if restaurantID == nil {
+		h.Logger.Error().Msg("restaurantID is nil")
+		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	}
+	if err := h.DeleteUseCase.Execute(c.Request().Context(), idInt64, restaurantID.(int32)); err != nil {
+		h.Logger.Error().Err(err).Msg("Delete topic error")
+		return response.Error(c, http.StatusBadRequest, "Failed to delete topic")
+	}
+	return response.Success[any](c, nil, "Delete topic successfully")
 }

@@ -13,6 +13,24 @@ definitions:
       response_code:
         type: string
     type: object
+  app.CreateOptionGroupSuccessResponseDoc:
+    properties:
+      id:
+        type: integer
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.CreateOptionItemSuccessResponseDoc:
+    properties:
+      id:
+        type: integer
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
   app.CreateRestaurantSuccessResponseDoc:
     properties:
       data:
@@ -29,7 +47,28 @@ definitions:
       response_code:
         type: string
     type: object
+  app.DeleteOptionGroupSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.DeleteOptionItemSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
   app.DeleteRestaurantSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.DeleteTopicSuccessResponseDoc:
     properties:
       message:
         type: string
@@ -50,6 +89,72 @@ definitions:
       items:
         items:
           $ref: '#/definitions/menuitemapp.GetMenuItemResponse'
+        type: array
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.GetOptionGroupSuccessResponseDoc:
+    properties:
+      id:
+        type: integer
+      is_required:
+        type: boolean
+      max_select:
+        type: integer
+      message:
+        type: string
+      min_select:
+        type: integer
+      name:
+        type: string
+      response_code:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  app.GetOptionGroupsSuccessResponseDoc:
+    properties:
+      groups:
+        items:
+          $ref: '#/definitions/optiongroupapp.GetOptionGroupResponse'
+        type: array
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.GetOptionItemSuccessResponseDoc:
+    properties:
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      linked_menu_item:
+        type: integer
+      message:
+        type: string
+      name:
+        type: string
+      option_group_id:
+        type: integer
+      price_delta:
+        type: integer
+      quantity_max:
+        type: integer
+      quantity_min:
+        type: integer
+      response_code:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  app.GetOptionItemsSuccessResponseDoc:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/optionitemapp.GetOptionItemResponse'
         type: array
       message:
         type: string
@@ -133,7 +238,28 @@ definitions:
       response_code:
         type: string
     type: object
+  app.UpdateOptionGroupSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.UpdateOptionItemSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
   app.UpdateRestaurantSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.UpdateTopicSuccessResponseDoc:
     properties:
       message:
         type: string
@@ -268,6 +394,102 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/domain.MenuItemType'
+    type: object
+  optiongroupapp.CreateOptionGroupRequest:
+    properties:
+      is_required:
+        type: boolean
+      max_select:
+        type: integer
+      menu_item_id:
+        type: integer
+      min_select:
+        type: integer
+      name:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  optiongroupapp.GetOptionGroupResponse:
+    properties:
+      id:
+        type: integer
+      is_required:
+        type: boolean
+      max_select:
+        type: integer
+      min_select:
+        type: integer
+      name:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  optiongroupapp.UpdateOptionGroupRequest:
+    properties:
+      is_required:
+        type: boolean
+      max_select:
+        type: integer
+      min_select:
+        type: integer
+      name:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  optionitemapp.CreateOptionItemRequest:
+    properties:
+      linked_menu_item:
+        type: integer
+      name:
+        type: string
+      option_group_id:
+        type: integer
+      price_delta:
+        type: integer
+      quantity_max:
+        type: integer
+      quantity_min:
+        type: integer
+      sort_order:
+        type: integer
+    type: object
+  optionitemapp.GetOptionItemResponse:
+    properties:
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      linked_menu_item:
+        type: integer
+      name:
+        type: string
+      option_group_id:
+        type: integer
+      price_delta:
+        type: integer
+      quantity_max:
+        type: integer
+      quantity_min:
+        type: integer
+      sort_order:
+        type: integer
+    type: object
+  optionitemapp.UpdateOptionItemRequest:
+    properties:
+      linked_menu_item:
+        type: integer
+      name:
+        type: string
+      price_delta:
+        type: integer
+      quantity_max:
+        type: integer
+      quantity_min:
+        type: integer
+      sort_order:
+        type: integer
     type: object
   response.ErrorDoc:
     properties:
@@ -428,11 +650,24 @@ definitions:
     type: object
   topicapp.GetTopicResponse:
     properties:
+      id:
+        type: integer
       name:
         type: string
       parent_id:
         type: integer
       restaurant_id:
+        type: integer
+      slug:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  topicapp.UpdateTopicRequest:
+    properties:
+      name:
+        type: string
+      parent_id:
         type: integer
       slug:
         type: string
@@ -671,6 +906,266 @@ paths:
       summary: Update menu item
       tags:
       - Menu
+  /api/menu/item/{id}/option-groups:
+    get:
+      consumes:
+      - application/json
+      description: Get option groups attached to a specific menu item
+      parameters:
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get option groups successfully
+          schema:
+            $ref: '#/definitions/app.GetOptionGroupsSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: List option groups of a menu item
+      tags:
+      - OptionGroup
+  /api/menu/option-group:
+    post:
+      consumes:
+      - application/json
+      description: Create a new option group for a menu item
+      parameters:
+      - description: Option group payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/optiongroupapp.CreateOptionGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create option group successfully
+          schema:
+            $ref: '#/definitions/app.CreateOptionGroupSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Create option group
+      tags:
+      - OptionGroup
+  /api/menu/option-group/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an option group by ID
+      parameters:
+      - description: Option group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete option group successfully
+          schema:
+            $ref: '#/definitions/app.DeleteOptionGroupSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Delete option group
+      tags:
+      - OptionGroup
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information of an option group
+      parameters:
+      - description: Option group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get option group successfully
+          schema:
+            $ref: '#/definitions/app.GetOptionGroupSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get option group by ID
+      tags:
+      - OptionGroup
+    put:
+      consumes:
+      - application/json
+      description: Update option group details by ID
+      parameters:
+      - description: Option group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Option group payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/optiongroupapp.UpdateOptionGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update option group successfully
+          schema:
+            $ref: '#/definitions/app.UpdateOptionGroupSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Update option group
+      tags:
+      - OptionGroup
+  /api/menu/option-group/{id}/option-items:
+    get:
+      consumes:
+      - application/json
+      description: Get option items for a specific option group
+      parameters:
+      - description: Option group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get option items successfully
+          schema:
+            $ref: '#/definitions/app.GetOptionItemsSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: List option items in a group
+      tags:
+      - OptionItem
+  /api/menu/option-item:
+    post:
+      consumes:
+      - application/json
+      description: Create a new option item under an option group
+      parameters:
+      - description: Option item payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/optionitemapp.CreateOptionItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create option item successfully
+          schema:
+            $ref: '#/definitions/app.CreateOptionItemSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Create option item
+      tags:
+      - OptionItem
+  /api/menu/option-item/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete option item by ID
+      parameters:
+      - description: Option item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete option item successfully
+          schema:
+            $ref: '#/definitions/app.DeleteOptionItemSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Delete option item
+      tags:
+      - OptionItem
+    get:
+      consumes:
+      - application/json
+      description: Get option item details by ID
+      parameters:
+      - description: Option item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get option item successfully
+          schema:
+            $ref: '#/definitions/app.GetOptionItemSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get option item
+      tags:
+      - OptionItem
+    put:
+      consumes:
+      - application/json
+      description: Update option item details by ID
+      parameters:
+      - description: Option item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Option item payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/optionitemapp.UpdateOptionItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update option item successfully
+          schema:
+            $ref: '#/definitions/app.UpdateOptionItemSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Update option item
+      tags:
+      - OptionItem
   /api/menu/restaurant/items:
     get:
       consumes:
@@ -757,10 +1252,34 @@ paths:
       tags:
       - Topic
   /api/menu/topic/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete topic by ID
+      parameters:
+      - description: Topic ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete topic successfully
+          schema:
+            $ref: '#/definitions/app.DeleteTopicSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Delete topic
+      tags:
+      - Topic
     get:
       consumes:
       - application/json
-      description: Get detailed information of a restaurant using its ID
+      description: Get detailed information of a topic using its ID
       parameters:
       - description: Topic ID
         in: path
@@ -778,9 +1297,39 @@ paths:
           description: Errors
           schema:
             $ref: '#/definitions/response.ErrorDoc'
-      summary: Get restaurant by ID
+      summary: Get topic by ID
       tags:
-      - Restaurant
+      - Topic
+    put:
+      consumes:
+      - application/json
+      description: Update topic information by ID
+      parameters:
+      - description: Topic ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Topic data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/topicapp.UpdateTopicRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update topic successfully
+          schema:
+            $ref: '#/definitions/app.UpdateTopicSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Update topic
+      tags:
+      - Topic
   /api/restaurant:
     post:
       consumes:

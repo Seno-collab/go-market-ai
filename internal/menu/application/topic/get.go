@@ -20,12 +20,22 @@ func (useCase *GetUseCase) Execute(ctx context.Context, id int64, restaurantID i
 	if err != nil {
 		return nil, err
 	}
-	resp := &GetTopicResponse{
+	resp := mapTopicResponse(row)
+	return &resp, nil
+}
+
+func mapTopicResponse(row domain.Topic) GetTopicResponse {
+	var parent *int64
+	if row.ParentID != nil {
+		val := int64(*row.ParentID)
+		parent = &val
+	}
+	return GetTopicResponse{
+		ID:           int64(row.ID),
 		RestaurantID: row.RestaurantID,
 		Name:         row.Name,
 		Slug:         row.Slug,
+		ParentID:     parent,
 		SortOrder:    row.SortOrder,
-		// ParentID:     int64(*row.ParentID),
 	}
-	return resp, nil
 }

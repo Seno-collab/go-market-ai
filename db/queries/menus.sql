@@ -16,12 +16,19 @@ RETURNING *;
 
 -- name: UpdateTopic :exec
 UPDATE topic
-SET restaurant_id = $1, name = $2, slug = $3, parent_id = $4
-WHERE id = $5;
+SET
+    name = $3,
+    slug = $4,
+    parent_id = $5,
+    sort_order = $6,
+    updated_at = NOW()
+WHERE id = $1
+  AND restaurant_id = $2;
 
 -- name: DeleteTopic :exec
 DELETE FROM topic
-WHERE id = $1;
+WHERE id = $1
+  AND restaurant_id = $2;
 
 -- name: GetMenuItemsByRestaurant :many
 SELECT *
@@ -66,14 +73,14 @@ FROM menu_item_variant
 WHERE menu_item_id = $1
 ORDER BY sort_order, id;
 
--- name: CreateVariant :one
+-- name: CreateVariant :exec
 INSERT INTO menu_item_variant (
     menu_item_id, name, price_delta, is_default, sort_order
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING *;
+RETURNING id;
 
--- name: UpdateVariant :one
+-- name: UpdateVariant :exec
 UPDATE menu_item_variant
 SET
     name = $2,
@@ -81,10 +88,7 @@ SET
     is_default = $4,
     sort_order = $5,
     updated_at = NOW()
-WHERE id = $1
-RETURNING *;
-
--- name: DeleteVariant :exec
+WHERE id = $1;
 DELETE FROM menu_item_variant WHERE id = $1;
 
 -- name: GetOptionGroupsByItem :many
@@ -92,6 +96,7 @@ SELECT og.*
 FROM option_group og
 JOIN menu_item_option_group mig ON mig.option_group_id = og.id
 WHERE mig.menu_item_id = $1
+  AND og.restaurant_id = $2
 ORDER BY og.sort_order, og.id;
 
 -- name: CreateOptionGroup :one
@@ -99,34 +104,50 @@ INSERT INTO option_group (
     restaurant_id, name, min_select, max_select, is_required, sort_order
 )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING *;
+RETURNING id;
 
 -- name: AttachOptionGroupToItem :exec
 INSERT INTO menu_item_option_group (menu_item_id, option_group_id, sort_order)
 VALUES ($1, $2, $3)
 ON CONFLICT (menu_item_id, option_group_id) DO NOTHING;
 
--- name: UpdateOptionGroup :one
+-- name: GetOptionGroup :one
+SELECT *
+FROM option_group
+WHERE id = $1
+  AND restaurant_id = $2;
+
+-- name: UpdateOptionGroup :exec
 UPDATE option_group
 SET
-    name = $2,
-    min_select = $3,
-    max_select = $4,
-    is_required = $5,
-    sort_order = $6,
+    name = $3,
+    min_select = $4,
+    max_select = $5,
+    is_required = $6,
+    sort_order = $7,
     updated_at = NOW()
 WHERE id = $1
-RETURNING *;
+  AND restaurant_id = $2;
 
 -- name: DeleteOptionGroup :exec
 DELETE FROM option_group
-WHERE id = $1;
+WHERE id = $1
+  AND restaurant_id = $2;
 
 -- name: GetOptionItemsByGroup :many
-SELECT *
-FROM option_item
-WHERE option_group_id = $1
-ORDER BY sort_order, id;
+SELECT oi.*
+FROM option_item oi
+JOIN option_group og ON og.id = oi.option_group_id
+WHERE oi.option_group_id = $1
+  AND og.restaurant_id = $2
+ORDER BY oi.sort_order, oi.id;
+
+-- name: GetOptionItem :one
+SELECT oi.*
+FROM option_item oi
+JOIN option_group og ON og.id = oi.option_group_id
+WHERE oi.id = $1
+  AND og.restaurant_id = $2;
 
 -- name: CreateOptionItem :one
 INSERT INTO option_item (
@@ -134,10 +155,10 @@ INSERT INTO option_item (
     price_delta, quantity_min, quantity_max, sort_order
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING *;
+RETURNING id;
 
--- name: UpdateOptionItem :one
-UPDATE option_item
+-- name: UpdateOptionItem :exec
+UPDATE option_item oi
 SET
     name = $2,
     linked_menu_item = $3,
@@ -146,20 +167,25 @@ SET
     quantity_max = $6,
     sort_order = $7,
     updated_at = NOW()
-WHERE id = $1
-RETURNING *;
+FROM option_group og
+WHERE oi.id = $1
+  AND oi.option_group_id = og.id
+  AND og.restaurant_id = $8;
 
 -- name: DeleteOptionItem :exec
-DELETE FROM option_item WHERE id = $1;
+DELETE FROM option_item oi
+USING option_group og
+WHERE oi.id = $1
+  AND oi.option_group_id = og.id
+  AND og.restaurant_id = $2;
 
--- name: CreateComboGroup :one
+-- name: CreateComboGroup :exec
 INSERT INTO combo_group (
     combo_item_id, name, min_select, max_select, sort_order
 )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING *;
+VALUES ($1, $2, $3, $4, $5);
 
--- name: UpdateComboGroup :one
+-- name: UpdateComboGroup :exec
 UPDATE combo_group
 SET
     name = $2,
@@ -167,8 +193,7 @@ SET
     max_select = $4,
     sort_order = $5,
     updated_at = NOW()
-WHERE id = $1
-RETURNING *;
+WHERE id = $1;
 
 -- name: DeleteComboGroup :exec
 DELETE FROM combo_group WHERE id = $1;
@@ -179,14 +204,13 @@ FROM combo_group_item
 WHERE combo_group_id = $1
 ORDER BY sort_order, id;
 
--- name: CreateComboGroupItem :one
+-- name: CreateComboGroupItem :exec
 INSERT INTO combo_group_item (
     combo_group_id, menu_item_id,
     price_delta, quantity_default, quantity_min,
     quantity_max, sort_order
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING *;
+VALUES ($1, $2, $3, $4, $5, $6, $7);
 
 -- name: DeleteComboGroupItem :exec
 DELETE FROM combo_group_item WHERE id = $1;

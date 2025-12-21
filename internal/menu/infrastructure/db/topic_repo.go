@@ -26,14 +26,23 @@ func (tr *TopicRepo) GetTopics(ctx context.Context, restaurantID int32) ([]domai
 	}
 	topics := make([]domain.Topic, 0, len(rows))
 	for _, row := range rows {
+		slug := ""
+		if row.Slug != nil {
+			slug = *row.Slug
+		}
+		var parent *domain.TopicID
+		if row.ParentID != nil {
+			val := domain.TopicID(*row.ParentID)
+			parent = &val
+		}
 		topics = append(topics, domain.Topic{
 			ID:           domain.TopicID(row.ID),
 			RestaurantID: row.RestaurantID,
 			Name:         row.Name,
-			Slug:         *row.Slug,
-			// ParentID:     (*domain.TopicID)(row.ParentID),
-			SortOrder: row.SortOrder,
-			IsActive:  row.IsActive,
+			Slug:         slug,
+			ParentID:     parent,
+			SortOrder:    row.SortOrder,
+			IsActive:     row.IsActive,
 		})
 	}
 	return topics, nil
@@ -47,13 +56,23 @@ func (tr *TopicRepo) GetTopic(ctx context.Context, id domain.TopicID, restaurant
 	if err != nil {
 		return domain.Topic{}, err
 	}
+	slug := ""
+	if row.Slug != nil {
+		slug = *row.Slug
+	}
+	var parent *domain.TopicID
+	if row.ParentID != nil {
+		val := domain.TopicID(*row.ParentID)
+		parent = &val
+	}
 	return domain.Topic{
+		ID:           domain.TopicID(row.ID),
 		RestaurantID: row.RestaurantID,
 		Name:         row.Name,
-		Slug:         *row.Slug,
+		Slug:         slug,
 		SortOrder:    row.SortOrder,
 		IsActive:     row.IsActive,
-		ParentID:     (*domain.TopicID)(row.ParentID),
+		ParentID:     parent,
 	}, nil
 }
 
@@ -71,19 +90,23 @@ func (tr *TopicRepo) CreateTopic(ctx context.Context, t *domain.Topic) (domain.T
 	return domain.TopicID(row.ID), err
 }
 
-// func (tr *TopicRepo) DeleteTopic(ctx context.Context, id domain.TopicID) error {
-// 	return tr.Sqlc.DeleteTopic(ctx, int64(id))
-// }
-
 func (tr *TopicRepo) UpdateTopic(ctx context.Context, t *domain.Topic) error {
 	if err := tr.Sqlc.UpdateTopic(ctx, sqlc.UpdateTopicParams{
-		Name:         t.Name,
 		ID:           int64(t.ID),
+		RestaurantID: t.RestaurantID,
+		Name:         t.Name,
 		Slug:         &t.Slug,
 		ParentID:     (*int64)(t.ParentID),
-		RestaurantID: t.RestaurantID,
+		SortOrder:    t.SortOrder,
 	}); err != nil {
 		return err
 	}
 	return nil
+}
+
+func (tr *TopicRepo) DeleteTopic(ctx context.Context, id domain.TopicID, restaurantID int32) error {
+	return tr.Sqlc.DeleteTopic(ctx, sqlc.DeleteTopicParams{
+		ID:           int64(id),
+		RestaurantID: restaurantID,
+	})
 }

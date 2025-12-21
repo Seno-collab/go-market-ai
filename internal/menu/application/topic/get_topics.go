@@ -20,15 +20,9 @@ func (useCase *GetTopicsUseCase) Execute(ctx context.Context, restaurantID int32
 	if err != nil {
 		return nil, err
 	}
-	items := make([]GetTopicResponse, len(rows))
+	items := make([]GetTopicResponse, 0, len(rows))
 	for _, row := range rows {
-		items = append(items, GetTopicResponse{
-			Name:         row.Name,
-			RestaurantID: row.RestaurantID,
-			Slug:         row.Slug,
-			SortOrder:    row.SortOrder,
-			ParentID:     int64(*row.ParentID),
-		})
+		items = append(items, mapTopicResponse(row))
 	}
 	resp := &GetTopicsResponse{
 		Items: items,

@@ -18,7 +18,9 @@ func InitTopicModule(pool *pgxpool.Pool, log zerolog.Logger) *TopicModule {
 	createUseCase := topicapp.NewCreateUseCase(repo)
 	getUseCase := topicapp.NewGetUseCase(repo)
 	getTopicsUseCase := topicapp.NewGetTopicsUseCase(repo)
-	topicHandler := menuhttp.NewTopicHandler(createUseCase, getUseCase, getTopicsUseCase, log)
+	updateUseCase := topicapp.NewUpdateUseCase(repo)
+	deleteUseCase := topicapp.NewDeleteUseCase(repo)
+	topicHandler := menuhttp.NewTopicHandler(createUseCase, getUseCase, getTopicsUseCase, updateUseCase, deleteUseCase, log)
 	return &TopicModule{
 		TopicHandler: topicHandler,
 	}

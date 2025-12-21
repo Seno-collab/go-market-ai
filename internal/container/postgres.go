@@ -8,35 +8,39 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func ConnectPostgres(dsn string) (*pgxpool.Pool, error) {
+var (
+	postgresMaxRetries     = 8
+	postgresInitialBackoff = time.Second
+	postgresDialTimeout    = 15 * time.Second
+)
 
+func ConnectPostgres(dsn string) (*pgxpool.Pool, error) {
 	var pool *pgxpool.Pool
 	var err error
 
-	maxRetries := 8
-	backoff := time.Second // start with 1s
-	for attempt := 1; attempt < maxRetries; attempt++ {
-		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-		defer cancel()
+	backoff := postgresInitialBackoff
+	for attempt := 1; attempt <= postgresMaxRetries; attempt++ {
+		ctx, cancel := context.WithTimeout(context.Background(), postgresDialTimeout)
 
 		pool, err = pgxpool.New(ctx, dsn)
 		if err == nil {
-			pingErr := pool.Ping(ctx)
-			if pingErr == nil {
-				fmt.Println("✅ Connected to Postgres!")
+			if pingErr := pool.Ping(ctx); pingErr == nil {
 				cancel()
 				return pool, nil
+			} else {
+				err = pingErr
 			}
-			fmt.Println("Ping error:", pingErr)
 			pool.Close()
 		}
 		cancel()
-		fmt.Printf("❌ Attempt %d/%d failed: %v — retrying in %v…\n", attempt, maxRetries, err, backoff)
+
+		if attempt == postgresMaxRetries {
+			break
+		}
 
 		time.Sleep(backoff)
 		backoff *= 2
-
 	}
 
-	return nil, fmt.Errorf("cannot connect to postgres after %d attempts: %v", maxRetries, err)
+	return nil, fmt.Errorf("cannot connect to postgres after %d attempts: %w", postgresMaxRetries, err)
 }

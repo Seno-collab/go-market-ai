@@ -356,6 +356,400 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/menu/item/{id}/option-groups": {
+            "get": {
+                "description": "Get option groups attached to a specific menu item",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionGroup"
+                ],
+                "summary": "List option groups of a menu item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Menu item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get option groups successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetOptionGroupsSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/option-group": {
+            "post": {
+                "description": "Create a new option group for a menu item",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionGroup"
+                ],
+                "summary": "Create option group",
+                "parameters": [
+                    {
+                        "description": "Option group payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/optiongroupapp.CreateOptionGroupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create option group successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.CreateOptionGroupSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/option-group/{id}": {
+            "get": {
+                "description": "Get detailed information of an option group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionGroup"
+                ],
+                "summary": "Get option group by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Option group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get option group successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetOptionGroupSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update option group details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionGroup"
+                ],
+                "summary": "Update option group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Option group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Option group payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/optiongroupapp.UpdateOptionGroupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update option group successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.UpdateOptionGroupSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an option group by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionGroup"
+                ],
+                "summary": "Delete option group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Option group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete option group successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.DeleteOptionGroupSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/option-group/{id}/option-items": {
+            "get": {
+                "description": "Get option items for a specific option group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionItem"
+                ],
+                "summary": "List option items in a group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Option group ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get option items successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetOptionItemsSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/option-item": {
+            "post": {
+                "description": "Create a new option item under an option group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionItem"
+                ],
+                "summary": "Create option item",
+                "parameters": [
+                    {
+                        "description": "Option item payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/optionitemapp.CreateOptionItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create option item successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.CreateOptionItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/option-item/{id}": {
+            "get": {
+                "description": "Get option item details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionItem"
+                ],
+                "summary": "Get option item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Option item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get option item successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetOptionItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update option item details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionItem"
+                ],
+                "summary": "Update option item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Option item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Option item payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/optionitemapp.UpdateOptionItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update option item successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.UpdateOptionItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete option item by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionItem"
+                ],
+                "summary": "Delete option item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Option item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete option item successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.DeleteOptionItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
         "/api/menu/restaurant/items": {
             "get": {
                 "description": "Get list of menu items by restaurant ID",
@@ -486,7 +880,7 @@ const docTemplate = `{
         },
         "/api/menu/topic/{id}": {
             "get": {
-                "description": "Get detailed information of a restaurant using its ID",
+                "description": "Get detailed information of a topic using its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -494,9 +888,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Restaurant"
+                    "Topic"
                 ],
-                "summary": "Get restaurant by ID",
+                "summary": "Get topic by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -511,6 +905,87 @@ const docTemplate = `{
                         "description": "Get topic successfully",
                         "schema": {
                             "$ref": "#/definitions/app.GetTopicSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update topic information by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Topic"
+                ],
+                "summary": "Update topic",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Topic ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Topic data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/topicapp.UpdateTopicRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update topic successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.UpdateTopicSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete topic by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Topic"
+                ],
+                "summary": "Delete topic",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Topic ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete topic successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.DeleteTopicSuccessResponseDoc"
                         }
                     },
                     "default": {
@@ -743,6 +1218,34 @@ const docTemplate = `{
                 }
             }
         },
+        "app.CreateOptionGroupSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CreateOptionItemSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
         "app.CreateRestaurantSuccessResponseDoc": {
             "type": "object",
             "properties": {
@@ -768,7 +1271,40 @@ const docTemplate = `{
                 }
             }
         },
+        "app.DeleteOptionGroupSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.DeleteOptionItemSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
         "app.DeleteRestaurantSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.DeleteTopicSuccessResponseDoc": {
             "type": "object",
             "properties": {
                 "message": {
@@ -800,6 +1336,107 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/menuitemapp.GetMenuItemResponse"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.GetOptionGroupSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "is_required": {
+                    "type": "boolean"
+                },
+                "max_select": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "min_select": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "app.GetOptionGroupsSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/optiongroupapp.GetOptionGroupResponse"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.GetOptionItemSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "linked_menu_item": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "option_group_id": {
+                    "type": "integer"
+                },
+                "price_delta": {
+                    "type": "integer"
+                },
+                "quantity_max": {
+                    "type": "integer"
+                },
+                "quantity_min": {
+                    "type": "integer"
+                },
+                "response_code": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "app.GetOptionItemsSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/optionitemapp.GetOptionItemResponse"
                     }
                 },
                 "message": {
@@ -930,7 +1567,40 @@ const docTemplate = `{
                 }
             }
         },
+        "app.UpdateOptionGroupSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.UpdateOptionItemSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
         "app.UpdateRestaurantSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.UpdateTopicSuccessResponseDoc": {
             "type": "object",
             "properties": {
                 "message": {
@@ -1134,6 +1804,153 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/domain.MenuItemType"
+                }
+            }
+        },
+        "optiongroupapp.CreateOptionGroupRequest": {
+            "type": "object",
+            "properties": {
+                "is_required": {
+                    "type": "boolean"
+                },
+                "max_select": {
+                    "type": "integer"
+                },
+                "menu_item_id": {
+                    "type": "integer"
+                },
+                "min_select": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "optiongroupapp.GetOptionGroupResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "is_required": {
+                    "type": "boolean"
+                },
+                "max_select": {
+                    "type": "integer"
+                },
+                "min_select": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "optiongroupapp.UpdateOptionGroupRequest": {
+            "type": "object",
+            "properties": {
+                "is_required": {
+                    "type": "boolean"
+                },
+                "max_select": {
+                    "type": "integer"
+                },
+                "min_select": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "optionitemapp.CreateOptionItemRequest": {
+            "type": "object",
+            "properties": {
+                "linked_menu_item": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "option_group_id": {
+                    "type": "integer"
+                },
+                "price_delta": {
+                    "type": "integer"
+                },
+                "quantity_max": {
+                    "type": "integer"
+                },
+                "quantity_min": {
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "optionitemapp.GetOptionItemResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "linked_menu_item": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "option_group_id": {
+                    "type": "integer"
+                },
+                "price_delta": {
+                    "type": "integer"
+                },
+                "quantity_max": {
+                    "type": "integer"
+                },
+                "quantity_min": {
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "optionitemapp.UpdateOptionItemRequest": {
+            "type": "object",
+            "properties": {
+                "linked_menu_item": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price_delta": {
+                    "type": "integer"
+                },
+                "quantity_max": {
+                    "type": "integer"
+                },
+                "quantity_min": {
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "type": "integer"
                 }
             }
         },
@@ -1367,6 +2184,9 @@ const docTemplate = `{
         "topicapp.GetTopicResponse": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -1374,6 +2194,23 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "restaurant_id": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "topicapp.UpdateTopicRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
                     "type": "integer"
                 },
                 "slug": {

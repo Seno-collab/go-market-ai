@@ -1,4 +1,5 @@
 run:
+	go test ./...
 	go run cmd/api/main.go
 
 sqlc:
