@@ -40,15 +40,16 @@ jobs:
           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
           set -e
           APP_PATH=${{ secrets.DEPLOY_PATH }}
+          mkdir -p "$APP_PATH"
           cd "$APP_PATH"
 
           echo "🔧 Creating .env file..."
-          cat << 'ENVEOF' > "$APP_PATH/.env"
+          cat << 'ENVEOF' > .env
           ${{ secrets.ENV_FILE }}
           ENVEOF
 
           echo "🔧 Creating grafana.env file..."
-          cat << 'ENVEOF' > "$APP_PATH/grafana.env"
+          cat << 'ENVEOF' > grafana.env
           ${{ secrets.GRAFANA_ENV }}
           ENVEOF
 
