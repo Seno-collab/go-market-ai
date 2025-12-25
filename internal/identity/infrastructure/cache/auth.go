@@ -66,6 +66,9 @@ func (authCache *AuthCache) SetRefreshTokenCache(key string, refersh string, ttl
 
 func (authCache *AuthCache) GetRefreshTokenCache(key string) (string, error) {
 	value, err := authCache.Redis.Get(authCache.Ctx, key).Result()
+	if err == redis.Nil {
+		return "", nil
+	}
 	if err != nil {
 		return "", err
 	}

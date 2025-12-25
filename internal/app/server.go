@@ -38,7 +38,22 @@ func NewServer() *echo.Echo {
 	p.Use(e)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000"},
+		AllowMethods: []string{
+			echo.GET,
+			echo.PUT,
+			echo.POST,
+			echo.DELETE,
+		},
+		AllowHeaders: []string{
+			echo.HeaderOrigin,
+			echo.HeaderContentType,
+			echo.HeaderAccept,
+			echo.HeaderAuthorization,
+		},
+		AllowCredentials: true,
+	}))
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 	e.Use(middlewares.RequestIDMiddleware(logger))
 	e.Use(middleware.ContextTimeout(60 * time.Second))

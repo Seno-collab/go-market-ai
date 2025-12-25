@@ -72,6 +72,10 @@ func NumericToMoney(n pgtype.Numeric) (Money, error) {
 }
 
 func NumericFromMoney(m Money) pgtype.Numeric {
+	return m.Numeric()
+}
+
+func (m Money) Numeric() pgtype.Numeric {
 	return pgtype.Numeric{
 		Int:   big.NewInt(int64(m)),
 		Exp:   0, // integer, 10^0

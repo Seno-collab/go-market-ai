@@ -16,7 +16,11 @@ func NewUpdateUseCase(repo domain.MenuItemRepository) *UpdateUseCase {
 	}
 }
 
-func (useCase *UpdateUseCase) Execute(ctx context.Context, req UpdateMenuItemRequest, restaurantID int32, topicID int64) error {
+func (uc *UpdateUseCase) Execute(ctx context.Context, req UpdateMenuItemRequest, restaurantID int32, menuItemID int64) error {
+	existing, err := uc.Repo.GetMenuItemByID(ctx, menuItemID, restaurantID)
+	if err != nil {
+		return err
+	}
 	url, err := utils.NewUrl(req.ImageUrl)
 	if err != nil {
 		return err
@@ -25,9 +29,14 @@ func (useCase *UpdateUseCase) Execute(ctx context.Context, req UpdateMenuItemReq
 	if err != nil {
 		return err
 	}
-	entity, err := domain.NewMenuItem(req.Name, price, req.Type, url, req.Description, req.Sku, restaurantID, domain.TopicID(topicID))
-	if err := entity.Validate(); err != nil {
+	existing.Name = req.Name
+	existing.Sku = req.Sku
+	existing.Description = req.Description
+	existing.Type = req.Type
+	existing.ImageUrl = url
+	existing.BasePrice = price
+	if err := existing.Validate(); err != nil {
 		return err
 	}
-	return nil
+	return uc.Repo.UpdateMenuItem(ctx, &existing)
 }

@@ -15,6 +15,6 @@ func NewDeleteUseCase(repo domain.MenuItemRepository) *DeleteUseCase {
 	}
 }
 
-func (useCase *DeleteUseCase) Execute(ctx context.Context, id int64, restaurantID int32) error {
-	return useCase.Repo.DeleteMenuItem(ctx, id, restaurantID)
+func (uc *DeleteUseCase) Execute(ctx context.Context, id int64, restaurantID int32) error {
+	return uc.Repo.DeleteMenuItem(ctx, id, restaurantID)
 }

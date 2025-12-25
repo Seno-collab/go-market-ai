@@ -15,7 +15,7 @@ func NewCreateUseCase(repo domain.TopicRepository) *CreateUseCase {
 	}
 }
 
-func (useCase *CreateUseCase) Execute(ctx context.Context, req CreateTopicRequest, restaurantID int32) error {
+func (uc *CreateUseCase) Execute(ctx context.Context, req CreateTopicRequest, restaurantID int32) error {
 	entity, err := newTopicEntity(restaurantID, req.Name, req.Slug, req.ParentID, req.SortOrder)
 	if err != nil {
 		return err
@@ -23,7 +23,7 @@ func (useCase *CreateUseCase) Execute(ctx context.Context, req CreateTopicReques
 	if err := entity.Validate(); err != nil {
 		return err
 	}
-	_, err = useCase.Repo.CreateTopic(ctx, entity)
+	_, err = uc.Repo.CreateTopic(ctx, entity)
 	if err != nil {
 		return err
 	}

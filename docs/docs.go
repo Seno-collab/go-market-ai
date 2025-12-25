@@ -233,7 +233,45 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/menu/item": {
+        "/api/menu/item/{id}/option-groups": {
+            "get": {
+                "description": "Get option groups attached to a specific menu item",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OptionGroup"
+                ],
+                "summary": "List option groups of a menu item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Menu item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get option groups successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetOptionGroupsSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/items": {
             "post": {
                 "description": "Create a new menu item with name, price, description and optional image/logo",
                 "consumes": [
@@ -273,7 +311,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/menu/item/{id}": {
+        "/api/menu/items/{id}": {
             "get": {
                 "description": "Get a menu item detail by its ID",
                 "consumes": [
@@ -345,44 +383,6 @@ const docTemplate = `{
                         "description": "Update menu item successfully",
                         "schema": {
                             "$ref": "#/definitions/app.UpdateMenuItemSuccessResponseDoc"
-                        }
-                    },
-                    "default": {
-                        "description": "Errors",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorDoc"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/menu/item/{id}/option-groups": {
-            "get": {
-                "description": "Get option groups attached to a specific menu item",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OptionGroup"
-                ],
-                "summary": "List option groups of a menu item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Get option groups successfully",
-                        "schema": {
-                            "$ref": "#/definitions/app.GetOptionGroupsSuccessResponseDoc"
                         }
                     },
                     "default": {

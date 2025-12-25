@@ -26,10 +26,10 @@ func InitRestaurantModule(pool *pgxpool.Pool, auth *middlewares.IdentityMiddlewa
 	createRestaurantUseCase := restaurantapp.NewCreateRestaurantUseCase(repo)
 	updateRestaurantUseCase := restaurantapp.NewUpdateRestaurantUseCase(repo)
 	deleteRestaurantUseCase := restaurantapp.NewDeleteUseCase(repo)
-	getByIdUUseCase := restaurantapp.NewGetByIDUseCase(repo)
+	getByIDUseCase := restaurantapp.NewGetByIDUseCase(repo)
 	handler := restauranthttp.NewRestaurantHandler(
 		createRestaurantUseCase,
-		getByIdUUseCase,
+		getByIDUseCase,
 		updateRestaurantUseCase,
 		deleteRestaurantUseCase,
 		log,

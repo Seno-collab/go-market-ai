@@ -70,7 +70,7 @@ func (h *RestaurantHandler) Create(c echo.Context) error {
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success[restaurantapp.CreateRestaurantResponse](c, &restaurantapp.CreateRestaurantResponse{
-		Id: id,
+		ID: id,
 	}, "Create restaurant successfully")
 }
 

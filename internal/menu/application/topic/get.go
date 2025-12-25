@@ -15,8 +15,8 @@ func NewGetUseCase(repo domain.TopicRepository) *GetUseCase {
 	}
 }
 
-func (useCase *GetUseCase) Execute(ctx context.Context, id int64, restaurantID int32) (*GetTopicResponse, error) {
-	row, err := useCase.Repo.GetTopic(ctx, domain.TopicID(id), restaurantID)
+func (uc *GetUseCase) Execute(ctx context.Context, id int64, restaurantID int32) (*GetTopicResponse, error) {
+	row, err := uc.Repo.GetTopic(ctx, domain.TopicID(id), restaurantID)
 	if err != nil {
 		return nil, err
 	}

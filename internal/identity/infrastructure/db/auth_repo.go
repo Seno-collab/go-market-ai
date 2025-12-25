@@ -25,6 +25,9 @@ func (au *AuthRepo) GetByEmail(ctx context.Context, email string) (*auth.Entity,
 	if err != nil {
 		return nil, err
 	}
+	if u.Email == nil {
+		return nil, auth.ErrInvalidEmail
+	}
 	em, err := utils.NewEmail(*u.Email)
 	if err != nil {
 		return nil, auth.ErrInvalidEmail

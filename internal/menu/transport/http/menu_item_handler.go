@@ -4,10 +4,16 @@ import (
 	menuitemapp "go-ai/internal/menu/application/menu_item"
 	"go-ai/internal/transport/response"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog"
+)
+
+const (
+	errMissingTopicID       = "missing topic id"
+	errInvalidTopicIDFormat = "invalid topic id format"
+	errFailedGetMenuItem    = "Failed to get menu item"
+	logGetMenuItemError     = "Get menu item error"
 )
 
 type MenuItemHandler struct {
@@ -45,18 +51,18 @@ func NewMenuItemHandler(
 // @Param data body menuitemapp.CreateMenuItemRequest true "Menu item data"
 // @Success 200 {object} app.CreateMenuItemSuccessResponseDoc "Create menu item success"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/menu/item [post]
+// @Router /api/menu/items [post]
 func (h *MenuItemHandler) Create(c echo.Context) error {
 	var in menuitemapp.CreateMenuItemRequest
 	if err := c.Bind(&in); err != nil {
-		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	restaurantID, err := getRestaurantID(c)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
-	err := h.CreateUseCase.Execute(c.Request().Context(), in, restaurantID.(int32))
+	err = h.CreateUseCase.Execute(c.Request().Context(), in, restaurantID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("Create menu item error")
 		return response.Error(c, http.StatusBadRequest, "Failed to create menu item")
@@ -73,27 +79,23 @@ func (h *MenuItemHandler) Create(c echo.Context) error {
 // @Param id path string true "Menu item ID"
 // @Success 200 {object} app.GetMenuItemSuccessResponseDoc "Get menu item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/menu/item/{id} [get]
+// @Router /api/menu/items/{id} [get]
 func (h *MenuItemHandler) Get(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(c, http.StatusBadRequest, "missing topic id")
-	}
-	idInt64, err := strconv.ParseInt(id, 10, 64)
+	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingTopicID, errInvalidTopicIDFormat)
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid topic id format")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
-	}
-	resp, err := h.GetUseCase.Execute(c.Request().Context(), idInt64, restaurantID.(int32))
+	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("Get menu item error")
-		return response.Error(c, http.StatusBadRequest, "Failed to get menu item")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
-	return response.Success[menuitemapp.GetMenuItemResponse](c, resp, "Get menu item successfully")
+	resp, err := h.GetUseCase.Execute(c.Request().Context(), idInt64, restaurantID)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logGetMenuItemError)
+		return response.Error(c, http.StatusBadRequest, errFailedGetMenuItem)
+	}
+	return response.Success(c, resp, "Get menu item successfully")
 }
 
 // UpdateMenuItemHandler godoc
@@ -106,28 +108,26 @@ func (h *MenuItemHandler) Get(c echo.Context) error {
 // @Param data body menuitemapp.UpdateMenuItemRequest true "Update menu item data"
 // @Success 200 {object} app.UpdateMenuItemSuccessResponseDoc "Update menu item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/menu/item/{id} [put]
+// @Router /api/menu/items/{id} [put]
 func (h *MenuItemHandler) Update(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(c, http.StatusBadRequest, "missing topic id")
-	}
-	idInt64, err := strconv.ParseInt(id, 10, 64)
-
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingTopicID, errInvalidTopicIDFormat)
+	if err != nil {
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 
 	var in menuitemapp.UpdateMenuItemRequest
 	if err := c.Bind(&in); err != nil {
-		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
-	err = h.UpdateUseCase.Execute(c.Request().Context(), in, restaurantID.(int32), idInt64)
+	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("Get menu item error")
-		return response.Error(c, http.StatusBadRequest, "Failed to get menu item")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
+	}
+	err = h.UpdateUseCase.Execute(c.Request().Context(), in, restaurantID, idInt64)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logGetMenuItemError)
+		return response.Error(c, http.StatusBadRequest, errFailedGetMenuItem)
 	}
 	return response.Success[any](c, nil, "Update menu item successfully")
 }
@@ -141,29 +141,27 @@ func (h *MenuItemHandler) Update(c echo.Context) error {
 // @Param id path string true "Menu item ID"
 // @Success 200 {object} app.DeleteMenuItemSuccessResponseDoc "Delete menu item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/menu/item/{id} [delete]
+// @Router /api/menu/items/{id} [delete]
 
 func (h *MenuItemHandler) Delete(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(c, http.StatusBadRequest, "missing topic id")
-	}
-	idInt64, err := strconv.ParseInt(id, 10, 64)
-
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingTopicID, errInvalidTopicIDFormat)
+	if err != nil {
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 
 	var in menuitemapp.UpdateMenuItemRequest
 	if err := c.Bind(&in); err != nil {
-		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
-	err = h.DeleteUseCase.Execute(c.Request().Context(), idInt64, restaurantID.(int32))
+	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("Get menu item error")
-		return response.Error(c, http.StatusBadRequest, "Failed to get menu item")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
+	}
+	err = h.DeleteUseCase.Execute(c.Request().Context(), idInt64, restaurantID)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logGetMenuItemError)
+		return response.Error(c, http.StatusBadRequest, errFailedGetMenuItem)
 	}
 	return response.Success[any](c, nil, "Delete menu item successfully")
 }
@@ -181,15 +179,15 @@ func (h *MenuItemHandler) Delete(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/restaurant/items [get]
 func (h *MenuItemHandler) GetItems(c echo.Context) error {
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
-	}
-	resp, err := h.GetMenuItemsUseCase.Execute(c.Request().Context(), restaurantID.(int32))
+	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("Get menu item error")
-		return response.Error(c, http.StatusBadRequest, "Failed to get menu item")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
-	return response.Success[menuitemapp.GetMenuItemsResponse](c, resp, "Get menu items by restaurant successfully")
+	resp, err := h.GetMenuItemsUseCase.Execute(c.Request().Context(), restaurantID)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logGetMenuItemError)
+		return response.Error(c, http.StatusBadRequest, errFailedGetMenuItem)
+	}
+	return response.Success(c, resp, "Get menu items by restaurant successfully")
 }

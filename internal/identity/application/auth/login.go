@@ -27,11 +27,10 @@ func NewLoginUseCase(repo auth.Repository, cache *cache.AuthCache, config *confi
 }
 
 func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginResponse, error) {
-
 	email, err := utils.NewEmail(req.Email)
 	storedUser, err := s.Repo.GetByEmail(ctx, email.String())
 	if err != nil {
-		return nil, err
+		return nil, auth.ErrInvalidCredentials
 	}
 	if storedUser.IsActive == false {
 		return nil, auth.ErrUserInactive

@@ -10,9 +10,9 @@ import (
 
 func RegisterMenuItemRoutes(api *echo.Group, h *MenuItemHandler, auth *middlewares.IdentityMiddleware, rbacSvc rbac.Service, requiredRestaurant *middlewaresRestaurant.RestaurantRequired) {
 	r := api.Group("/menu", auth.Handler, requiredRestaurant.Handler, middlewares.RequirePermission(rbacSvc, "admin"))
-	r.POST("/item", h.Create)
-	r.GET("/item/:id", h.Get)
-	r.PUT("item/:id", h.Update)
+	r.POST("/items", h.Create)
+	r.GET("/items/:id", h.Get)
+	r.PUT("items/:id", h.Update)
 	r.GET("/restaurant/items", h.GetItems)
 }
 

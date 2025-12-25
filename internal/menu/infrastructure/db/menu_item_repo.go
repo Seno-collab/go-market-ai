@@ -42,7 +42,7 @@ func (r *MenuItemRepo) GetMenuItemByID(ctx context.Context, id int64, restaurant
 }
 
 func (r *MenuItemRepo) CreateMenuItem(ctx context.Context, item *domain.MenuItem) (int64, error) {
-	price := utils.NumericFromMoney(item.BasePrice)
+	price := item.BasePrice.Numeric()
 	url := item.ImageUrl.String()
 	id := int64(*item.TopicID)
 	id, err := r.Sqlc.CreateMenuItem(ctx, sqlc.CreateMenuItemParams{
@@ -62,7 +62,7 @@ func (r *MenuItemRepo) CreateMenuItem(ctx context.Context, item *domain.MenuItem
 }
 
 func (r *MenuItemRepo) UpdateMenuItem(ctx context.Context, item *domain.MenuItem) error {
-	price := utils.NumericFromMoney(item.BasePrice)
+	price := item.BasePrice.Numeric()
 	url := item.ImageUrl.String()
 	err := r.Sqlc.UpdateMenuItem(ctx, sqlc.UpdateMenuItemParams{
 		ID:           item.ID,
@@ -93,7 +93,7 @@ func (r *MenuItemRepo) GetMenuItems(ctx context.Context, restaurantID int32) ([]
 	if err != nil {
 		return nil, err
 	}
-	items := make([]domain.MenuItem, len(rows))
+	items := make([]domain.MenuItem, 0, len(rows))
 	for _, row := range rows {
 		price, err := utils.NumericToMoney(row.BasePrice)
 		if err != nil {

@@ -15,12 +15,12 @@ func NewGetMenuItemsUseCase(repo domain.MenuItemRepository) *GetMenuItemsUseCase
 	}
 }
 
-func (useCase *GetMenuItemsUseCase) Execute(ctx context.Context, restaurantID int32) (*GetMenuItemsResponse, error) {
-	items, err := useCase.Repo.GetMenuItems(ctx, restaurantID)
+func (uc *GetMenuItemsUseCase) Execute(ctx context.Context, restaurantID int32) (*GetMenuItemsResponse, error) {
+	items, err := uc.Repo.GetMenuItems(ctx, restaurantID)
 	if err != nil {
 		return nil, err
 	}
-	resp := make([]GetMenuItemResponse, len(items))
+	resp := make([]GetMenuItemResponse, 0, len(items))
 	for _, item := range items {
 		resp = append(resp, GetMenuItemResponse{
 			Name:        item.Name,

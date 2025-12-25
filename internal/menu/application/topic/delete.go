@@ -15,6 +15,6 @@ func NewDeleteUseCase(repo domain.TopicRepository) *DeleteUseCase {
 	}
 }
 
-func (useCase *DeleteUseCase) Execute(ctx context.Context, id int64, restaurantID int32) error {
-	return useCase.Repo.DeleteTopic(ctx, domain.TopicID(id), restaurantID)
+func (uc *DeleteUseCase) Execute(ctx context.Context, id int64, restaurantID int32) error {
+	return uc.Repo.DeleteTopic(ctx, domain.TopicID(id), restaurantID)
 }

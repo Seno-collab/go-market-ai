@@ -9,7 +9,7 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-func (m *MinioClient) UpLoadFile(ctx context.Context, file multipart.File, header *multipart.FileHeader) (string, error) {
+func (m *MinioClient) UploadFile(ctx context.Context, file multipart.File, header *multipart.FileHeader) (string, error) {
 	objectName := fmt.Sprintf("file-%d-%s", time.Now().UnixNano(), header.Filename)
 	_, err := m.Client.PutObject(ctx,
 		m.Bucket,
@@ -23,7 +23,7 @@ func (m *MinioClient) UpLoadFile(ctx context.Context, file multipart.File, heade
 	if err != nil {
 		return "", err
 	}
-	return m.PublicUrl(objectName), nil
+	return m.PublicURL(objectName), nil
 }
 
 func (m *MinioClient) UploadLogo(ctx context.Context, file multipart.File, header *multipart.FileHeader) (string, error) {
@@ -40,5 +40,5 @@ func (m *MinioClient) UploadLogo(ctx context.Context, file multipart.File, heade
 	if err != nil {
 		return "", err
 	}
-	return m.PublicUrl(objectName), nil
+	return m.PublicURL(objectName), nil
 }

@@ -15,7 +15,7 @@ func NewCreateUseCase(repo domain.VariantsRepository) *CreateUseCase {
 	}
 }
 
-func (useCase *CreateUseCase) Execute(ctx context.Context) error {
+func (uc *CreateUseCase) Execute(ctx context.Context) error {
 
 	return nil
 }

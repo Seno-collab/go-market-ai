@@ -4,7 +4,6 @@ import (
 	"context"
 	"go-ai/internal/menu/domain"
 	"go-ai/internal/menu/infrastructure/sqlc"
-	"go-ai/pkg/utils"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -57,7 +56,7 @@ func (r *OptionItemRepo) CreateOptionItem(ctx context.Context, item *domain.Opti
 		OptionGroupID:  item.OptionGroupID,
 		Name:           name,
 		LinkedMenuItem: item.LinkedMenuItem,
-		PriceDelta:     utils.NumericFromMoney(item.PriceDelta),
+		PriceDelta:     item.PriceDelta.Numeric(),
 		QuantityMin:    item.QuantityMin,
 		QuantityMax:    ptrToNullableInt(item.QuantityMax),
 		SortOrder:      item.SortOrder,
@@ -70,7 +69,7 @@ func (r *OptionItemRepo) UpdateOptionItem(ctx context.Context, item *domain.Opti
 		ID:             item.ID,
 		Name:           name,
 		LinkedMenuItem: item.LinkedMenuItem,
-		PriceDelta:     utils.NumericFromMoney(item.PriceDelta),
+		PriceDelta:     item.PriceDelta.Numeric(),
 		QuantityMin:    item.QuantityMin,
 		QuantityMax:    ptrToNullableInt(item.QuantityMax),
 		SortOrder:      item.SortOrder,

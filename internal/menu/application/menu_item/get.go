@@ -15,8 +15,8 @@ func NewGetUseCase(repo domain.MenuItemRepository) *GetUseCase {
 	}
 }
 
-func (useCase *GetUseCase) Execute(ctx context.Context, id int64, restaurantID int32) (*GetMenuItemResponse, error) {
-	item, err := useCase.Repo.GetMenuItemByID(ctx, id, restaurantID)
+func (uc *GetUseCase) Execute(ctx context.Context, id int64, restaurantID int32) (*GetMenuItemResponse, error) {
+	item, err := uc.Repo.GetMenuItemByID(ctx, id, restaurantID)
 	if err != nil {
 		return nil, err
 	}

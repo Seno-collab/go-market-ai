@@ -24,22 +24,33 @@ type MenuItem struct {
 	ComboGroups  []ComboGroup
 }
 
-func NewMenuItem(name string, price utils.Money, t MenuItemType, url utils.Url, description, sku string, restaurantID int32, topicID TopicID) (*MenuItem, error) {
-	if name == "" {
+type NewMenuItemParams struct {
+	Name         string
+	Price        utils.Money
+	Type         MenuItemType
+	ImageURL     utils.Url
+	Description  string
+	SKU          string
+	RestaurantID int32
+	TopicID      TopicID
+}
+
+func NewMenuItem(params NewMenuItemParams) (*MenuItem, error) {
+	if params.Name == "" {
 		return nil, ErrNameRequired
 	}
-	if !t.Valid() {
+	if !params.Type.Valid() {
 		return nil, errors.New("menu: invalid type")
 	}
 	return &MenuItem{
-		Name:         name,
-		BasePrice:    price,
-		Type:         t,
-		ImageUrl:     url,
-		Sku:          sku,
-		Description:  description,
-		RestaurantID: restaurantID,
-		TopicID:      &topicID,
+		Name:         params.Name,
+		BasePrice:    params.Price,
+		Type:         params.Type,
+		ImageUrl:     params.ImageURL,
+		Sku:          params.SKU,
+		Description:  params.Description,
+		RestaurantID: params.RestaurantID,
+		TopicID:      &params.TopicID,
 		IsActive:     true,
 	}, nil
 }

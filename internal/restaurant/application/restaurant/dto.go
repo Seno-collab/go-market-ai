@@ -29,11 +29,11 @@ type CreateRestaurantRequest struct {
 }
 
 type CreateRestaurantResponse struct {
-	Id int32 `json:"id"`
+	ID int32 `json:"id"`
 }
 
 type GetRestaurantByIDRequest struct {
-	Id int32 `json:"id"`
+	ID int32 `json:"id"`
 }
 
 type GetRestaurantByIDResponse struct {

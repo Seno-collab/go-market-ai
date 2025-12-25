@@ -4,11 +4,12 @@ import (
 	optiongroupapp "go-ai/internal/menu/application/option-group"
 	"go-ai/internal/transport/response"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog"
 )
+
+const errInvalidOptionGroupID = "invalid option group id"
 
 type OptionGroupHandler struct {
 	CreateUseCase        *optiongroupapp.CreateUseCase
@@ -50,12 +51,12 @@ func NewOptionGroupHandler(
 func (h *OptionGroupHandler) Create(c echo.Context) error {
 	var req optiongroupapp.CreateOptionGroupRequest
 	if err := c.Bind(&req); err != nil {
-		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	id, err := h.CreateUseCase.Execute(c.Request().Context(), req, restaurantID)
 	if err != nil {
@@ -76,14 +77,14 @@ func (h *OptionGroupHandler) Create(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group/{id} [get]
 func (h *OptionGroupHandler) Get(c echo.Context) error {
-	id, err := parseIDParam(c.Param("id"))
+	id, err := parseRequiredIDParam(c.Param("id"), errInvalidOptionGroupID, errInvalidOptionGroupID)
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid option group id")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	group, err := h.GetUseCase.Execute(c.Request().Context(), id, restaurantID)
 	if err != nil {
@@ -104,14 +105,14 @@ func (h *OptionGroupHandler) Get(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/item/{id}/option-groups [get]
 func (h *OptionGroupHandler) GetByMenuItem(c echo.Context) error {
-	menuItemID, err := parseIDParam(c.Param("id"))
+	menuItemID, err := parseRequiredIDParam(c.Param("id"), "invalid menu item id", "invalid menu item id")
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid menu item id")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	resp, err := h.GetByMenuItemUseCase.Execute(c.Request().Context(), menuItemID, restaurantID)
 	if err != nil {
@@ -133,18 +134,18 @@ func (h *OptionGroupHandler) GetByMenuItem(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group/{id} [put]
 func (h *OptionGroupHandler) Update(c echo.Context) error {
-	id, err := parseIDParam(c.Param("id"))
+	id, err := parseRequiredIDParam(c.Param("id"), errInvalidOptionGroupID, errInvalidOptionGroupID)
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid option group id")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	var req optiongroupapp.UpdateOptionGroupRequest
 	if err := c.Bind(&req); err != nil {
-		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	if err := h.UpdateUseCase.Execute(c.Request().Context(), id, req, restaurantID); err != nil {
 		h.Logger.Error().Err(err).Msg("update option group error")
@@ -164,34 +165,18 @@ func (h *OptionGroupHandler) Update(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group/{id} [delete]
 func (h *OptionGroupHandler) Delete(c echo.Context) error {
-	id, err := parseIDParam(c.Param("id"))
+	id, err := parseRequiredIDParam(c.Param("id"), errInvalidOptionGroupID, errInvalidOptionGroupID)
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid option group id")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	if err := h.DeleteUseCase.Execute(c.Request().Context(), id, restaurantID); err != nil {
 		h.Logger.Error().Err(err).Msg("delete option group error")
 		return response.Error(c, http.StatusBadRequest, "Failed to delete option group")
 	}
 	return response.Success[any](c, nil, "Delete option group successfully")
-}
-
-func parseIDParam(raw string) (int64, error) {
-	return strconv.ParseInt(raw, 10, 64)
-}
-
-func getRestaurantID(c echo.Context) (int32, error) {
-	val := c.Get("restaurant_id")
-	if val == nil {
-		return 0, echo.NewHTTPError(http.StatusBadRequest, "missing restaurant id")
-	}
-	restaurantID, ok := val.(int32)
-	if !ok {
-		return 0, echo.NewHTTPError(http.StatusBadRequest, "invalid restaurant id")
-	}
-	return restaurantID, nil
 }

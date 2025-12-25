@@ -49,12 +49,12 @@ func NewOptionItemHandler(
 func (h *OptionItemHandler) Create(c echo.Context) error {
 	var req optionitemapp.CreateOptionItemRequest
 	if err := c.Bind(&req); err != nil {
-		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	id, err := h.CreateUseCase.Execute(c.Request().Context(), req, restaurantID)
 	if err != nil {
@@ -75,14 +75,14 @@ func (h *OptionItemHandler) Create(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item/{id} [get]
 func (h *OptionItemHandler) Get(c echo.Context) error {
-	id, err := parseIDParam(c.Param("id"))
+	id, err := parseRequiredIDParam(c.Param("id"), "invalid option item id", "invalid option item id")
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid option item id")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	item, err := h.GetUseCase.Execute(c.Request().Context(), id, restaurantID)
 	if err != nil {
@@ -103,14 +103,14 @@ func (h *OptionItemHandler) Get(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group/{id}/option-items [get]
 func (h *OptionItemHandler) GetByGroup(c echo.Context) error {
-	groupID, err := parseIDParam(c.Param("id"))
+	groupID, err := parseRequiredIDParam(c.Param("id"), "invalid option group id", "invalid option group id")
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid option group id")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	resp, err := h.GetByGroupUseCase.Execute(c.Request().Context(), groupID, restaurantID)
 	if err != nil {
@@ -132,18 +132,18 @@ func (h *OptionItemHandler) GetByGroup(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item/{id} [put]
 func (h *OptionItemHandler) Update(c echo.Context) error {
-	id, err := parseIDParam(c.Param("id"))
+	id, err := parseRequiredIDParam(c.Param("id"), "invalid option item id", "invalid option item id")
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid option item id")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	var req optionitemapp.UpdateOptionItemRequest
 	if err := c.Bind(&req); err != nil {
-		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	if err := h.UpdateUseCase.Execute(c.Request().Context(), id, req, restaurantID); err != nil {
 		h.Logger.Error().Err(err).Msg("update option item error")
@@ -163,14 +163,14 @@ func (h *OptionItemHandler) Update(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item/{id} [delete]
 func (h *OptionItemHandler) Delete(c echo.Context) error {
-	id, err := parseIDParam(c.Param("id"))
+	id, err := parseRequiredIDParam(c.Param("id"), "invalid option item id", "invalid option item id")
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid option item id")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
-		h.Logger.Error().Err(err).Msg("invalid restaurant id")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
 	if err := h.DeleteUseCase.Execute(c.Request().Context(), id, restaurantID); err != nil {
 		h.Logger.Error().Err(err).Msg("delete option item error")

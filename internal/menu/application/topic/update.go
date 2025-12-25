@@ -15,7 +15,7 @@ func NewUpdateUseCase(repo domain.TopicRepository) *UpdateUseCase {
 	}
 }
 
-func (useCase *UpdateUseCase) Execute(ctx context.Context, id int64, req UpdateTopicRequest, restaurantID int32) error {
+func (uc *UpdateUseCase) Execute(ctx context.Context, id int64, req UpdateTopicRequest, restaurantID int32) error {
 	entity, err := newTopicEntity(restaurantID, req.Name, req.Slug, req.ParentID, req.SortOrder)
 	if err != nil {
 		return err
@@ -24,5 +24,5 @@ func (useCase *UpdateUseCase) Execute(ctx context.Context, id int64, req UpdateT
 	if err := entity.Validate(); err != nil {
 		return err
 	}
-	return useCase.Repo.UpdateTopic(ctx, entity)
+	return uc.Repo.UpdateTopic(ctx, entity)
 }

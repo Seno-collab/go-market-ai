@@ -4,7 +4,6 @@ import (
 	topicapp "go-ai/internal/menu/application/topic"
 	"go-ai/internal/transport/response"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog"
@@ -50,14 +49,14 @@ func NewTopicHandler(
 func (h *TopicHandler) Create(c echo.Context) error {
 	var in topicapp.CreateTopicRequest
 	if err := c.Bind(&in); err != nil {
-		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	restaurantID, err := getRestaurantID(c)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
-	err := h.CreateUseCase.Execute(c.Request().Context(), in, restaurantID.(int32))
+	err = h.CreateUseCase.Execute(c.Request().Context(), in, restaurantID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("Create topic error")
 		return response.Error(c, http.StatusBadRequest, "Failed to create topic")
@@ -76,20 +75,16 @@ func (h *TopicHandler) Create(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/topic/{id} [get]
 func (h *TopicHandler) Get(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(c, http.StatusBadRequest, "missing topic id")
-	}
-	idInt64, err := strconv.ParseInt(id, 10, 64)
+	idInt64, err := parseRequiredIDParam(c.Param("id"), "missing topic id", "invalid topic id format")
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid topic id format")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	restaurantID, err := getRestaurantID(c)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
-	resp, err := h.GetUseCase.Execute(c.Request().Context(), idInt64, restaurantID.(int32))
+	resp, err := h.GetUseCase.Execute(c.Request().Context(), idInt64, restaurantID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("Get topic error")
 		return response.Error(c, http.StatusBadRequest, "Failed to get topic")
@@ -109,24 +104,20 @@ func (h *TopicHandler) Get(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/topic/{id} [put]
 func (h *TopicHandler) Update(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(c, http.StatusBadRequest, "missing topic id")
-	}
-	idInt64, err := strconv.ParseInt(id, 10, 64)
+	idInt64, err := parseRequiredIDParam(c.Param("id"), "missing topic id", "invalid topic id format")
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid topic id format")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	var in topicapp.UpdateTopicRequest
 	if err := c.Bind(&in); err != nil {
-		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	restaurantID, err := getRestaurantID(c)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
-	if err := h.UpdateUseCase.Execute(c.Request().Context(), idInt64, in, restaurantID.(int32)); err != nil {
+	if err := h.UpdateUseCase.Execute(c.Request().Context(), idInt64, in, restaurantID); err != nil {
 		h.Logger.Error().Err(err).Msg("Update topic error")
 		return response.Error(c, http.StatusBadRequest, "Failed to update topic")
 	}
@@ -144,12 +135,12 @@ func (h *TopicHandler) Update(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/restaurant/topics [get]
 func (h *TopicHandler) GetTopics(c echo.Context) error {
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	restaurantID, err := getRestaurantID(c)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
-	resp, err := h.GetTopicsUseCase.Execute(c.Request().Context(), restaurantID.(int32))
+	resp, err := h.GetTopicsUseCase.Execute(c.Request().Context(), restaurantID)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("Get topic error")
 		return response.Error(c, http.StatusBadRequest, "Failed to get topics")
@@ -168,20 +159,16 @@ func (h *TopicHandler) GetTopics(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/topic/{id} [delete]
 func (h *TopicHandler) Delete(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(c, http.StatusBadRequest, "missing topic id")
-	}
-	idInt64, err := strconv.ParseInt(id, 10, 64)
+	idInt64, err := parseRequiredIDParam(c.Param("id"), "missing topic id", "invalid topic id format")
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid topic id format")
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
-	restaurantID := c.Get("restaurant_id")
-	if restaurantID == nil {
-		h.Logger.Error().Msg("restaurantID is nil")
-		return response.Error(c, http.StatusBadRequest, "Invalid restaurantID")
+	restaurantID, err := getRestaurantID(c)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
-	if err := h.DeleteUseCase.Execute(c.Request().Context(), idInt64, restaurantID.(int32)); err != nil {
+	if err := h.DeleteUseCase.Execute(c.Request().Context(), idInt64, restaurantID); err != nil {
 		h.Logger.Error().Err(err).Msg("Delete topic error")
 		return response.Error(c, http.StatusBadRequest, "Failed to delete topic")
 	}

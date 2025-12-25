@@ -40,7 +40,7 @@ func NewMinioClient() *MinioClient {
 	}
 }
 
-func (m *MinioClient) PublicUrl(objectName string) string {
+func (m *MinioClient) PublicURL(objectName string) string {
 	return fmt.Sprintf("http://%s/%s/%s",
 		m.Client.EndpointURL().Host,
 		m.Bucket,
