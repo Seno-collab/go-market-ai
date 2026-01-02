@@ -4,25 +4,31 @@ import (
 	"context"
 	"go-ai/internal/menu/domain"
 	"go-ai/internal/menu/infrastructure/sqlc"
+	"go-ai/internal/transport/response"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type TopicRepo struct {
-	Sqlc *sqlc.Queries
-	Pool *pgxpool.Pool
+	queries *sqlc.Queries
+	pool    *pgxpool.Pool
 }
 
 func NewTopicRepo(pool *pgxpool.Pool) *TopicRepo {
 	return &TopicRepo{
-		Sqlc: sqlc.New(pool),
-		Pool: pool,
+		queries: sqlc.New(pool),
+		pool:    pool,
 	}
 }
-func (tr *TopicRepo) GetTopics(ctx context.Context, restaurantID int32) ([]domain.Topic, error) {
-	rows, err := tr.Sqlc.GetTopicsByRestaurant(ctx, restaurantID)
+func (tr *TopicRepo) GetTopics(ctx context.Context, name string, restaurantID, limit, offset int32) ([]domain.Topic, int64, error) {
+	rows, err := tr.queries.GetTopicsByRestaurant(ctx, sqlc.GetTopicsByRestaurantParams{
+		RestaurantID: restaurantID,
+		Column2:      name,
+		Offset:       offset,
+		Limit:        limit,
+	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	topics := make([]domain.Topic, 0, len(rows))
 	for _, row := range rows {
@@ -45,11 +51,15 @@ func (tr *TopicRepo) GetTopics(ctx context.Context, restaurantID int32) ([]domai
 			IsActive:     row.IsActive,
 		})
 	}
-	return topics, nil
+	total, err := tr.queries.CountTopicsByRestaurant(ctx, restaurantID)
+	if err != nil {
+		return nil, 0, nil
+	}
+	return topics, total, nil
 }
 
 func (tr *TopicRepo) GetTopic(ctx context.Context, id domain.TopicID, restaurantID int32) (domain.Topic, error) {
-	row, err := tr.Sqlc.GetTopic(ctx, sqlc.GetTopicParams{
+	row, err := tr.queries.GetTopic(ctx, sqlc.GetTopicParams{
 		ID:           int64(id),
 		RestaurantID: restaurantID,
 	})
@@ -77,7 +87,7 @@ func (tr *TopicRepo) GetTopic(ctx context.Context, id domain.TopicID, restaurant
 }
 
 func (tr *TopicRepo) CreateTopic(ctx context.Context, t *domain.Topic) (domain.TopicID, error) {
-	row, err := tr.Sqlc.CreateTopic(ctx, sqlc.CreateTopicParams{
+	row, err := tr.queries.CreateTopic(ctx, sqlc.CreateTopicParams{
 		RestaurantID: t.RestaurantID,
 		Name:         t.Name,
 		Slug:         &t.Slug,
@@ -91,7 +101,7 @@ func (tr *TopicRepo) CreateTopic(ctx context.Context, t *domain.Topic) (domain.T
 }
 
 func (tr *TopicRepo) UpdateTopic(ctx context.Context, t *domain.Topic) error {
-	if err := tr.Sqlc.UpdateTopic(ctx, sqlc.UpdateTopicParams{
+	if err := tr.queries.UpdateTopic(ctx, sqlc.UpdateTopicParams{
 		ID:           int64(t.ID),
 		RestaurantID: t.RestaurantID,
 		Name:         t.Name,
@@ -105,8 +115,23 @@ func (tr *TopicRepo) UpdateTopic(ctx context.Context, t *domain.Topic) error {
 }
 
 func (tr *TopicRepo) DeleteTopic(ctx context.Context, id domain.TopicID, restaurantID int32) error {
-	return tr.Sqlc.DeleteTopic(ctx, sqlc.DeleteTopicParams{
+	return tr.queries.DeleteTopic(ctx, sqlc.DeleteTopicParams{
 		ID:           int64(id),
 		RestaurantID: restaurantID,
 	})
+}
+
+func (tr *TopicRepo) GetTopicsByRestaurantCombobox(ctx context.Context, restaurantID int32) (*[]response.Combobox, error) {
+	rows, err := tr.queries.GetTopicsByRestaurantCombobox(ctx, restaurantID)
+	if err != nil {
+		return nil, err
+	}
+	items := make([]response.Combobox, 0, len(rows))
+	for _, row := range rows {
+		items = append(items, response.Combobox{
+			Text:  row.Text,
+			Value: row.Value,
+		})
+	}
+	return &items, nil
 }

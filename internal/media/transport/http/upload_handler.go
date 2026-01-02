@@ -37,18 +37,18 @@ func (h *UpLoadHandler) UploadLogoHandler() echo.HandlerFunc {
 		fileHeader, err := c.FormFile("logo")
 		if err != nil {
 			h.Logger.Error().Err(err).Msg("Upload logo: missing file")
-			return response.Error(c, http.StatusBadRequest, "logo file is required")
+			return response.Error(c, http.StatusBadRequest, "Logo file is required")
 		}
 		file, err := fileHeader.Open()
 		if err != nil {
 			h.Logger.Error().Err(err).Msg("Upload logo: cannot open file")
-			return response.Error(c, http.StatusBadRequest, "unable to open file")
+			return response.Error(c, http.StatusBadRequest, "Unable to open file")
 		}
 		defer file.Close()
 		url, err := h.MC.UploadLogo(c.Request().Context(), file, fileHeader)
 		if err != nil {
 			h.Logger.Error().Err(err).Msg("Upload logo: MinIO upload error")
-			return response.Error(c, http.StatusBadRequest, "upload to storage failed")
+			return response.Error(c, http.StatusBadRequest, "Upload to storage failed")
 		}
 		return response.Success(c, &uploadapp.UploadLogoResponse{
 			Url: url,

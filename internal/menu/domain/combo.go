@@ -22,6 +22,12 @@ type ComboGroupItem struct {
 }
 
 func NewComboGroup(name string, min, max int) (*ComboGroup, error) {
+	if name == "" {
+		return nil, ErrOptionGroupEmptyName
+	}
+	if min < 0 || max < 0 {
+		return nil, ErrOptionGroupNegativeValues
+	}
 	if max < min {
 		return nil, ErrOptionGroupInvalidMinMax
 	}

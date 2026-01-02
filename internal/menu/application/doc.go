@@ -9,94 +9,117 @@ import (
 )
 
 type CreateMenuItemSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type CreateTopicSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type GetTopicSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type UpdateTopicSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type DeleteTopicSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type GetMenuItemSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 	Data *menuitemapp.GetMenuItemResponse `json:"data,omitempty"`
 }
 
 type UpdateMenuItemSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type DeleteMenuItemSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
+type GetMenuItemsByRestaurantResponseDoc struct {
+	response.PaginatedResponseDoc
+	Items []menuitemapp.GetMenuItemResponse `json:"items"`
+}
 type GetMenuItemsByRestaurantSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
-	menuitemapp.GetMenuItemsResponse
+	response.SuccessBaseDoc
+	Data GetMenuItemsByRestaurantResponseDoc `json:"data"`
+}
+
+type GetTopicsByRestaurantResponseDoc struct {
+	response.PaginatedResponseDoc
+	Items []topicapp.GetTopicResponse `json:"items"`
 }
 
 type GetTopicsByRestaurantSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
-	*topicapp.GetTopicsResponse
+	response.SuccessBaseDoc
+	Data GetTopicsByRestaurantResponseDoc `json:"data"`
 }
 
 type CreateVariantSuccessRespons struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type CreateOptionGroupSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
-	*optiongroupapp.CreateOptionGroupResponse
+	response.SuccessBaseDoc
+	Data *optiongroupapp.CreateOptionGroupResponse `json:"data"`
 }
 
 type GetOptionGroupSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
-	*optiongroupapp.GetOptionGroupResponse
+	response.SuccessBaseDoc
+	Data *optiongroupapp.GetOptionGroupResponse `json:"data"`
 }
 
 type GetOptionGroupsSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
-	*optiongroupapp.GetOptionGroupsResponse
+	response.SuccessBaseDoc
+	Data *optiongroupapp.GetOptionGroupsResponse `json:"data,omitempty"`
 }
 
 type UpdateOptionGroupSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type DeleteOptionGroupSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type CreateOptionItemSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
-	*optionitemapp.CreateOptionItemResponse
+	response.SuccessBaseDoc
+	Data *optionitemapp.CreateOptionItemResponse `json:"data,omitempty"`
 }
 
 type GetOptionItemSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
-	*optionitemapp.GetOptionItemResponse
+	response.SuccessBaseDoc
+	Data *optionitemapp.GetOptionItemResponse `json:"data,omitempty"`
+}
+
+type GetOptionItemsResponseDoc struct {
+	response.PaginatedResponseDoc
+	Items GetOptionItemSuccessResponseDoc `json:"items"`
 }
 
 type GetOptionItemsSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
-	*optionitemapp.GetOptionItemsResponse
+	response.SuccessBaseDoc
+	Data GetOptionItemsResponseDoc `json:"data"`
 }
 
 type UpdateOptionItemSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type DeleteOptionItemSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
+}
+
+type GetTopicsByRestaurantComboboxSuccessResponseDoc struct {
+	response.SuccessBaseDoc
+	Data *[]response.Combobox `json:"data"`
+}
+
+type UpdateMenuItemStatusSuccessResponseDoc struct {
+	response.SuccessBaseDoc
 }

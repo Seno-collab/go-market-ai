@@ -51,7 +51,7 @@ func (r *OptionGroupRepo) CreateOptionGroup(ctx context.Context, g *domain.Optio
 		RestaurantID: g.RestaurantID,
 		Name:         g.Name,
 		MinSelect:    g.MinSelect,
-		MaxSelect:    ptrToNullableInt(g.MaxSelect),
+		MaxSelect:    g.MaxSelect,
 		IsRequired:   g.IsRequired,
 		SortOrder:    g.SortOrder,
 	})
@@ -71,7 +71,7 @@ func (r *OptionGroupRepo) UpdateOptionGroup(ctx context.Context, g *domain.Optio
 		RestaurantID: g.RestaurantID,
 		Name:         g.Name,
 		MinSelect:    g.MinSelect,
-		MaxSelect:    ptrToNullableInt(g.MaxSelect),
+		MaxSelect:    g.MaxSelect,
 		IsRequired:   g.IsRequired,
 		SortOrder:    g.SortOrder,
 	})

@@ -6,6 +6,6 @@ import (
 )
 
 type UploadLogoSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 	Data *uploadapp.UploadLogoResponse `json:"data,omitempty"`
 }

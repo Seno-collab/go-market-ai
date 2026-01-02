@@ -93,7 +93,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		h.Logger.Error().Msg("Failed to login user: invalid credentials")
 		return response.Error(c, http.StatusBadRequest, "Invalid email or password")
 	}
-	return response.Success[authapp.LoginResponse](c, responseData, "login success")
+	return response.Success(c, responseData, "Login success")
 }
 
 // RefreshToken godoc
@@ -120,7 +120,7 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 		}
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	return response.Success[authapp.RefreshTokenResponse](c, responseData, "Token refreshed successfully")
+	return response.Success(c, responseData, "Token refreshed successfully")
 }
 
 // GetProfile godoc
@@ -155,7 +155,7 @@ func (h *AuthHandler) GetProfile(c echo.Context) error {
 		Role:     profile.Role,
 		IsActive: profile.IsActive,
 	}
-	return response.Success[authapp.GetProfileResponse](c, resp, "Profile retrieved successfully")
+	return response.Success(c, resp, "Profile retrieved successfully")
 }
 
 // ChangePassword godoc
@@ -188,9 +188,9 @@ func (h *AuthHandler) ChangePassword(c echo.Context) error {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
 		}
-		return response.Error(c, http.StatusInternalServerError, "internal server error")
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	return response.Success[any](c, nil, "password changed successfully")
+	return response.Success[any](c, nil, "Password changed successfully")
 }
 
 // Logout godoc

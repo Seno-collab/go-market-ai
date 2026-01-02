@@ -1,13 +1,20 @@
 -- name: GetTopicsByRestaurant :many
 SELECT *
 FROM topic
-WHERE restaurant_id = $1
-ORDER BY sort_order, id;
+WHERE restaurant_id = $1 AND ( $2::text = '' OR name = $2)
+ORDER BY sort_order, id
+LIMIT $3 OFFSET $4;
 
+
+-- name: CountTopicsByRestaurant :one
+SELECT COUNT(*) FROM topic WHERE restaurant_id = $1;
 
 -- name: GetTopic :one
 SELECT * FROM topic WHERE id = $1 AND restaurant_id = $2;
 
+
+-- name: GetTopicsByRestaurantCombobox :many
+SELECT id as Value, name as TEXT FROM topic WHERE restaurant_id = $1 and is_active = true;
 
 -- name: CreateTopic :one
 INSERT INTO topic (restaurant_id, name, slug, parent_id, sort_order)
@@ -32,17 +39,42 @@ WHERE id = $1
 
 -- name: GetMenuItemsByRestaurant :many
 SELECT *
-FROM menu_item
+FROM menu_items
+WHERE restaurant_id = $1 AND (
+        $2::text = ''
+        OR name ILIKE '%' || $2 || '%'
+        OR description ILIKE '%' || $2 || '%'
+      ) AND (NULLIF($3::text, '') IS NULL
+        OR type = $3::menu_item_type)
+ORDER BY sort_order, id
+LIMIT $4 OFFSET $5;
+
+-- name: GetMenuItemsByRestaurantAndActive :many
+SELECT *
+FROM menu_items
 WHERE restaurant_id = $1
-ORDER BY sort_order, id;
+  AND is_active = $2
+  AND (
+          $3::text = ''
+          OR name ILIKE '%' || $3 || '%'
+          OR description ILIKE '%' || $3 || '%'
+        ) AND (NULLIF($4::text, '') IS NULL
+          OR type = $4::menu_item_type)
+ORDER BY sort_order, id
+LIMIT $5 OFFSET $6;
+
+-- name: CountMenuItems :one
+SELECT COUNT(*)
+FROM menu_items
+WHERE restaurant_id = $1;
 
 -- name: GetMenuItemByID :one
 SELECT *
-FROM menu_item
+FROM menu_items
 WHERE id = $1 and restaurant_id = $2;
 
 -- name: CreateMenuItem :one
-INSERT INTO menu_item (
+INSERT INTO menu_items (
     restaurant_id, topic_id, type, name, description,
     image_url, sku, base_price, is_active, sort_order
 )
@@ -50,7 +82,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE, $9)
 RETURNING id;
 
 -- name: UpdateMenuItem :exec
-UPDATE menu_item
+UPDATE menu_items
 SET
     topic_id = $2,
     type = $3,
@@ -64,8 +96,16 @@ SET
     updated_at = NOW()
 WHERE id = $1 and restaurant_id = $11;
 
+
+-- name: UpdateStatusMenuItem :exec
+UPDATE menu_items
+SET is_active = $1,
+updated_at = NOW()
+WHERE id = $2 and restaurant_id = $3;
+
+
 -- name: DeleteMenuItem :exec
-DELETE FROM menu_item WHERE id = $1 AND restaurant_id = $2;
+DELETE FROM menu_items WHERE id = $1 AND restaurant_id = $2;
 
 -- name: GetVariantsByItem :many
 SELECT *
@@ -97,7 +137,8 @@ FROM option_group og
 JOIN menu_item_option_group mig ON mig.option_group_id = og.id
 WHERE mig.menu_item_id = $1
   AND og.restaurant_id = $2
-ORDER BY og.sort_order, og.id;
+ORDER BY og.sort_order, og.id
+LIMIT $3 OFFSET $4;
 
 -- name: CreateOptionGroup :one
 INSERT INTO option_group (
@@ -136,6 +177,15 @@ WHERE id = $1
 
 -- name: GetOptionItemsByGroup :many
 SELECT oi.*
+FROM option_item oi
+JOIN option_group og ON og.id = oi.option_group_id
+WHERE oi.option_group_id = $1
+  AND og.restaurant_id = $2
+ORDER BY oi.sort_order, oi.id
+LIMIT $3 OFFSET $4;
+
+-- name: CountOptionItems :one
+SELECT COUNT(*)
 FROM option_item oi
 JOIN option_group og ON og.id = oi.option_group_id
 WHERE oi.option_group_id = $1
@@ -226,7 +276,7 @@ SELECT
     oi.*,
     cg.*,
     cgi.*
-FROM menu_item mi
+FROM menu_items mi
 LEFT JOIN topic t ON t.id = mi.topic_id
 LEFT JOIN menu_item_variant mv ON mv.menu_item_id = mi.id
 LEFT JOIN menu_item_option_group mog ON mog.menu_item_id = mi.id

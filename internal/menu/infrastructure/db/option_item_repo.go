@@ -20,23 +20,32 @@ func NewOptionItemRepo(pool *pgxpool.Pool) *OptionItemRepo {
 	}
 }
 
-func (r *OptionItemRepo) GetOptionItems(ctx context.Context, groupID int64, restaurantID int32) ([]domain.OptionItem, error) {
+func (r *OptionItemRepo) GetOptionItems(ctx context.Context, groupID int64, restaurantID, limit, offset int32) ([]domain.OptionItem, int64, error) {
 	rows, err := r.queries.GetOptionItemsByGroup(ctx, sqlc.GetOptionItemsByGroupParams{
 		OptionGroupID: groupID,
 		RestaurantID:  restaurantID,
+		Limit:         limit,
+		Offset:        offset,
 	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	items := make([]domain.OptionItem, 0, len(rows))
 	for _, row := range rows {
 		item, err := convertOptionItemModel(row)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		items = append(items, item)
 	}
-	return items, nil
+	total, err := r.queries.CountOptionItems(ctx, sqlc.CountOptionItemsParams{
+		OptionGroupID: groupID,
+		RestaurantID:  restaurantID,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	return items, total, nil
 }
 
 func (r *OptionItemRepo) GetOptionItem(ctx context.Context, id int64, restaurantID int32) (domain.OptionItem, error) {
@@ -58,7 +67,7 @@ func (r *OptionItemRepo) CreateOptionItem(ctx context.Context, item *domain.Opti
 		LinkedMenuItem: item.LinkedMenuItem,
 		PriceDelta:     item.PriceDelta.Numeric(),
 		QuantityMin:    item.QuantityMin,
-		QuantityMax:    ptrToNullableInt(item.QuantityMax),
+		QuantityMax:    item.QuantityMax,
 		SortOrder:      item.SortOrder,
 	})
 }
@@ -71,7 +80,7 @@ func (r *OptionItemRepo) UpdateOptionItem(ctx context.Context, item *domain.Opti
 		LinkedMenuItem: item.LinkedMenuItem,
 		PriceDelta:     item.PriceDelta.Numeric(),
 		QuantityMin:    item.QuantityMin,
-		QuantityMax:    ptrToNullableInt(item.QuantityMax),
+		QuantityMax:    item.QuantityMax,
 		SortOrder:      item.SortOrder,
 		RestaurantID:   restaurantID,
 	})

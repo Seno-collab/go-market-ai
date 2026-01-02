@@ -53,11 +53,12 @@ func (m *IdentityMiddleware) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 			return response.Error(c, 401, "Unauthorized access")
 		}
 		keyAuth := fmt.Sprintf("profile_%s", userID)
-		authData, err := m.Cache.GetAuthCache(keyAuth)
+		authData, err := m.Cache.GetAuthCache(c.Request().Context(), keyAuth)
 		if err != nil || authData == nil {
 			return response.Error(c, 401, "Unauthorized access")
 		}
 		c.Set("user_id", userID)
+		c.Set("role", authData.Role)
 		return next(c)
 	}
 }

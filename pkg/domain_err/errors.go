@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	ErrInvalidEmail        = New(http.StatusBadRequest, "invalid email")
-	ErrInternalServerError = New(http.StatusInternalServerError, "internal server error")
-	ErrInvalidField        = New(http.StatusBadRequest, "invalid field")
-	ErrInvalidUrl          = New(http.StatusBadRequest, "invalid url")
-	ErrInvalidPrice        = errors.New("menu: price must be >= 0")
+	ErrInvalidEmail        = New(http.StatusBadRequest, "Invalid email")
+	ErrInternalServerError = New(http.StatusInternalServerError, "Internal server error")
+	ErrInvalidField        = New(http.StatusBadRequest, "Invalid field")
+	ErrInvalidUrl          = New(http.StatusBadRequest, "Invalid url")
+	ErrInvalidPrice        = errors.New("Menu: price must be >= 0")
 )

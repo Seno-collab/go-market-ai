@@ -12,7 +12,7 @@ func convertOptionGroupModel(row sqlc.OptionGroup) domain.OptionGroup {
 		RestaurantID: row.RestaurantID,
 		Name:         row.Name,
 		MinSelect:    row.MinSelect,
-		MaxSelect:    nullableIntToPtr(row.MaxSelect),
+		MaxSelect:    row.MaxSelect,
 		IsRequired:   row.IsRequired,
 		SortOrder:    row.SortOrder,
 	}
@@ -34,7 +34,7 @@ func convertOptionItemModel(row sqlc.OptionItem) (domain.OptionItem, error) {
 		LinkedMenuItem: row.LinkedMenuItem,
 		PriceDelta:     price,
 		QuantityMin:    row.QuantityMin,
-		QuantityMax:    nullableIntToPtr(row.QuantityMax),
+		QuantityMax:    row.QuantityMax,
 		SortOrder:      row.SortOrder,
 		IsActive:       row.IsActive,
 	}, nil

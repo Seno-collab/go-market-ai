@@ -20,7 +20,8 @@ func InitTopicModule(pool *pgxpool.Pool, log zerolog.Logger) *TopicModule {
 	getTopicsUseCase := topicapp.NewGetTopicsUseCase(repo)
 	updateUseCase := topicapp.NewUpdateUseCase(repo)
 	deleteUseCase := topicapp.NewDeleteUseCase(repo)
-	topicHandler := menuhttp.NewTopicHandler(createUseCase, getUseCase, getTopicsUseCase, updateUseCase, deleteUseCase, log)
+	getComboboxUseCase := topicapp.NewComboboxUseCase(repo)
+	topicHandler := menuhttp.NewTopicHandler(createUseCase, getUseCase, getTopicsUseCase, updateUseCase, deleteUseCase, getComboboxUseCase, log)
 	return &TopicModule{
 		TopicHandler: topicHandler,
 	}

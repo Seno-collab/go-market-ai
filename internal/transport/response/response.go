@@ -10,7 +10,7 @@ import (
 type ResponseDTO[T any] struct {
 	Message      string `json:"message"`
 	ResponseCode string `json:"response_code,omitempty"`
-	Data         *T     `json:"data,omitempty"`
+	Data         T      `json:"data,omitempty"`
 }
 
 type ErrorDetail struct {
@@ -23,12 +23,12 @@ type ErrorDoc struct {
 	Message      string `json:"message"`
 }
 
-type SuccecssBaseDoc struct {
+type SuccessBaseDoc struct {
 	Message      string `json:"message"`
 	ResponseCode string `json:"response_code,omitempty"`
 }
 
-func Success[T any](ctx echo.Context, data *T, message string) error {
+func Success[T any](ctx echo.Context, data T, message string) error {
 	setJSON(ctx)
 	resp := &ResponseDTO[T]{
 		Data:         data,

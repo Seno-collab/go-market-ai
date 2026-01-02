@@ -62,13 +62,29 @@ func NumericToMoney(n pgtype.Numeric) (Money, error) {
 		return 0, nil
 	}
 
-	if n.Exp != 0 {
-		return 0, fmt.Errorf("numeric has decimal part, cannot convert to Money")
+	if n.Int == nil {
+		return 0, fmt.Errorf("numeric has no value (nil Int)")
 	}
 
-	v := n.Int.Int64()
+	v := new(big.Int).Set(n.Int)
+	switch {
+	case n.Exp > 0:
+		scale := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(n.Exp)), nil)
+		v.Mul(v, scale)
+	case n.Exp < 0:
+		scale := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(-n.Exp)), nil)
+		remainder := new(big.Int).Mod(v, scale)
+		if remainder.Sign() != 0 {
+			return 0, fmt.Errorf("numeric has decimal part, cannot convert to Money")
+		}
+		v.Quo(v, scale)
+	}
 
-	return NewMoney(v)
+	if !v.IsInt64() {
+		return 0, fmt.Errorf("numeric overflows int64")
+	}
+
+	return NewMoney(v.Int64())
 }
 
 func NumericFromMoney(m Money) pgtype.Numeric {

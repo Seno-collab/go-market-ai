@@ -2,41 +2,34 @@ package restaurantrepo
 
 import (
 	"context"
-	"errors"
 	"go-ai/internal/restaurant/domain/restaurant"
 	sqlc "go-ai/internal/restaurant/infrastructure/sqlc/restaurant"
+	"go-ai/internal/transport/response"
 	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type RestaurantRepo struct {
-	Pool *pgxpool.Pool
-	Sqlc *sqlc.Queries
+	pool    *pgxpool.Pool
+	queries *sqlc.Queries
 }
 
 func NewRestaurantRepo(pool *pgxpool.Pool) *RestaurantRepo {
 	return &RestaurantRepo{
-		Sqlc: sqlc.New(pool),
-		Pool: pool,
+		queries: sqlc.New(pool),
+		pool:    pool,
 	}
 }
 
 func (rr *RestaurantRepo) Create(ctx context.Context, r *restaurant.Entity, userID uuid.UUID) (int32, error) {
-	tx, err := rr.Pool.Begin(ctx)
+	tx, err := rr.pool.Begin(ctx)
 	if err != nil {
 		return 0, err
 	}
 	defer tx.Rollback(ctx)
-	qtx := rr.Sqlc.WithTx(tx)
-	_, err = qtx.GetByName(ctx, r.Name)
-	if err != nil {
-		if !errors.Is(err, pgx.ErrNoRows) {
-			return 0, err
-		}
-	}
+	qtx := rr.queries.WithTx(tx)
 	banner := r.BannerUrl.String()
 	phone := r.PhoneNumber.String()
 	website := r.WebsiteUrl.String()
@@ -85,7 +78,7 @@ func (rr *RestaurantRepo) Create(ctx context.Context, r *restaurant.Entity, user
 }
 
 func (rr *RestaurantRepo) GetById(ctx context.Context, id int32) (*restaurant.Entity, error) {
-	records, err := rr.Sqlc.GetById(ctx, id)
+	records, err := rr.queries.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +141,7 @@ func (rr *RestaurantRepo) GetById(ctx context.Context, id int32) (*restaurant.En
 }
 
 func (rr *RestaurantRepo) GetByName(ctx context.Context, name string) (*restaurant.Entity, error) {
-	records, err := rr.Sqlc.GetByName(ctx, name)
+	records, err := rr.queries.GetByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -211,12 +204,12 @@ func (rr *RestaurantRepo) GetByName(ctx context.Context, name string) (*restaura
 }
 
 func (rr *RestaurantRepo) Update(ctx context.Context, r *restaurant.Entity, id int32) error {
-	tx, err := rr.Pool.Begin(ctx)
+	tx, err := rr.pool.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	qtx := rr.Sqlc.WithTx(tx)
+	qtx := rr.queries.WithTx(tx)
 	banner := r.BannerUrl.String()
 	phone := r.PhoneNumber.String()
 	website := r.WebsiteUrl.String()
@@ -261,12 +254,12 @@ func (rr *RestaurantRepo) Update(ctx context.Context, r *restaurant.Entity, id i
 }
 
 func (rr *RestaurantRepo) SoftDelete(ctx context.Context, id int32, userID uuid.UUID) error {
-	tx, err := rr.Pool.Begin(ctx)
+	tx, err := rr.pool.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	qtx := rr.Sqlc.WithTx(tx)
+	qtx := rr.queries.WithTx(tx)
 	if err := qtx.SoftDeleteRestaurant(ctx, sqlc.SoftDeleteRestaurantParams{
 		ID:        id,
 		UpdatedBy: userID,
@@ -283,5 +276,20 @@ func (rr *RestaurantRepo) SoftDelete(ctx context.Context, id int32, userID uuid.
 }
 
 func (rr *RestaurantRepo) GetRestaurantByUserID(ctx context.Context, userID uuid.UUID) (int32, error) {
-	return rr.Sqlc.GetRestaurantByUserID(ctx, userID)
+	return rr.queries.GetRestaurantByUserID(ctx, userID)
+}
+
+func (rr *RestaurantRepo) GetRestaurantItemCombobox(ctx context.Context, userID uuid.UUID) (*[]response.Combobox, error) {
+	items, err := rr.queries.GetRestaurantItemsCombobox(ctx, userID)
+	if err != nil {
+		return nil, nil
+	}
+	result := make([]response.Combobox, 0, len(items))
+	for _, item := range items {
+		result = append(result, response.Combobox{
+			Text:  item.Text,
+			Value: item.Value,
+		})
+	}
+	return &result, nil
 }

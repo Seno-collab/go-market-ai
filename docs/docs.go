@@ -311,6 +311,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/menu/items/search": {
+            "post": {
+                "description": "Get list of menu items by restaurant ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Get menu items by restaurant",
+                "parameters": [
+                    {
+                        "description": "Search menu items request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/menuitemapp.GetMenuItemsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get menu items by restaurant successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetMenuItemsByRestaurantSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
         "/api/menu/items/{id}": {
             "get": {
                 "description": "Get a menu item detail by its ID",
@@ -383,6 +423,89 @@ const docTemplate = `{
                         "description": "Update menu item successfully",
                         "schema": {
                             "$ref": "#/definitions/app.UpdateMenuItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete menu item by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Delete menu item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Menu item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete menu item successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.DeleteMenuItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/items/{id}/status": {
+            "patch": {
+                "description": "Enable or disable menu item by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Update menu item status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Menu item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update menu item status request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/menuitemapp.UpdateMenuItemStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update menu item status successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.UpdateMenuItemStatusSuccessResponseDoc"
                         }
                     },
                     "default": {
@@ -750,56 +873,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/menu/restaurant/items": {
-            "get": {
-                "description": "Get list of menu items by restaurant ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Menu"
-                ],
-                "summary": "Get menu items by restaurant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Restaurant ID",
-                        "name": "restaurant_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Items per page",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Get menu items by restaurant successfully",
-                        "schema": {
-                            "$ref": "#/definitions/app.GetMenuItemsByRestaurantSuccessResponseDoc"
-                        }
-                    },
-                    "default": {
-                        "description": "Errors",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorDoc"
-                        }
-                    }
-                }
-            }
-        },
         "/api/menu/restaurant/topics": {
             "get": {
                 "description": "Get list of topics by restaurant ID",
@@ -816,10 +889,21 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Restaurant ID",
-                        "name": "restaurant_id",
-                        "in": "path",
-                        "required": true
+                        "description": "Topic name keyword",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default: 20)",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -838,7 +922,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/menu/topic": {
+        "/api/menu/topics": {
             "post": {
                 "description": "Create a new topic with name, price, description, and optional image or logo",
                 "consumes": [
@@ -878,7 +962,39 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/menu/topic/{id}": {
+        "/api/menu/topics/combobox": {
+            "get": {
+                "description": "Get list of topics for combobox by restaurant (optional parent_id)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Topic"
+                ],
+                "summary": "Get topic combobox",
+                "responses": {
+                    "200": {
+                        "description": "Get topic combobox successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/app.GetTopicsByRestaurantComboboxSuccessResponseDoc"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/topics/{id}": {
             "get": {
                 "description": "Get detailed information of a topic using its ID",
                 "consumes": [
@@ -997,7 +1113,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/restaurant": {
+        "/api/restaurants": {
             "post": {
                 "description": "Create a new restaurant with name, email, phone, logo_url, banner_url,...",
                 "consumes": [
@@ -1037,7 +1153,41 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/restaurant/{id}": {
+        "/api/restaurants/combobox": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get option/combobox groups and items",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Restaurant"
+                ],
+                "summary": "Get combobox of a menu item",
+                "responses": {
+                    "200": {
+                        "description": "Get restaurant combobox successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/app.GetComboboxRestaurantSuccessResponseDoc"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/restaurants/{id}": {
             "get": {
                 "description": "Get detailed information of a restaurant using its ID",
                 "consumes": [
@@ -1221,8 +1371,8 @@ const docTemplate = `{
         "app.CreateOptionGroupSuccessResponseDoc": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
+                "data": {
+                    "$ref": "#/definitions/optiongroupapp.CreateOptionGroupResponse"
                 },
                 "message": {
                     "type": "string"
@@ -1235,8 +1385,8 @@ const docTemplate = `{
         "app.CreateOptionItemSuccessResponseDoc": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
+                "data": {
+                    "$ref": "#/definitions/optionitemapp.CreateOptionItemResponse"
                 },
                 "message": {
                     "type": "string"
@@ -1261,6 +1411,17 @@ const docTemplate = `{
             }
         },
         "app.CreateTopicSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.DeleteMenuItemSuccessResponseDoc": {
             "type": "object",
             "properties": {
                 "message": {
@@ -1315,6 +1476,23 @@ const docTemplate = `{
                 }
             }
         },
+        "app.GetComboboxRestaurantSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Combobox"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
         "app.GetMenuItemSuccessResponseDoc": {
             "type": "object",
             "properties": {
@@ -1329,7 +1507,7 @@ const docTemplate = `{
                 }
             }
         },
-        "app.GetMenuItemsByRestaurantSuccessResponseDoc": {
+        "app.GetMenuItemsByRestaurantResponseDoc": {
             "type": "object",
             "properties": {
                 "items": {
@@ -1337,6 +1515,30 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/menuitemapp.GetMenuItemResponse"
                     }
+                },
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total_items": {
+                    "type": "integer",
+                    "example": 42
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "example": 5
+                }
+            }
+        },
+        "app.GetMenuItemsByRestaurantSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/app.GetMenuItemsByRestaurantResponseDoc"
                 },
                 "message": {
                     "type": "string"
@@ -1349,40 +1551,22 @@ const docTemplate = `{
         "app.GetOptionGroupSuccessResponseDoc": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "is_required": {
-                    "type": "boolean"
-                },
-                "max_select": {
-                    "type": "integer"
+                "data": {
+                    "$ref": "#/definitions/optiongroupapp.GetOptionGroupResponse"
                 },
                 "message": {
                     "type": "string"
                 },
-                "min_select": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
                 "response_code": {
                     "type": "string"
-                },
-                "sort_order": {
-                    "type": "integer"
                 }
             }
         },
         "app.GetOptionGroupsSuccessResponseDoc": {
             "type": "object",
             "properties": {
-                "groups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/optiongroupapp.GetOptionGroupResponse"
-                    }
+                "data": {
+                    "$ref": "#/definitions/optiongroupapp.GetOptionGroupsResponse"
                 },
                 "message": {
                     "type": "string"
@@ -1395,49 +1579,46 @@ const docTemplate = `{
         "app.GetOptionItemSuccessResponseDoc": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "linked_menu_item": {
-                    "type": "integer"
+                "data": {
+                    "$ref": "#/definitions/optionitemapp.GetOptionItemResponse"
                 },
                 "message": {
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
-                },
-                "option_group_id": {
-                    "type": "integer"
-                },
-                "price_delta": {
-                    "type": "integer"
-                },
-                "quantity_max": {
-                    "type": "integer"
-                },
-                "quantity_min": {
-                    "type": "integer"
-                },
                 "response_code": {
                     "type": "string"
+                }
+            }
+        },
+        "app.GetOptionItemsResponseDoc": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "$ref": "#/definitions/app.GetOptionItemSuccessResponseDoc"
                 },
-                "sort_order": {
-                    "type": "integer"
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total_items": {
+                    "type": "integer",
+                    "example": 42
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "example": 5
                 }
             }
         },
         "app.GetOptionItemsSuccessResponseDoc": {
             "type": "object",
             "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/optionitemapp.GetOptionItemResponse"
-                    }
+                "data": {
+                    "$ref": "#/definitions/app.GetOptionItemsResponseDoc"
                 },
                 "message": {
                     "type": "string"
@@ -1486,7 +1667,24 @@ const docTemplate = `{
                 }
             }
         },
-        "app.GetTopicsByRestaurantSuccessResponseDoc": {
+        "app.GetTopicsByRestaurantComboboxSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Combobox"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.GetTopicsByRestaurantResponseDoc": {
             "type": "object",
             "properties": {
                 "items": {
@@ -1494,6 +1692,30 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/topicapp.GetTopicResponse"
                     }
+                },
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total_items": {
+                    "type": "integer",
+                    "example": 42
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "example": 5
+                }
+            }
+        },
+        "app.GetTopicsByRestaurantSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/app.GetTopicsByRestaurantResponseDoc"
                 },
                 "message": {
                     "type": "string"
@@ -1548,6 +1770,17 @@ const docTemplate = `{
                 "data": {
                     "$ref": "#/definitions/authapp.RegisterSuccess"
                 },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.UpdateMenuItemStatusSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
                 "message": {
                     "type": "string"
                 },
@@ -1764,11 +1997,20 @@ const docTemplate = `{
         "menuitemapp.GetMenuItemResponse": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "image_url": {
                     "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -1781,6 +2023,29 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/domain.MenuItemType"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "menuitemapp.GetMenuItemsRequest": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "filter": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
                 }
             }
         },
@@ -1807,6 +2072,14 @@ const docTemplate = `{
                 }
             }
         },
+        "menuitemapp.UpdateMenuItemStatusRequest": {
+            "type": "object",
+            "properties": {
+                "is_active": {
+                    "type": "boolean"
+                }
+            }
+        },
         "optiongroupapp.CreateOptionGroupRequest": {
             "type": "object",
             "properties": {
@@ -1826,6 +2099,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "optiongroupapp.CreateOptionGroupResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "integer"
                 }
             }
@@ -1850,6 +2131,17 @@ const docTemplate = `{
                 },
                 "sort_order": {
                     "type": "integer"
+                }
+            }
+        },
+        "optiongroupapp.GetOptionGroupsResponse": {
+            "type": "object",
+            "properties": {
+                "groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/optiongroupapp.GetOptionGroupResponse"
+                    }
                 }
             }
         },
@@ -1895,6 +2187,14 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "sort_order": {
+                    "type": "integer"
+                }
+            }
+        },
+        "optionitemapp.CreateOptionItemResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "integer"
                 }
             }
@@ -1952,6 +2252,15 @@ const docTemplate = `{
                 "sort_order": {
                     "type": "integer"
                 }
+            }
+        },
+        "response.Combobox": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string"
+                },
+                "value": {}
             }
         },
         "response.ErrorDoc": {

@@ -31,13 +31,13 @@ func parseRequiredIDParam(raw, missingMsg, invalidMsg string) (int64, error) {
 }
 
 func getRestaurantID(c echo.Context) (int32, error) {
-	val := c.Get("restaurant_id")
-	if val == nil {
+	val := c.Request().Header.Get("X-Restaurant-Id")
+	if val == "" {
 		return 0, errRestaurantIDMissing
 	}
-	restaurantID, ok := val.(int32)
-	if !ok {
+	restaurantID, err := strconv.ParseInt(val, 10, 32)
+	if err != nil {
 		return 0, errRestaurantIDInvalid
 	}
-	return restaurantID, nil
+	return int32(restaurantID), nil
 }

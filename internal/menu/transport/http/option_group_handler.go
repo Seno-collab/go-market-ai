@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-const errInvalidOptionGroupID = "invalid option group id"
+const errInvalidOptionGroupID = "Invalid option group ID"
 
 type OptionGroupHandler struct {
 	CreateUseCase        *optiongroupapp.CreateUseCase
@@ -63,7 +63,7 @@ func (h *OptionGroupHandler) Create(c echo.Context) error {
 		h.Logger.Error().Err(err).Msg("create option group error")
 		return response.Error(c, http.StatusBadRequest, "Failed to create option group")
 	}
-	return response.Success[optiongroupapp.CreateOptionGroupResponse](c, &optiongroupapp.CreateOptionGroupResponse{ID: id}, "Create option group successfully")
+	return response.Success(c, &optiongroupapp.CreateOptionGroupResponse{ID: id}, "Create option group successfully")
 }
 
 // GetOptionGroup godoc
@@ -91,7 +91,7 @@ func (h *OptionGroupHandler) Get(c echo.Context) error {
 		h.Logger.Error().Err(err).Msg("get option group error")
 		return response.Error(c, http.StatusBadRequest, "Failed to get option group")
 	}
-	return response.Success[optiongroupapp.GetOptionGroupResponse](c, group, "Get option group successfully")
+	return response.Success(c, group, "Get option group successfully")
 }
 
 // GetOptionGroupsByMenuItem godoc
@@ -105,7 +105,7 @@ func (h *OptionGroupHandler) Get(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/item/{id}/option-groups [get]
 func (h *OptionGroupHandler) GetByMenuItem(c echo.Context) error {
-	menuItemID, err := parseRequiredIDParam(c.Param("id"), "invalid menu item id", "invalid menu item id")
+	menuItemID, err := parseRequiredIDParam(c.Param("id"), "Invalid menu item ID", "Invalid menu item ID")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
@@ -119,7 +119,7 @@ func (h *OptionGroupHandler) GetByMenuItem(c echo.Context) error {
 		h.Logger.Error().Err(err).Msg("get option groups error")
 		return response.Error(c, http.StatusBadRequest, "Failed to get option groups")
 	}
-	return response.Success[optiongroupapp.GetOptionGroupsResponse](c, resp, "Get option groups successfully")
+	return response.Success(c, resp, "Get option groups successfully")
 }
 
 // UpdateOptionGroup godoc

@@ -1,5 +1,7 @@
 package topicapp
 
+import "go-ai/internal/transport/response"
+
 type CreateTopicRequest struct {
 	Name      string `json:"name"`
 	Slug      string `json:"slug"`
@@ -28,5 +30,5 @@ type GetTopicResponse struct {
 }
 
 type GetTopicsResponse struct {
-	Items []GetTopicResponse `json:"items"`
+	response.PaginatedResponse[[]GetTopicResponse]
 }

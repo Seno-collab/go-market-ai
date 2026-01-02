@@ -10,6 +10,7 @@ import (
 func RegisterRestaurantRoutes(api *echo.Group, h *RestaurantHandler, auth *middlewares.IdentityMiddleware, rbacSvc rbac.Service) {
 	r := api.Group("/restaurants", auth.Handler, middlewares.RequirePermission(rbacSvc, "admin"))
 	r.POST("", h.Create)
+	r.GET("/combobox", h.GetCombobox)
 	r.GET("/:id", h.GetByID)
 	r.PUT("/:id", h.Update)
 	r.DELETE("/:id", h.Delete)

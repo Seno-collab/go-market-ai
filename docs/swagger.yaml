@@ -15,8 +15,8 @@ definitions:
     type: object
   app.CreateOptionGroupSuccessResponseDoc:
     properties:
-      id:
-        type: integer
+      data:
+        $ref: '#/definitions/optiongroupapp.CreateOptionGroupResponse'
       message:
         type: string
       response_code:
@@ -24,8 +24,8 @@ definitions:
     type: object
   app.CreateOptionItemSuccessResponseDoc:
     properties:
-      id:
-        type: integer
+      data:
+        $ref: '#/definitions/optionitemapp.CreateOptionItemResponse'
       message:
         type: string
       response_code:
@@ -41,6 +41,13 @@ definitions:
         type: string
     type: object
   app.CreateTopicSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.DeleteMenuItemSuccessResponseDoc:
     properties:
       message:
         type: string
@@ -75,6 +82,17 @@ definitions:
       response_code:
         type: string
     type: object
+  app.GetComboboxRestaurantSuccessResponseDoc:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/response.Combobox'
+        type: array
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
   app.GetMenuItemSuccessResponseDoc:
     properties:
       data:
@@ -84,12 +102,29 @@ definitions:
       response_code:
         type: string
     type: object
-  app.GetMenuItemsByRestaurantSuccessResponseDoc:
+  app.GetMenuItemsByRestaurantResponseDoc:
     properties:
       items:
         items:
           $ref: '#/definitions/menuitemapp.GetMenuItemResponse'
         type: array
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      total_items:
+        example: 42
+        type: integer
+      total_pages:
+        example: 5
+        type: integer
+    type: object
+  app.GetMenuItemsByRestaurantSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/app.GetMenuItemsByRestaurantResponseDoc'
       message:
         type: string
       response_code:
@@ -97,29 +132,17 @@ definitions:
     type: object
   app.GetOptionGroupSuccessResponseDoc:
     properties:
-      id:
-        type: integer
-      is_required:
-        type: boolean
-      max_select:
-        type: integer
+      data:
+        $ref: '#/definitions/optiongroupapp.GetOptionGroupResponse'
       message:
-        type: string
-      min_select:
-        type: integer
-      name:
         type: string
       response_code:
         type: string
-      sort_order:
-        type: integer
     type: object
   app.GetOptionGroupsSuccessResponseDoc:
     properties:
-      groups:
-        items:
-          $ref: '#/definitions/optiongroupapp.GetOptionGroupResponse'
-        type: array
+      data:
+        $ref: '#/definitions/optiongroupapp.GetOptionGroupsResponse'
       message:
         type: string
       response_code:
@@ -127,35 +150,34 @@ definitions:
     type: object
   app.GetOptionItemSuccessResponseDoc:
     properties:
-      id:
-        type: integer
-      is_active:
-        type: boolean
-      linked_menu_item:
-        type: integer
+      data:
+        $ref: '#/definitions/optionitemapp.GetOptionItemResponse'
       message:
         type: string
-      name:
-        type: string
-      option_group_id:
-        type: integer
-      price_delta:
-        type: integer
-      quantity_max:
-        type: integer
-      quantity_min:
-        type: integer
       response_code:
         type: string
-      sort_order:
+    type: object
+  app.GetOptionItemsResponseDoc:
+    properties:
+      items:
+        $ref: '#/definitions/app.GetOptionItemSuccessResponseDoc'
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      total_items:
+        example: 42
+        type: integer
+      total_pages:
+        example: 5
         type: integer
     type: object
   app.GetOptionItemsSuccessResponseDoc:
     properties:
-      items:
-        items:
-          $ref: '#/definitions/optionitemapp.GetOptionItemResponse'
-        type: array
+      data:
+        $ref: '#/definitions/app.GetOptionItemsResponseDoc'
       message:
         type: string
       response_code:
@@ -186,12 +208,40 @@ definitions:
       response_code:
         type: string
     type: object
-  app.GetTopicsByRestaurantSuccessResponseDoc:
+  app.GetTopicsByRestaurantComboboxSuccessResponseDoc:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/response.Combobox'
+        type: array
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.GetTopicsByRestaurantResponseDoc:
     properties:
       items:
         items:
           $ref: '#/definitions/topicapp.GetTopicResponse'
         type: array
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      total_items:
+        example: 42
+        type: integer
+      total_pages:
+        example: 5
+        type: integer
+    type: object
+  app.GetTopicsByRestaurantSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/app.GetTopicsByRestaurantResponseDoc'
       message:
         type: string
       response_code:
@@ -226,6 +276,13 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/authapp.RegisterSuccess'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.UpdateMenuItemStatusSuccessResponseDoc:
+    properties:
       message:
         type: string
       response_code:
@@ -367,10 +424,16 @@ definitions:
     type: object
   menuitemapp.GetMenuItemResponse:
     properties:
+      created_at:
+        type: string
       description:
         type: string
+      id:
+        type: integer
       image_url:
         type: string
+      is_active:
+        type: boolean
       name:
         type: string
       price:
@@ -379,6 +442,21 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/domain.MenuItemType'
+      updated_at:
+        type: string
+    type: object
+  menuitemapp.GetMenuItemsRequest:
+    properties:
+      category:
+        type: string
+      filter:
+        type: string
+      is_active:
+        type: boolean
+      limit:
+        type: integer
+      page:
+        type: integer
     type: object
   menuitemapp.UpdateMenuItemRequest:
     properties:
@@ -395,6 +473,11 @@ definitions:
       type:
         $ref: '#/definitions/domain.MenuItemType'
     type: object
+  menuitemapp.UpdateMenuItemStatusRequest:
+    properties:
+      is_active:
+        type: boolean
+    type: object
   optiongroupapp.CreateOptionGroupRequest:
     properties:
       is_required:
@@ -408,6 +491,11 @@ definitions:
       name:
         type: string
       sort_order:
+        type: integer
+    type: object
+  optiongroupapp.CreateOptionGroupResponse:
+    properties:
+      id:
         type: integer
     type: object
   optiongroupapp.GetOptionGroupResponse:
@@ -424,6 +512,13 @@ definitions:
         type: string
       sort_order:
         type: integer
+    type: object
+  optiongroupapp.GetOptionGroupsResponse:
+    properties:
+      groups:
+        items:
+          $ref: '#/definitions/optiongroupapp.GetOptionGroupResponse'
+        type: array
     type: object
   optiongroupapp.UpdateOptionGroupRequest:
     properties:
@@ -453,6 +548,11 @@ definitions:
       quantity_min:
         type: integer
       sort_order:
+        type: integer
+    type: object
+  optionitemapp.CreateOptionItemResponse:
+    properties:
+      id:
         type: integer
     type: object
   optionitemapp.GetOptionItemResponse:
@@ -490,6 +590,12 @@ definitions:
         type: integer
       sort_order:
         type: integer
+    type: object
+  response.Combobox:
+    properties:
+      text:
+        type: string
+      value: {}
     type: object
   response.ErrorDoc:
     properties:
@@ -877,6 +983,30 @@ paths:
       tags:
       - Menu
   /api/menu/items/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete menu item by ID
+      parameters:
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delete menu item successfully
+          schema:
+            $ref: '#/definitions/app.DeleteMenuItemSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Delete menu item
+      tags:
+      - Menu
     get:
       consumes:
       - application/json
@@ -929,6 +1059,63 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorDoc'
       summary: Update menu item
+      tags:
+      - Menu
+  /api/menu/items/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Enable or disable menu item by ID
+      parameters:
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update menu item status request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/menuitemapp.UpdateMenuItemStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update menu item status successfully
+          schema:
+            $ref: '#/definitions/app.UpdateMenuItemStatusSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Update menu item status
+      tags:
+      - Menu
+  /api/menu/items/search:
+    post:
+      consumes:
+      - application/json
+      description: Get list of menu items by restaurant ID
+      parameters:
+      - description: Search menu items request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/menuitemapp.GetMenuItemsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get menu items by restaurant successfully
+          schema:
+            $ref: '#/definitions/app.GetMenuItemsByRestaurantSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get menu items by restaurant
       tags:
       - Menu
   /api/menu/option-group:
@@ -1166,50 +1353,24 @@ paths:
       summary: Update option item
       tags:
       - OptionItem
-  /api/menu/restaurant/items:
-    get:
-      consumes:
-      - application/json
-      description: Get list of menu items by restaurant ID
-      parameters:
-      - description: Restaurant ID
-        in: path
-        name: restaurant_id
-        required: true
-        type: string
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Items per page
-        in: query
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get menu items by restaurant successfully
-          schema:
-            $ref: '#/definitions/app.GetMenuItemsByRestaurantSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get menu items by restaurant
-      tags:
-      - Menu
   /api/menu/restaurant/topics:
     get:
       consumes:
       - application/json
       description: Get list of topics by restaurant ID
       parameters:
-      - description: Restaurant ID
-        in: path
-        name: restaurant_id
-        required: true
+      - description: Topic name keyword
+        in: query
+        name: name
         type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20)'
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1224,7 +1385,7 @@ paths:
       summary: Get topics by restaurant
       tags:
       - Topic
-  /api/menu/topic:
+  /api/menu/topics:
     post:
       consumes:
       - application/json
@@ -1251,7 +1412,7 @@ paths:
       summary: Create a new topic
       tags:
       - Topic
-  /api/menu/topic/{id}:
+  /api/menu/topics/{id}:
     delete:
       consumes:
       - application/json
@@ -1330,7 +1491,28 @@ paths:
       summary: Update topic
       tags:
       - Topic
-  /api/restaurant:
+  /api/menu/topics/combobox:
+    get:
+      consumes:
+      - application/json
+      description: Get list of topics for combobox by restaurant (optional parent_id)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get topic combobox successfully
+          schema:
+            items:
+              $ref: '#/definitions/app.GetTopicsByRestaurantComboboxSuccessResponseDoc'
+            type: array
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get topic combobox
+      tags:
+      - Topic
+  /api/restaurants:
     post:
       consumes:
       - application/json
@@ -1356,7 +1538,7 @@ paths:
       summary: Create restaurant
       tags:
       - Restaurant
-  /api/restaurant/{id}:
+  /api/restaurants/{id}:
     delete:
       consumes:
       - application/json
@@ -1434,6 +1616,27 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorDoc'
       summary: Update restaurant information
+      tags:
+      - Restaurant
+  /api/restaurants/combobox:
+    get:
+      description: Get option/combobox groups and items
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get restaurant combobox successfully
+          schema:
+            items:
+              $ref: '#/definitions/app.GetComboboxRestaurantSuccessResponseDoc'
+            type: array
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      security:
+      - BearerAuth: []
+      summary: Get combobox of a menu item
       tags:
       - Restaurant
   /api/upload/logo:

@@ -9,7 +9,7 @@ type OptionItem struct {
 	LinkedMenuItem *int64
 	PriceDelta     utils.Money
 	QuantityMin    int32
-	QuantityMax    *int32
+	QuantityMax    int32
 	SortOrder      int32
 	IsActive       bool
 }

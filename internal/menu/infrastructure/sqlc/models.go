@@ -28,7 +28,7 @@ type ComboGroupItem struct {
 	PriceDelta      pgtype.Numeric
 	QuantityDefault int32
 	QuantityMin     int32
-	QuantityMax     int
+	QuantityMax     int32
 	SortOrder       int32
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
@@ -38,7 +38,7 @@ type MenuItem struct {
 	ID           int64
 	RestaurantID int32
 	TopicID      *int64
-	Type         interface{}
+	Type         string
 	Name         string
 	Description  *string
 	ImageUrl     *string
@@ -72,7 +72,7 @@ type OptionGroup struct {
 	RestaurantID int32
 	Name         string
 	MinSelect    int32
-	MaxSelect    int
+	MaxSelect    int32
 	IsRequired   bool
 	SortOrder    int32
 	CreatedAt    time.Time
@@ -86,7 +86,7 @@ type OptionItem struct {
 	LinkedMenuItem *int64
 	PriceDelta     pgtype.Numeric
 	QuantityMin    int32
-	QuantityMax    int
+	QuantityMax    int32
 	SortOrder      int32
 	IsActive       bool
 	CreatedAt      time.Time

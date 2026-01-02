@@ -41,11 +41,8 @@ func (uc *CreateUseCase) Execute(ctx context.Context, req CreateOptionItemReques
 	return uc.Repo.CreateOptionItem(ctx, item)
 }
 
-func validateQuantity(min int32, max *int32) error {
-	if max == nil {
-		return nil
-	}
-	if *max < min {
+func validateQuantity(min int32, max int32) error {
+	if max > 0 && max < min {
 		return domain.ErrOptionGroupInvalidMinMax
 	}
 	return nil

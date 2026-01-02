@@ -31,6 +31,9 @@ func (uc *CreateUseCase) Execute(ctx context.Context, req CreateTopicRequest, re
 }
 
 func newTopicEntity(restaurantID int32, name, slug string, parentValue int64, sortOrder int32) (*domain.Topic, error) {
+	if parentValue == 0 {
+		parentValue = 1
+	}
 	var parent *domain.TopicID
 	if parentValue != 0 {
 		val := domain.TopicID(parentValue)

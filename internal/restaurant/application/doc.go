@@ -6,19 +6,24 @@ import (
 )
 
 type CreateRestaurantSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 	Data *restaurantapp.CreateRestaurantResponse `json:"data,omitempty"`
 }
 
 type GetRestaurantByIDSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 	Data *restaurantapp.GetRestaurantByIDResponse `json:"data,omitempty"`
 }
 
 type UpdateRestaurantSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type DeleteRestaurantSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
+}
+
+type GetComboboxRestaurantSuccessResponseDoc struct {
+	response.SuccessBaseDoc
+	Data *[]response.Combobox `json:"data,omitempty"`
 }

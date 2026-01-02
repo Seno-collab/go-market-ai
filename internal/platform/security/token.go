@@ -33,8 +33,11 @@ func GenerateToken(userID uuid.UUID, email, key string, duration int) (string, e
 
 func VerifyToken(tokenString string, key string) (*JWTClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (any, error) {
+		if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
+			return nil, jwt.ErrTokenSignatureInvalid
+		}
 		return []byte(key), nil
-	})
+	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 	if err != nil {
 		return nil, err
 	}

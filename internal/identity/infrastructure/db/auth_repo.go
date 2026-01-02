@@ -11,17 +11,17 @@ import (
 )
 
 type AuthRepo struct {
-	Sqlc *sqlc.Queries
+	queries *sqlc.Queries
 }
 
 func NewAuthRepo(pool *pgxpool.Pool) *AuthRepo {
 	return &AuthRepo{
-		Sqlc: sqlc.New(pool),
+		queries: sqlc.New(pool),
 	}
 }
 
 func (au *AuthRepo) GetByEmail(ctx context.Context, email string) (*auth.Entity, error) {
-	u, err := au.Sqlc.GetUserByEmail(ctx, &email)
+	u, err := au.queries.GetUserByEmail(ctx, &email)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, 
 	email := a.Email.String()
 	password := a.Password.String()
 
-	id, err := au.Sqlc.CreateUser(ctx, sqlc.CreateUserParams{
+	id, err := au.queries.CreateUser(ctx, sqlc.CreateUserParams{
 		Email:        &email,
 		PasswordHash: password,
 		FullName:     a.FullName,
@@ -63,7 +63,7 @@ func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, 
 	return id, nil
 }
 func (au *AuthRepo) GetByName(ctx context.Context, name string) (*auth.Entity, error) {
-	u, err := au.Sqlc.GetUserByName(ctx, name)
+	u, err := au.queries.GetUserByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (au *AuthRepo) GetByName(ctx context.Context, name string) (*auth.Entity, e
 }
 
 func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, error) {
-	u, err := au.Sqlc.GetUserByID(ctx, id)
+	u, err := au.queries.GetUserByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -96,12 +96,12 @@ func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, er
 }
 
 func (au *AuthRepo) ChangePassword(ctx context.Context, NewPasswordHash string, userID uuid.UUID) error {
-	return au.Sqlc.UpdatePasswordByID(ctx, sqlc.UpdatePasswordByIDParams{
+	return au.queries.UpdatePasswordByID(ctx, sqlc.UpdatePasswordByIDParams{
 		PasswordHash: NewPasswordHash,
 		ID:           userID,
 	})
 }
 
 func (au *AuthRepo) GetPasswordByID(ctx context.Context, id uuid.UUID) (string, error) {
-	return au.Sqlc.GetPasswordByID(ctx, id)
+	return au.queries.GetPasswordByID(ctx, id)
 }

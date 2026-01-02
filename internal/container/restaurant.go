@@ -27,11 +27,13 @@ func InitRestaurantModule(pool *pgxpool.Pool, auth *middlewares.IdentityMiddlewa
 	updateRestaurantUseCase := restaurantapp.NewUpdateRestaurantUseCase(repo)
 	deleteRestaurantUseCase := restaurantapp.NewDeleteUseCase(repo)
 	getByIDUseCase := restaurantapp.NewGetByIDUseCase(repo)
+	getComboboxRestaurant := restaurantapp.NewGetRestaurantItemComboboxUseCase(repo)
 	handler := restauranthttp.NewRestaurantHandler(
 		createRestaurantUseCase,
 		getByIDUseCase,
 		updateRestaurantUseCase,
 		deleteRestaurantUseCase,
+		getComboboxRestaurant,
 		log,
 	)
 	return &RestaurantModule{

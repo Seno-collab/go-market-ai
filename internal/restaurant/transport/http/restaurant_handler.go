@@ -14,11 +14,12 @@ import (
 )
 
 type RestaurantHandler struct {
-	CreateUseCase  *restaurantapp.CreateRestaurantUseCase
-	GetByIDUseCase *restaurantapp.GetByIDUseCase
-	UpdateUseCase  *restaurantapp.UpdateRestaurantUseCase
-	DeleteUseCase  *restaurantapp.DeleteUseCase
-	Logger         zerolog.Logger
+	CreateUseCase      *restaurantapp.CreateRestaurantUseCase
+	GetByIDUseCase     *restaurantapp.GetByIDUseCase
+	UpdateUseCase      *restaurantapp.UpdateRestaurantUseCase
+	DeleteUseCase      *restaurantapp.DeleteUseCase
+	GetComboboxUseCase *restaurantapp.GetRestaurantItemComboboxUseCase
+	Logger             zerolog.Logger
 }
 
 func NewRestaurantHandler(
@@ -26,14 +27,16 @@ func NewRestaurantHandler(
 	getByIDUseCase *restaurantapp.GetByIDUseCase,
 	updateUseCase *restaurantapp.UpdateRestaurantUseCase,
 	deleteUseCase *restaurantapp.DeleteUseCase,
+	getComboboxUseCase *restaurantapp.GetRestaurantItemComboboxUseCase,
 	logger zerolog.Logger,
 ) *RestaurantHandler {
 	return &RestaurantHandler{
-		CreateUseCase:  createUseCase,
-		GetByIDUseCase: getByIDUseCase,
-		UpdateUseCase:  updateUseCase,
-		DeleteUseCase:  deleteUseCase,
-		Logger:         logger.With().Str("component", "RestaurantHandler").Logger(),
+		CreateUseCase:      createUseCase,
+		GetByIDUseCase:     getByIDUseCase,
+		UpdateUseCase:      updateUseCase,
+		DeleteUseCase:      deleteUseCase,
+		GetComboboxUseCase: getComboboxUseCase,
+		Logger:             logger.With().Str("component", "RestaurantHandler").Logger(),
 	}
 }
 
@@ -46,7 +49,7 @@ func NewRestaurantHandler(
 // @Param request body restaurantapp.CreateRestaurantRequest true "Restaurant create payload"
 // @Success 200 {object} app.CreateRestaurantSuccessResponseDoc "Create restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/restaurant [post]
+// @Router /api/restaurants [post]
 func (h *RestaurantHandler) Create(c echo.Context) error {
 	var in restaurantapp.CreateRestaurantRequest
 	if err := c.Bind(&in); err != nil {
@@ -69,7 +72,7 @@ func (h *RestaurantHandler) Create(c echo.Context) error {
 		}
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
-	return response.Success[restaurantapp.CreateRestaurantResponse](c, &restaurantapp.CreateRestaurantResponse{
+	return response.Success(c, restaurantapp.CreateRestaurantResponse{
 		ID: id,
 	}, "Create restaurant successfully")
 }
@@ -83,24 +86,24 @@ func (h *RestaurantHandler) Create(c echo.Context) error {
 // @Param id path string true "Restaurant ID"
 // @Success 200 {object} app.GetRestaurantByIDSuccessResponseDoc "Get restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/restaurant/{id} [get]
+// @Router /api/restaurants/{id} [get]
 func (h *RestaurantHandler) GetByID(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return response.Error(c, http.StatusBadRequest, "missing restaurant id")
+		return response.Error(c, http.StatusBadRequest, "Missing restaurant id")
 	}
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid restaurant id format")
+		return response.Error(c, http.StatusBadRequest, "Invalid restaurant id format")
 	}
 	if idInt > math.MaxInt32 || idInt < math.MinInt32 {
-		return response.Error(c, http.StatusBadRequest, "restaurant id out of int32 range")
+		return response.Error(c, http.StatusBadRequest, "Restaurant id out of int32 range")
 	}
 	restaurant, err := h.GetByIDUseCase.Execute(c.Request().Context(), int32(idInt))
 	if restaurant == nil {
-		return response.Error(c, http.StatusNotFound, "restaurant not found")
+		return response.Error(c, http.StatusNotFound, "Restaurant not found")
 	}
-	return response.Success[restaurantapp.GetRestaurantByIDResponse](c, restaurant, "Get restaurant successfully")
+	return response.Success(c, restaurant, "Get restaurant successfully")
 }
 
 // UpdateRestaurant godoc
@@ -113,18 +116,18 @@ func (h *RestaurantHandler) GetByID(c echo.Context) error {
 // @Param body body restaurantapp.UpdateRestaurantRequest true "Restaurant update payload"
 // @Success 200 {object} app.UpdateRestaurantSuccessResponseDoc "Update restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/restaurant/{id} [put]
+// @Router /api/restaurants/{id} [put]
 func (h *RestaurantHandler) Update(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return response.Error(c, http.StatusBadRequest, "missing restaurant id")
+		return response.Error(c, http.StatusBadRequest, "Missing restaurant id")
 	}
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid restaurant id format")
+		return response.Error(c, http.StatusBadRequest, "Invalid restaurant id format")
 	}
 	if idInt > math.MaxInt32 || idInt < math.MinInt32 {
-		return response.Error(c, http.StatusBadRequest, "restaurant id out of int32 range")
+		return response.Error(c, http.StatusBadRequest, "Restaurant id out of int32 range")
 	}
 	var in restaurantapp.CreateRestaurantRequest
 	if err := c.Bind(&in); err != nil {
@@ -159,18 +162,18 @@ func (h *RestaurantHandler) Update(c echo.Context) error {
 // @Param id path string true "Restaurant ID"
 // @Success 200 {object} app.DeleteRestaurantSuccessResponseDoc "Restaurant deleted successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/restaurant/{id} [delete]
+// @Router /api/restaurants/{id} [delete]
 func (h *RestaurantHandler) Delete(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
-		return response.Error(c, http.StatusBadRequest, "missing restaurant id")
+		return response.Error(c, http.StatusBadRequest, "Missing restaurant id")
 	}
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, "invalid restaurant id format")
+		return response.Error(c, http.StatusBadRequest, "Invalid restaurant id format")
 	}
 	if idInt > math.MaxInt32 || idInt < math.MinInt32 {
-		return response.Error(c, http.StatusBadRequest, "restaurant id out of int32 range")
+		return response.Error(c, http.StatusBadRequest, "Restaurant id out of int32 range")
 	}
 	userID := c.Get("user_id")
 	if userID == nil {
@@ -187,4 +190,34 @@ func (h *RestaurantHandler) Delete(c echo.Context) error {
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success[any](c, nil, "Restaurant deleted successfully")
+}
+
+// GetRestaurantCombobox godoc
+// @Summary      Get combobox of a menu item
+// @Description  Get option/combobox groups and items
+//
+//	using the restaurant context selected by the current authenticated user
+//
+// @Tags         Restaurant
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {array} app.GetComboboxRestaurantSuccessResponseDoc "Get restaurant combobox successfully"
+// @Failure default {object} response.ErrorDoc "Errors"
+// @Router       /api/restaurants/combobox [get]
+func (h *RestaurantHandler) GetCombobox(c echo.Context) error {
+	userID := c.Get("user_id")
+	if userID == nil {
+		return response.Error(c, http.StatusUnauthorized, "Unauthorized")
+	}
+	userUUID, ok := userID.(uuid.UUID)
+	if !ok {
+		h.Logger.Error().Msg("failed to get profile: invalid user ID type")
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
+	}
+	resp, err := h.GetComboboxUseCase.Execute(c.Request().Context(), userUUID)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg("Get restaurant combobox failed")
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
+	}
+	return response.Success(c, resp, "Get restaurant combobox successfully")
 }

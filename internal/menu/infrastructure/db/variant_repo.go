@@ -9,19 +9,19 @@ import (
 )
 
 type VariantRepo struct {
-	Sqlc *sqlc.Queries
-	Pool *pgxpool.Pool
+	queries *sqlc.Queries
+	pool    *pgxpool.Pool
 }
 
 func NewVariantRepo(pool *pgxpool.Pool) *VariantRepo {
 	return &VariantRepo{
-		Sqlc: sqlc.New(pool),
-		Pool: pool,
+		queries: sqlc.New(pool),
+		pool:    pool,
 	}
 }
 
 func (vr *VariantRepo) Create(ctx context.Context, v domain.Variant) error {
-	err := vr.Sqlc.CreateVariant(ctx, sqlc.CreateVariantParams{
+	err := vr.queries.CreateVariant(ctx, sqlc.CreateVariantParams{
 		Name:       v.Name,
 		PriceDelta: v.PriceDelta.Numeric(),
 		IsDefault:  v.IsDefault,
@@ -34,7 +34,7 @@ func (vr *VariantRepo) Create(ctx context.Context, v domain.Variant) error {
 }
 
 func (vr *VariantRepo) Update(ctx context.Context, v domain.Variant, id int64) error {
-	err := vr.Sqlc.UpdateVariant(ctx, sqlc.UpdateVariantParams{
+	err := vr.queries.UpdateVariant(ctx, sqlc.UpdateVariantParams{
 		ID:         id,
 		Name:       v.Name,
 		PriceDelta: v.PriceDelta.Numeric(),

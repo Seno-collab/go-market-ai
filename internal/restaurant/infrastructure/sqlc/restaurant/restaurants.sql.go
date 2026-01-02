@@ -264,9 +264,40 @@ func (q *Queries) GetRestaurantByUserID(ctx context.Context, userID uuid.UUID) (
 	return restaurant_id, err
 }
 
+const getRestaurantItemsCombobox = `-- name: GetRestaurantItemsCombobox :many
+SELECT rs.id AS value, rs.name AS text FROM "restaurants" rs
+INNER JOIN "restaurant_users" ru ON rs.id = ru.restaurant_id
+WHERE ru.user_id = $1 AND rs.deleted_at IS NULL AND status = 'active'
+`
+
+type GetRestaurantItemsComboboxRow struct {
+	Value int32
+	Text  string
+}
+
+func (q *Queries) GetRestaurantItemsCombobox(ctx context.Context, userID uuid.UUID) ([]GetRestaurantItemsComboboxRow, error) {
+	rows, err := q.db.Query(ctx, getRestaurantItemsCombobox, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRestaurantItemsComboboxRow
+	for rows.Next() {
+		var i GetRestaurantItemsComboboxRow
+		if err := rows.Scan(&i.Value, &i.Text); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const softDeleteRestaurant = `-- name: SoftDeleteRestaurant :exec
 UPDATE restaurants
-SET deleted_at = NOW(), updated_by = $1
+SET deleted_at = NOW(), updated_by = $1, status = 'inactive'
 WHERE id = $2
 `
 

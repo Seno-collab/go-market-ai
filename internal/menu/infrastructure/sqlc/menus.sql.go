@@ -29,6 +29,51 @@ func (q *Queries) AttachOptionGroupToItem(ctx context.Context, arg AttachOptionG
 	return err
 }
 
+const countMenuItems = `-- name: CountMenuItems :one
+SELECT COUNT(*)
+FROM menu_items
+WHERE restaurant_id = $1
+`
+
+func (q *Queries) CountMenuItems(ctx context.Context, restaurantID int32) (int64, error) {
+	row := q.db.QueryRow(ctx, countMenuItems, restaurantID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countOptionItems = `-- name: CountOptionItems :one
+SELECT COUNT(*)
+FROM option_item oi
+JOIN option_group og ON og.id = oi.option_group_id
+WHERE oi.option_group_id = $1
+  AND og.restaurant_id = $2
+ORDER BY oi.sort_order, oi.id
+`
+
+type CountOptionItemsParams struct {
+	OptionGroupID int64
+	RestaurantID  int32
+}
+
+func (q *Queries) CountOptionItems(ctx context.Context, arg CountOptionItemsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countOptionItems, arg.OptionGroupID, arg.RestaurantID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countTopicsByRestaurant = `-- name: CountTopicsByRestaurant :one
+SELECT COUNT(*) FROM topic WHERE restaurant_id = $1
+`
+
+func (q *Queries) CountTopicsByRestaurant(ctx context.Context, restaurantID int32) (int64, error) {
+	row := q.db.QueryRow(ctx, countTopicsByRestaurant, restaurantID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createComboGroup = `-- name: CreateComboGroup :exec
 INSERT INTO combo_group (
     combo_item_id, name, min_select, max_select, sort_order
@@ -70,7 +115,7 @@ type CreateComboGroupItemParams struct {
 	PriceDelta      pgtype.Numeric
 	QuantityDefault int32
 	QuantityMin     int32
-	QuantityMax     int
+	QuantityMax     int32
 	SortOrder       int32
 }
 
@@ -88,7 +133,7 @@ func (q *Queries) CreateComboGroupItem(ctx context.Context, arg CreateComboGroup
 }
 
 const createMenuItem = `-- name: CreateMenuItem :one
-INSERT INTO menu_item (
+INSERT INTO menu_items (
     restaurant_id, topic_id, type, name, description,
     image_url, sku, base_price, is_active, sort_order
 )
@@ -99,7 +144,7 @@ RETURNING id
 type CreateMenuItemParams struct {
 	RestaurantID int32
 	TopicID      *int64
-	Type         interface{}
+	Type         string
 	Name         string
 	Description  *string
 	ImageUrl     *string
@@ -137,7 +182,7 @@ type CreateOptionGroupParams struct {
 	RestaurantID int32
 	Name         string
 	MinSelect    int32
-	MaxSelect    int
+	MaxSelect    int32
 	IsRequired   bool
 	SortOrder    int32
 }
@@ -171,7 +216,7 @@ type CreateOptionItemParams struct {
 	LinkedMenuItem *int64
 	PriceDelta     pgtype.Numeric
 	QuantityMin    int32
-	QuantityMax    int
+	QuantityMax    int32
 	SortOrder      int32
 }
 
@@ -273,7 +318,7 @@ func (q *Queries) DeleteComboGroupItem(ctx context.Context, id int64) error {
 }
 
 const deleteMenuItem = `-- name: DeleteMenuItem :exec
-DELETE FROM menu_item WHERE id = $1 AND restaurant_id = $2
+DELETE FROM menu_items WHERE id = $1 AND restaurant_id = $2
 `
 
 type DeleteMenuItemParams struct {
@@ -384,7 +429,7 @@ SELECT
     oi.id, oi.option_group_id, oi.name, oi.linked_menu_item, oi.price_delta, oi.quantity_min, oi.quantity_max, oi.sort_order, oi.is_active, oi.created_at, oi.updated_at,
     cg.id, cg.combo_item_id, cg.name, cg.min_select, cg.max_select, cg.sort_order, cg.created_at, cg.updated_at,
     cgi.id, cgi.combo_group_id, cgi.menu_item_id, cgi.price_delta, cgi.quantity_default, cgi.quantity_min, cgi.quantity_max, cgi.sort_order, cgi.created_at, cgi.updated_at
-FROM menu_item mi
+FROM menu_items mi
 LEFT JOIN topic t ON t.id = mi.topic_id
 LEFT JOIN menu_item_variant mv ON mv.menu_item_id = mi.id
 LEFT JOIN menu_item_option_group mog ON mog.menu_item_id = mi.id
@@ -399,7 +444,7 @@ type GetFullMenuRow struct {
 	ID              int64
 	RestaurantID    int32
 	TopicID         *int64
-	Type            interface{}
+	Type            string
 	Name            string
 	Description     *string
 	ImageUrl        *string
@@ -423,7 +468,7 @@ type GetFullMenuRow struct {
 	RestaurantID_2  int
 	Name_3          *string
 	MinSelect       int
-	MaxSelect       int
+	MaxSelect       int32
 	IsRequired      *bool
 	SortOrder_3     int
 	CreatedAt_3     pgtype.Timestamptz
@@ -434,7 +479,7 @@ type GetFullMenuRow struct {
 	LinkedMenuItem  *int64
 	PriceDelta_2    pgtype.Numeric
 	QuantityMin     int
-	QuantityMax     int
+	QuantityMax     int32
 	SortOrder_4     int
 	IsActive_2      *bool
 	CreatedAt_4     pgtype.Timestamptz
@@ -453,7 +498,7 @@ type GetFullMenuRow struct {
 	PriceDelta_3    pgtype.Numeric
 	QuantityDefault int
 	QuantityMin_2   int
-	QuantityMax_2   int
+	QuantityMax_2   int32
 	SortOrder_6     int
 	CreatedAt_6     pgtype.Timestamptz
 	UpdatedAt_6     pgtype.Timestamptz
@@ -543,7 +588,7 @@ func (q *Queries) GetFullMenu(ctx context.Context, restaurantID int32) ([]GetFul
 
 const getMenuItemByID = `-- name: GetMenuItemByID :one
 SELECT id, restaurant_id, topic_id, type, name, description, image_url, sku, base_price, is_active, sort_order, created_at, updated_at
-FROM menu_item
+FROM menu_items
 WHERE id = $1 and restaurant_id = $2
 `
 
@@ -575,13 +620,98 @@ func (q *Queries) GetMenuItemByID(ctx context.Context, arg GetMenuItemByIDParams
 
 const getMenuItemsByRestaurant = `-- name: GetMenuItemsByRestaurant :many
 SELECT id, restaurant_id, topic_id, type, name, description, image_url, sku, base_price, is_active, sort_order, created_at, updated_at
-FROM menu_item
-WHERE restaurant_id = $1
+FROM menu_items
+WHERE restaurant_id = $1 AND (
+        $2::text = ''
+        OR name ILIKE '%' || $2 || '%'
+        OR description ILIKE '%' || $2 || '%'
+      ) AND (NULLIF($3::text, '') IS NULL
+        OR type = $3::menu_item_type)
 ORDER BY sort_order, id
+LIMIT $4 OFFSET $5
 `
 
-func (q *Queries) GetMenuItemsByRestaurant(ctx context.Context, restaurantID int32) ([]MenuItem, error) {
-	rows, err := q.db.Query(ctx, getMenuItemsByRestaurant, restaurantID)
+type GetMenuItemsByRestaurantParams struct {
+	RestaurantID int32
+	Column2      string
+	Column3      string
+	Limit        int32
+	Offset       int32
+}
+
+func (q *Queries) GetMenuItemsByRestaurant(ctx context.Context, arg GetMenuItemsByRestaurantParams) ([]MenuItem, error) {
+	rows, err := q.db.Query(ctx, getMenuItemsByRestaurant,
+		arg.RestaurantID,
+		arg.Column2,
+		arg.Column3,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MenuItem
+	for rows.Next() {
+		var i MenuItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.RestaurantID,
+			&i.TopicID,
+			&i.Type,
+			&i.Name,
+			&i.Description,
+			&i.ImageUrl,
+			&i.Sku,
+			&i.BasePrice,
+			&i.IsActive,
+			&i.SortOrder,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMenuItemsByRestaurantAndActive = `-- name: GetMenuItemsByRestaurantAndActive :many
+SELECT id, restaurant_id, topic_id, type, name, description, image_url, sku, base_price, is_active, sort_order, created_at, updated_at
+FROM menu_items
+WHERE restaurant_id = $1
+  AND is_active = $2
+  AND (
+          $3::text = ''
+          OR name ILIKE '%' || $3 || '%'
+          OR description ILIKE '%' || $3 || '%'
+        ) AND (NULLIF($4::text, '') IS NULL
+          OR type = $4::menu_item_type)
+ORDER BY sort_order, id
+LIMIT $5 OFFSET $6
+`
+
+type GetMenuItemsByRestaurantAndActiveParams struct {
+	RestaurantID int32
+	IsActive     bool
+	Column3      string
+	Column4      string
+	Limit        int32
+	Offset       int32
+}
+
+func (q *Queries) GetMenuItemsByRestaurantAndActive(ctx context.Context, arg GetMenuItemsByRestaurantAndActiveParams) ([]MenuItem, error) {
+	rows, err := q.db.Query(ctx, getMenuItemsByRestaurantAndActive,
+		arg.RestaurantID,
+		arg.IsActive,
+		arg.Column3,
+		arg.Column4,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -650,15 +780,23 @@ JOIN menu_item_option_group mig ON mig.option_group_id = og.id
 WHERE mig.menu_item_id = $1
   AND og.restaurant_id = $2
 ORDER BY og.sort_order, og.id
+LIMIT $3 OFFSET $4
 `
 
 type GetOptionGroupsByItemParams struct {
 	MenuItemID   int64
 	RestaurantID int32
+	Limit        int32
+	Offset       int32
 }
 
 func (q *Queries) GetOptionGroupsByItem(ctx context.Context, arg GetOptionGroupsByItemParams) ([]OptionGroup, error) {
-	rows, err := q.db.Query(ctx, getOptionGroupsByItem, arg.MenuItemID, arg.RestaurantID)
+	rows, err := q.db.Query(ctx, getOptionGroupsByItem,
+		arg.MenuItemID,
+		arg.RestaurantID,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -726,15 +864,23 @@ JOIN option_group og ON og.id = oi.option_group_id
 WHERE oi.option_group_id = $1
   AND og.restaurant_id = $2
 ORDER BY oi.sort_order, oi.id
+LIMIT $3 OFFSET $4
 `
 
 type GetOptionItemsByGroupParams struct {
 	OptionGroupID int64
 	RestaurantID  int32
+	Limit         int32
+	Offset        int32
 }
 
 func (q *Queries) GetOptionItemsByGroup(ctx context.Context, arg GetOptionItemsByGroupParams) ([]OptionItem, error) {
-	rows, err := q.db.Query(ctx, getOptionItemsByGroup, arg.OptionGroupID, arg.RestaurantID)
+	rows, err := q.db.Query(ctx, getOptionItemsByGroup,
+		arg.OptionGroupID,
+		arg.RestaurantID,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -794,12 +940,25 @@ func (q *Queries) GetTopic(ctx context.Context, arg GetTopicParams) (Topic, erro
 const getTopicsByRestaurant = `-- name: GetTopicsByRestaurant :many
 SELECT id, restaurant_id, name, slug, parent_id, sort_order, is_active, created_at, updated_at
 FROM topic
-WHERE restaurant_id = $1
+WHERE restaurant_id = $1 AND ( $2::text = '' OR name = $2)
 ORDER BY sort_order, id
+LIMIT $3 OFFSET $4
 `
 
-func (q *Queries) GetTopicsByRestaurant(ctx context.Context, restaurantID int32) ([]Topic, error) {
-	rows, err := q.db.Query(ctx, getTopicsByRestaurant, restaurantID)
+type GetTopicsByRestaurantParams struct {
+	RestaurantID int32
+	Column2      string
+	Limit        int32
+	Offset       int32
+}
+
+func (q *Queries) GetTopicsByRestaurant(ctx context.Context, arg GetTopicsByRestaurantParams) ([]Topic, error) {
+	rows, err := q.db.Query(ctx, getTopicsByRestaurant,
+		arg.RestaurantID,
+		arg.Column2,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -818,6 +977,35 @@ func (q *Queries) GetTopicsByRestaurant(ctx context.Context, restaurantID int32)
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTopicsByRestaurantCombobox = `-- name: GetTopicsByRestaurantCombobox :many
+SELECT id as Value, name as TEXT FROM topic WHERE restaurant_id = $1 and is_active = true
+`
+
+type GetTopicsByRestaurantComboboxRow struct {
+	Value int64
+	Text  string
+}
+
+func (q *Queries) GetTopicsByRestaurantCombobox(ctx context.Context, restaurantID int32) ([]GetTopicsByRestaurantComboboxRow, error) {
+	rows, err := q.db.Query(ctx, getTopicsByRestaurantCombobox, restaurantID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetTopicsByRestaurantComboboxRow
+	for rows.Next() {
+		var i GetTopicsByRestaurantComboboxRow
+		if err := rows.Scan(&i.Value, &i.Text); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -895,7 +1083,7 @@ func (q *Queries) UpdateComboGroup(ctx context.Context, arg UpdateComboGroupPara
 }
 
 const updateMenuItem = `-- name: UpdateMenuItem :exec
-UPDATE menu_item
+UPDATE menu_items
 SET
     topic_id = $2,
     type = $3,
@@ -913,7 +1101,7 @@ WHERE id = $1 and restaurant_id = $11
 type UpdateMenuItemParams struct {
 	ID           int64
 	TopicID      *int64
-	Type         interface{}
+	Type         string
 	Name         string
 	Description  *string
 	ImageUrl     *string
@@ -959,7 +1147,7 @@ type UpdateOptionGroupParams struct {
 	RestaurantID int32
 	Name         string
 	MinSelect    int32
-	MaxSelect    int
+	MaxSelect    int32
 	IsRequired   bool
 	SortOrder    int32
 }
@@ -999,7 +1187,7 @@ type UpdateOptionItemParams struct {
 	LinkedMenuItem *int64
 	PriceDelta     pgtype.Numeric
 	QuantityMin    int32
-	QuantityMax    int
+	QuantityMax    int32
 	SortOrder      int32
 	RestaurantID   int32
 }
@@ -1015,6 +1203,24 @@ func (q *Queries) UpdateOptionItem(ctx context.Context, arg UpdateOptionItemPara
 		arg.SortOrder,
 		arg.RestaurantID,
 	)
+	return err
+}
+
+const updateStatusMenuItem = `-- name: UpdateStatusMenuItem :exec
+UPDATE menu_items
+SET is_active = $1,
+updated_at = NOW()
+WHERE id = $2 and restaurant_id = $3
+`
+
+type UpdateStatusMenuItemParams struct {
+	IsActive     bool
+	ID           int64
+	RestaurantID int32
+}
+
+func (q *Queries) UpdateStatusMenuItem(ctx context.Context, arg UpdateStatusMenuItemParams) error {
+	_, err := q.db.Exec(ctx, updateStatusMenuItem, arg.IsActive, arg.ID, arg.RestaurantID)
 	return err
 }
 

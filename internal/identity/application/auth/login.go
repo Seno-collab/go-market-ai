@@ -7,6 +7,7 @@ import (
 	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/internal/platform/config"
 	"go-ai/internal/platform/security"
+	domainerr "go-ai/pkg/domain_err"
 	"go-ai/pkg/utils"
 
 	"time"
@@ -28,6 +29,9 @@ func NewLoginUseCase(repo auth.Repository, cache *cache.AuthCache, config *confi
 
 func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginResponse, error) {
 	email, err := utils.NewEmail(req.Email)
+	if err != nil || email.String() == "" {
+		return nil, auth.ErrInvalidCredentials
+	}
 	storedUser, err := s.Repo.GetByEmail(ctx, email.String())
 	if err != nil {
 		return nil, auth.ErrInvalidCredentials
@@ -54,9 +58,13 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 		FullName: storedUser.FullName,
 	}
 	keyAuthCache := fmt.Sprintf("profile_%s", storedUser.ID.String())
-	s.Cache.SetAuthCache(keyAuthCache, dataCache, time.Duration(s.Config.JwtExpiresIn*int(time.Second)))
+	if err := s.Cache.SetAuthCache(keyAuthCache, dataCache, time.Duration(s.Config.JwtExpiresIn*int(time.Second))); err != nil {
+		return nil, domainerr.ErrInternalServerError
+	}
 	keyRefreshToken := fmt.Sprintf("refresh_token_%s", storedUser.ID.String())
-	s.Cache.SetRefreshTokenCache(keyRefreshToken, refreshToken, time.Duration(s.Config.JwtRefreshExpiresIn*int(time.Second)))
+	if err := s.Cache.SetRefreshTokenCache(keyRefreshToken, refreshToken, time.Duration(s.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
+		return nil, domainerr.ErrInternalServerError
+	}
 	return &LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

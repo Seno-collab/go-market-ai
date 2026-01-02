@@ -26,7 +26,7 @@ func NewGetProfileUseCase(repo auth.Repository, cache *cache.AuthCache) *GetProf
 
 func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*GetProfileResponse, error) {
 	keyAuth := fmt.Sprintf("profile_%s", userID.String())
-	cacheData, err := uc.Cache.GetAuthCache(keyAuth)
+	cacheData, err := uc.Cache.GetAuthCache(ctx, keyAuth)
 	if err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}

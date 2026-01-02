@@ -24,6 +24,14 @@ type MenuItem struct {
 	ComboGroups  []ComboGroup
 }
 
+type SearchMenuItemsParam struct {
+	IsActive     *bool
+	Limit        int32
+	Offset       int32
+	RestaurantID int32
+	Filter       string
+	Category     string
+}
 type NewMenuItemParams struct {
 	Name         string
 	Price        utils.Money
@@ -40,7 +48,7 @@ func NewMenuItem(params NewMenuItemParams) (*MenuItem, error) {
 		return nil, ErrNameRequired
 	}
 	if !params.Type.Valid() {
-		return nil, errors.New("menu: invalid type")
+		return nil, errors.New("Menu: invalid type")
 	}
 	return &MenuItem{
 		Name:         params.Name,
@@ -60,7 +68,7 @@ func (m *MenuItem) Validate() error {
 		return ErrNameRequired
 	}
 	if !m.Type.Valid() {
-		return errors.New("menu: invalid type")
+		return errors.New("Menu: invalid type")
 	}
 	return nil
 }

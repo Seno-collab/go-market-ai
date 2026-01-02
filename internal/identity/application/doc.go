@@ -6,29 +6,29 @@ import (
 )
 
 type RegisterSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 	Data *authapp.RegisterSuccess `json:"data,omitempty"`
 }
 
 type GetProfileSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 	Data *authapp.GetProfileResponse `json:"data,omitempty"`
 }
 
 type RefreshTokenSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 	Data *authapp.RefreshTokenResponse `json:"data,omitempty"`
 }
 
 type LoginSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 	Data *authapp.LoginResponse `json:"data,omitempty"`
 }
 
 type ChangePasswordSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }
 
 type LogoutSuccessResponseDoc struct {
-	response.SuccecssBaseDoc
+	response.SuccessBaseDoc
 }

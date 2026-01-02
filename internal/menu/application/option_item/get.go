@@ -3,6 +3,7 @@ package optionitemapp
 import (
 	"context"
 	"go-ai/internal/menu/domain"
+	"go-ai/internal/transport/response"
 )
 
 type GetUseCase struct {
@@ -34,21 +35,29 @@ func NewGetByGroupUseCase(repo domain.OptionItemRepository, groupRepo domain.Opt
 	}
 }
 
-func (uc *GetByGroupUseCase) Execute(ctx context.Context, groupID int64, restaurantID int32) (*GetOptionItemsResponse, error) {
+func (uc *GetByGroupUseCase) Execute(ctx context.Context, groupID int64, restaurantID int32, req GetOptionItemsRequest) (*GetOptionItemsResponse, error) {
 	if _, err := uc.GroupRepo.GetOptionGroup(ctx, groupID, restaurantID); err != nil {
 		return nil, err
 	}
-	items, err := uc.Repo.GetOptionItems(ctx, groupID, restaurantID)
+	page, limit, offset := response.ApplyDefaultPaginated(req.Page, req.Limit)
+	items, total, err := uc.Repo.GetOptionItems(ctx, groupID, restaurantID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
-	resp := GetOptionItemsResponse{
-		Items: make([]GetOptionItemResponse, 0, len(items)),
-	}
+	result := make([]GetOptionItemResponse, 0, len(items))
 	for _, item := range items {
-		resp.Items = append(resp.Items, mapOptionItem(item))
+		result = append(result, mapOptionItem(item))
 	}
-	return &resp, nil
+
+	return &GetOptionItemsResponse{
+		PaginatedResponse: response.PaginatedResponse[[]GetOptionItemResponse]{
+			Page:       page,
+			Limit:      limit,
+			TotalPages: total,
+			TotalItems: response.CalculateTotalPages(total, int64(limit)),
+			Items:      result,
+		},
+	}, nil
 }
 
 func mapOptionItem(item domain.OptionItem) GetOptionItemResponse {

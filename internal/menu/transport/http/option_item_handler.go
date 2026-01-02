@@ -61,7 +61,7 @@ func (h *OptionItemHandler) Create(c echo.Context) error {
 		h.Logger.Error().Err(err).Msg("create option item error")
 		return response.Error(c, http.StatusBadRequest, "Failed to create option item")
 	}
-	return response.Success[optionitemapp.CreateOptionItemResponse](c, &optionitemapp.CreateOptionItemResponse{ID: id}, "Create option item successfully")
+	return response.Success(c, &optionitemapp.CreateOptionItemResponse{ID: id}, "Create option item successfully")
 }
 
 // GetOptionItem godoc
@@ -75,7 +75,7 @@ func (h *OptionItemHandler) Create(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item/{id} [get]
 func (h *OptionItemHandler) Get(c echo.Context) error {
-	id, err := parseRequiredIDParam(c.Param("id"), "invalid option item id", "invalid option item id")
+	id, err := parseRequiredIDParam(c.Param("id"), "Invalid option item ID", "Invalid option item ID")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
@@ -89,7 +89,7 @@ func (h *OptionItemHandler) Get(c echo.Context) error {
 		h.Logger.Error().Err(err).Msg("get option item error")
 		return response.Error(c, http.StatusBadRequest, "Failed to get option item")
 	}
-	return response.Success[optionitemapp.GetOptionItemResponse](c, item, "Get option item successfully")
+	return response.Success(c, item, "Get option item successfully")
 }
 
 // GetOptionItemsByGroup godoc
@@ -103,7 +103,11 @@ func (h *OptionItemHandler) Get(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group/{id}/option-items [get]
 func (h *OptionItemHandler) GetByGroup(c echo.Context) error {
-	groupID, err := parseRequiredIDParam(c.Param("id"), "invalid option group id", "invalid option group id")
+	var in optionitemapp.GetOptionItemsRequest
+	if err := c.Bind(&in); err != nil {
+		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
+	}
+	groupID, err := parseRequiredIDParam(c.Param("id"), "Invalid option group ID", "Invalid option group ID")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
@@ -112,12 +116,12 @@ func (h *OptionItemHandler) GetByGroup(c echo.Context) error {
 		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
 		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
 	}
-	resp, err := h.GetByGroupUseCase.Execute(c.Request().Context(), groupID, restaurantID)
+	resp, err := h.GetByGroupUseCase.Execute(c.Request().Context(), groupID, restaurantID, in)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg("get option items error")
 		return response.Error(c, http.StatusBadRequest, "Failed to get option items")
 	}
-	return response.Success[optionitemapp.GetOptionItemsResponse](c, resp, "Get option items successfully")
+	return response.Success(c, resp, "Get option items successfully")
 }
 
 // UpdateOptionItem godoc
@@ -132,7 +136,7 @@ func (h *OptionItemHandler) GetByGroup(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item/{id} [put]
 func (h *OptionItemHandler) Update(c echo.Context) error {
-	id, err := parseRequiredIDParam(c.Param("id"), "invalid option item id", "invalid option item id")
+	id, err := parseRequiredIDParam(c.Param("id"), "Invalid option item ID", "Invalid option item ID")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
@@ -163,7 +167,7 @@ func (h *OptionItemHandler) Update(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item/{id} [delete]
 func (h *OptionItemHandler) Delete(c echo.Context) error {
-	id, err := parseRequiredIDParam(c.Param("id"), "invalid option item id", "invalid option item id")
+	id, err := parseRequiredIDParam(c.Param("id"), "Invalid option item ID", "Invalid option item ID")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
 	}

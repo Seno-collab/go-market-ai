@@ -67,7 +67,7 @@ func ValidateHours(hours []Hours) error {
 
 func ParseDayOfWeek(i int32) (DayOfWeek, error) {
 	if i < 0 || i > 6 {
-		return Sunday, fmt.Errorf("invalid day_of_week: %d", i)
+		return Sunday, fmt.Errorf("Invalid day_of_week: %d", i)
 	}
 	return DayOfWeek(i), nil
 }

@@ -22,8 +22,6 @@ func ResponseLoggerMiddleware() echo.MiddlewareFunc {
 
 			logger := zerolog.Ctx(req.Context())
 
-			latency := time.Since(start)
-
 			var responseBuf bytes.Buffer
 			origWriter := res.Writer
 			respLogger := &responseCaptureWriter{
@@ -34,6 +32,7 @@ func ResponseLoggerMiddleware() echo.MiddlewareFunc {
 			err := next(c)
 			res.Writer = origWriter
 
+			latency := time.Since(start)
 			responseBody := formatBody(responseBuf.Bytes())
 			logger.Info().
 				Int("status", res.Status).

@@ -1,6 +1,8 @@
 package restaurantapp
 
-import "go-ai/internal/restaurant/domain/restaurant"
+import (
+	"go-ai/internal/restaurant/domain/restaurant"
+)
 
 type RestaurantBase struct {
 	Name        string `json:"name"`

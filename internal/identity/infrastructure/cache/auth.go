@@ -29,8 +29,8 @@ func NewAuthCache(redis *redis.Client) *AuthCache {
 	}
 }
 
-func (authCache *AuthCache) GetAuthCache(key string) (*AuthData, error) {
-	val, err := authCache.Redis.Get(authCache.Ctx, key).Result()
+func (authCache *AuthCache) GetAuthCache(ctx context.Context, key string) (*AuthData, error) {
+	val, err := authCache.Redis.Get(ctx, key).Result()
 	if err == redis.Nil {
 		return nil, nil
 	}
@@ -81,4 +81,8 @@ func (authCache *AuthCache) DeleteAuthCache(key string) error {
 		return err
 	}
 	return nil
+}
+
+func (authCache *AuthCache) DeleteRefreshTokenCache(key string) error {
+	return authCache.DeleteAuthCache(key)
 }

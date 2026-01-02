@@ -29,7 +29,7 @@ END $$;
 
 
 -- ====== MENU ITEM (món ăn / đồ uống / extra / combo) ======
-CREATE TABLE IF NOT EXISTS menu_item (
+CREATE TABLE IF NOT EXISTS menu_items (
   id             BIGSERIAL PRIMARY KEY,
   restaurant_id  INT NOT NULL REFERENCES restaurant(id) ON DELETE CASCADE,
   topic_id       BIGINT REFERENCES topic(id) ON DELETE SET NULL,

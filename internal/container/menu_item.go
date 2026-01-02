@@ -21,8 +21,15 @@ func InitMenuItemModule(pool *pgxpool.Pool, log zerolog.Logger) *MenuItemModule 
 	updateUseCase := menuitemapp.NewUpdateUseCase(repo)
 	deleteUseCase := menuitemapp.NewDeleteUseCase(repo)
 	getMenuItems := menuitemapp.NewGetMenuItemsUseCase(repo)
-	menuItemHandler := menuitemhttp.NewMenuItemHandler(createUseCase,
-		getUseCase, updateUseCase, deleteUseCase, getMenuItems, log)
+	updateStatusUseCase := menuitemapp.NewUpdateStatusUseCase(repo)
+	menuItemHandler := menuitemhttp.NewMenuItemHandler(
+		createUseCase,
+		getUseCase,
+		updateUseCase,
+		deleteUseCase,
+		getMenuItems,
+		updateStatusUseCase,
+		log)
 	return &MenuItemModule{
 		MenuItemHandler: menuItemHandler,
 	}

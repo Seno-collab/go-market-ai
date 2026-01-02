@@ -46,12 +46,7 @@ func NewServer() *echo.Echo {
 			echo.POST,
 			echo.DELETE,
 		},
-		AllowHeaders: []string{
-			echo.HeaderOrigin,
-			echo.HeaderContentType,
-			echo.HeaderAccept,
-			echo.HeaderAuthorization,
-		},
+		AllowHeaders:     []string{"*"},
 		AllowCredentials: true,
 	}))
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))

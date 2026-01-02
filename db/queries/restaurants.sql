@@ -90,9 +90,14 @@ WHERE restaurant_id = $1;
 
 -- name: SoftDeleteRestaurant :exec
 UPDATE restaurants
-SET deleted_at = NOW(), updated_by = $1
+SET deleted_at = NOW(), updated_by = $1, status = 'inactive'
 WHERE id = $2;
 
 
 -- name: GetRestaurantByUserID :one
 SELECT restaurant_id FROM restaurant_users WHERE user_id = $1;
+
+-- name: GetRestaurantItemsCombobox :many
+SELECT rs.id AS value, rs.name AS text FROM "restaurants" rs
+INNER JOIN "restaurant_users" ru ON rs.id = ru.restaurant_id
+WHERE ru.user_id = $1 AND rs.deleted_at IS NULL AND status = 'active';

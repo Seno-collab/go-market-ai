@@ -22,6 +22,15 @@ func NewLogoutUseCase(repo auth.Repository, cache *cache.AuthCache) *LogoutUseCa
 }
 
 func (uc *LogoutUseCase) Execute(ctx context.Context, userID uuid.UUID) error {
-	key := fmt.Sprintf("profile_%s", userID)
-	return uc.Cache.DeleteAuthCache(key)
+	profileKey := fmt.Sprintf("profile_%s", userID)
+	refreshKey := fmt.Sprintf("refresh_token_%s", userID)
+	err := uc.Cache.DeleteAuthCache(profileKey)
+	errRefresh := uc.Cache.DeleteRefreshTokenCache(refreshKey)
+	if err != nil {
+		return err
+	}
+	if errRefresh != nil {
+		return errRefresh
+	}
+	return nil
 }

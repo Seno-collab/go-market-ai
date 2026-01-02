@@ -1,10 +1,16 @@
 package config
 
 import (
+	"fmt"
 	"go-ai/pkg/logger"
 	"strings"
 
 	"github.com/spf13/viper"
+)
+
+const (
+	defaultAccessSecret  = "your-access-secret-key"
+	defaultRefreshSecret = "your-refresh-secret-key"
 )
 
 type Config struct {
@@ -66,14 +72,20 @@ func LoadConfig() (*Config, error) {
 		logger.Error().Err(err).Msg("unable to decode config")
 		return nil, err
 	}
+	if cfg.JwtAccessSecret == defaultAccessSecret || cfg.JwtRefreshSecret == defaultRefreshSecret {
+		logger.Warn().Msg("JWT secrets are using default values; set JWT_SECRET and JWT_REFRESH_SECRET")
+		if cfg.IsProduction() {
+			return nil, fmt.Errorf("jwt secrets must be set for production")
+		}
+	}
 
 	return cfg, nil
 }
 
 func setDefaults() {
 	// JWT defaults
-	viper.SetDefault("JWT_SECRET", "your-access-secret-key")
-	viper.SetDefault("JWT_REFRESH_SECRET", "your-refresh-secret-key")
+	viper.SetDefault("JWT_SECRET", defaultAccessSecret)
+	viper.SetDefault("JWT_REFRESH_SECRET", defaultRefreshSecret)
 	viper.SetDefault("JWT_EXPIRES_IN", 3000)
 	viper.SetDefault("JWT_REFRESH_EXPIRES_IN", 6480000)
 

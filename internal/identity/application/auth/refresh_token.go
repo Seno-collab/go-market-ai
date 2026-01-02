@@ -7,6 +7,7 @@ import (
 	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/internal/platform/config"
 	"go-ai/internal/platform/security"
+	domainerr "go-ai/pkg/domain_err"
 	"time"
 
 	"github.com/google/uuid"
@@ -70,8 +71,12 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 		FullName: record.FullName,
 	}
 	keyAuthCache := fmt.Sprintf("profile_%s", record.ID.String())
-	uc.Cache.SetAuthCache(keyAuthCache, dataCache, time.Duration(uc.Config.JwtExpiresIn*int(time.Second)))
-	uc.Cache.SetRefreshTokenCache(keyRefreshToken, refreshToken, time.Duration(uc.Config.JwtRefreshExpiresIn*int(time.Second)))
+	if err := uc.Cache.SetAuthCache(keyAuthCache, dataCache, time.Duration(uc.Config.JwtExpiresIn*int(time.Second))); err != nil {
+		return nil, domainerr.ErrInternalServerError
+	}
+	if err := uc.Cache.SetRefreshTokenCache(keyRefreshToken, refreshToken, time.Duration(uc.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
+		return nil, domainerr.ErrInternalServerError
+	}
 	return &RefreshTokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

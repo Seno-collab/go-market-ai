@@ -3,8 +3,8 @@ package domain
 import "errors"
 
 var (
-	ErrTopicNameRequired = errors.New("topic: name is required")
-	ErrTopicInvalidLevel = errors.New("topic: circular parent is not allowed")
+	ErrTopicNameRequired = errors.New("Topic: name is required")
+	ErrTopicInvalidLevel = errors.New("Topic: circular parent is not allowed")
 )
 
 type TopicID int64
@@ -41,7 +41,7 @@ func (t *Topic) Validate() error {
 		return ErrTopicNameRequired
 	}
 	if t.SortOrder < 0 {
-		return errors.New("topic: invalid sort order")
+		return errors.New("Topic: invalid sort order")
 	}
 	return nil
 }

@@ -2,10 +2,12 @@ package restaurantapp
 
 import (
 	"context"
+	"errors"
 	"go-ai/internal/restaurant/domain/restaurant"
 	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type CreateRestaurantUseCase struct {
@@ -49,6 +51,16 @@ func (uc *CreateRestaurantUseCase) Execute(ctx context.Context, req CreateRestau
 			CloseTime: hour.CloseTime,
 		})
 	}
+	record, err := uc.Repo.GetByName(ctx, req.Name)
+	if err != nil {
+		if !errors.Is(err, pgx.ErrNoRows) {
+			return 0, err
+		}
+	}
+	if record != nil {
+		return 0, restaurant.ErrRestaurantExists
+	}
+
 	entity, err := restaurant.NewEntity(
 		req.Name,
 		req.Description,
