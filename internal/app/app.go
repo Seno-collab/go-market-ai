@@ -30,7 +30,7 @@ func BuildApp(e *echo.Echo, pool *pgxpool.Pool, redis *redis.Client, cfg *config
 	menuhttp.RegisterMenuItemRoutes(api, menuModule.MenuItemHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)
 
 	topicModule := container.InitTopicModule(pool, log)
-	menuhttp.RegisterTopicRoutes(api, topicModule.TopicHandler, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant)
+	menuhttp.RegisterTopicRoutes(api, topicModule.TopicHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)
 
 	optionModule := container.InitOptionModule(pool, log)
 	menuhttp.RegisterOptionGroupRoutes(api, optionModule.OptionGroupHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)

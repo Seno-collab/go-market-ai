@@ -51,7 +51,7 @@ func NewServer() *echo.Echo {
 	}))
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 	e.Use(middlewares.RequestIDMiddleware(logger))
-	e.Use(middleware.ContextTimeout(60 * time.Second))
+	e.Use(middleware.ContextTimeout(30 * time.Second))
 	e.Use(middleware.Recover())
 	e.Use(middlewares.RequestLoggerMiddleware(logger))
 	e.Use(middlewares.ResponseLoggerMiddleware())
