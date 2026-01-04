@@ -51,6 +51,13 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	if cachedRefreshToken != request.RefreshToken {
 		return nil, auth.ErrTokenMalformed
 	}
+	record, err := uc.Repo.GetByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	if !record.IsActive {
+		return nil, auth.ErrUserInactive
+	}
 	accessToken, err := security.GenerateToken(userID, email, uc.Config.JwtAccessSecret, uc.Config.JwtExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
@@ -58,10 +65,6 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	refreshToken, err := security.GenerateToken(userID, email, uc.Config.JwtRefreshSecret, uc.Config.JwtRefreshExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
-	}
-	record, err := uc.Repo.GetByEmail(ctx, email)
-	if err != nil {
-		return nil, err
 	}
 	dataCache := &cache.AuthData{
 		UserID:   record.ID,

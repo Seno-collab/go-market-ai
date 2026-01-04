@@ -143,7 +143,7 @@ func (r *MenuItemRepo) GetMenuItems(ctx context.Context, param domain.SearchMenu
 	}
 	total, err := r.queries.CountMenuItems(ctx, param.RestaurantID)
 	if err != nil {
-		return nil, 0, nil
+		return nil, 0, err
 	}
 	return items, total, nil
 }

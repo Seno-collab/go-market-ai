@@ -43,6 +43,14 @@ jobs:
           mkdir -p "$APP_PATH"
           cd "$APP_PATH"
 
+          if [ -d .git ]; then
+            echo "📥 Pulling latest code..."
+            git reset --hard
+            git pull --rebase || echo "git pull failed; proceeding with synced files"
+          else
+            echo "ℹ️ No git repo found on server; skipping git pull"
+          fi
+
           echo "🔧 Creating .env file..."
           cat << 'ENVEOF' > .env
           ${{ secrets.ENV_FILE }}

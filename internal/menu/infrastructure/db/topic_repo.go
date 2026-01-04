@@ -53,7 +53,7 @@ func (tr *TopicRepo) GetTopics(ctx context.Context, name string, restaurantID, l
 	}
 	total, err := tr.queries.CountTopicsByRestaurant(ctx, restaurantID)
 	if err != nil {
-		return nil, 0, nil
+		return nil, 0, err
 	}
 	return topics, total, nil
 }

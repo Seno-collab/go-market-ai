@@ -48,5 +48,6 @@ func (vr *VariantRepo) Update(ctx context.Context, v domain.Variant, id int64) e
 }
 
 func (vr *VariantRepo) Delete(ctx context.Context, id int64) error {
-	return vr.Delete(ctx, id)
+	_, err := vr.pool.Exec(ctx, "DELETE FROM menu_item_variant WHERE id = $1", id)
+	return err
 }
