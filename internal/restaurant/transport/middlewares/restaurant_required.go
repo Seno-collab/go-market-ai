@@ -1,4 +1,4 @@
-// package middlewares
+package middlewares
 
 // import (
 // 	"go-ai/internal/identity/domain/rbac"
