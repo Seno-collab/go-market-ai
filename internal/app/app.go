@@ -27,12 +27,12 @@ func BuildApp(e *echo.Echo, pool *pgxpool.Pool, redis *redis.Client, cfg *config
 	uploadhttp.RegisterMediaRoutes(api, mediaModule.Handler, mediaModule.Auth)
 
 	menuModule := container.InitMenuItemModule(pool, log)
-	menuhttp.RegisterMenuItemRoutes(api, menuModule.MenuItemHandler, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant)
+	menuhttp.RegisterMenuItemRoutes(api, menuModule.MenuItemHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)
 
 	topicModule := container.InitTopicModule(pool, log)
-	menuhttp.RegisterTopicRoutes(api, topicModule.TopicHandler, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant)
+	menuhttp.RegisterTopicRoutes(api, topicModule.TopicHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)
 
 	optionModule := container.InitOptionModule(pool, log)
-	menuhttp.RegisterOptionGroupRoutes(api, optionModule.OptionGroupHandler, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant)
-	menuhttp.RegisterOptionItemRoutes(api, optionModule.OptionItemHandler, initIdentityModule.Middleware, initIdentityModule.RbacService, restaurantModule.MiddlewaresRestaurant)
+	menuhttp.RegisterOptionGroupRoutes(api, optionModule.OptionGroupHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)
+	menuhttp.RegisterOptionItemRoutes(api, optionModule.OptionItemHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)
 }
