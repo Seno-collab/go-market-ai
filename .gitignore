@@ -29,6 +29,11 @@ grafana.env
 # Air tmp
 tmp/
 
+# Local build artifacts
+/api
+/app
+/main
+
 # IDE specific files
 .idea/
 .vscode/
@@ -41,3 +46,5 @@ tmp/
 *.log
 
 .zed
+
+ghost_snapshot.ignore_large_untracked_files

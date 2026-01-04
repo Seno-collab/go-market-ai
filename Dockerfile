@@ -16,6 +16,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go binary
+RUN go clean --cache
 RUN go build -ldflags="-s -w" -o app ./cmd/api
 
 # ---- Run Stage ----
