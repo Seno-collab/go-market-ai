@@ -89,19 +89,12 @@ services:
     image: nginx:1.27-alpine
     depends_on:
       - app
-      - frontend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    restart: always
-
-  frontend:
-    image: nginx:1.27-alpine
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
-    ports:
-      - "3000:80"
     restart: always
 
   # grafana:
