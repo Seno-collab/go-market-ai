@@ -17,7 +17,7 @@ func RegisterMenuItemRoutes(api *echo.Group, h *MenuItemHandler, auth *middlewar
 	r := api.Group("/menu", auth.Handler, middlewares.RequirePermission(rbacSvc, "admin"))
 	r.POST("/items", h.Create)
 	r.GET("/items/:id", h.Get)
-	r.PUT("/items/:id", h.Update)
+	r.PATCH("/items/:id", h.Update)
 	r.POST("/items/search", h.Search)
 	r.PATCH("/items/:id/status", h.UpdateStatus)
 	r.DELETE("/items/:id", h.Delete)

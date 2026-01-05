@@ -41,8 +41,14 @@ func NewMinioClient() *MinioClient {
 }
 
 func (m *MinioClient) PublicURL(objectName string) string {
-	return fmt.Sprintf("http://%s/%s/%s",
-		m.Client.EndpointURL().Host,
+	endpoint := m.Client.EndpointURL()
+	scheme := endpoint.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	return fmt.Sprintf("%s://%s/%s/%s",
+		scheme,
+		endpoint.Host,
 		m.Bucket,
 		objectName,
 	)

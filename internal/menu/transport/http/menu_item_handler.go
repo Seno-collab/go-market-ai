@@ -113,7 +113,7 @@ func (h *MenuItemHandler) Get(c echo.Context) error {
 // @Param data body menuitemapp.UpdateMenuItemRequest true "Update menu item data"
 // @Success 200 {object} app.UpdateMenuItemSuccessResponseDoc "Update menu item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/menu/items/{id} [put]
+// @Router /api/menu/items/{id} [patch]
 func (h *MenuItemHandler) Update(c echo.Context) error {
 	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingTopicID, errInvalidTopicIDFormat)
 	if err != nil {
