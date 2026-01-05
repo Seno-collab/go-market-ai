@@ -27,7 +27,6 @@ jobs:
       - name: Sync project to server
         run: |
           rsync -avz --delete \
-            --exclude '.git' \
             --exclude '.github' \
             --exclude 'bin' \
             --exclude 'dist' \
@@ -40,13 +39,20 @@ jobs:
           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
           set -e
           APP_PATH=${{ secrets.DEPLOY_PATH }}
+          BRANCH="${{ github.ref_name }}"
           mkdir -p "$APP_PATH"
           cd "$APP_PATH"
 
           if [ -d .git ]; then
             echo "📥 Pulling latest code..."
             git reset --hard
-            git pull --rebase || echo "git pull failed; proceeding with synced files"
+            git clean -fdx
+            git fetch --all --prune || echo "git fetch failed; using synced files"
+            if git show-ref --verify --quiet "refs/remotes/origin/$BRANCH"; then
+              git reset --hard "origin/$BRANCH" || echo "git reset to origin/$BRANCH failed; using synced files"
+            else
+              echo "origin/$BRANCH not found; using synced files"
+            fi
           else
             echo "ℹ️ No git repo found on server; skipping git pull"
           fi
