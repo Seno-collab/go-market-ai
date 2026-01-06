@@ -41,12 +41,15 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 			FullName: record.FullName,
 			Role:     record.Role,
 			IsActive: record.IsActive,
+			ImageUrl: record.ImageUrl,
 		}
 		authData := &cache.AuthData{
+			UserID:   userID,
 			Email:    record.Email.String(),
 			FullName: record.FullName,
 			Role:     record.Role,
 			IsActive: record.IsActive,
+			ImageUrl: record.ImageUrl,
 		}
 		uc.Cache.SetAuthCache(keyAuth, authData, time.Duration(60*int(time.Minute)))
 		return profile, nil
@@ -56,6 +59,7 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 		FullName: cacheData.FullName,
 		Role:     cacheData.Role,
 		IsActive: cacheData.IsActive,
+		ImageUrl: cacheData.ImageUrl,
 	}
 	return profile, nil
 }

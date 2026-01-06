@@ -16,6 +16,7 @@ type Entity struct {
 	Email    utils.Email
 	Password Password
 	Role     string
+	ImageUrl string
 	IsActive bool
 }
 
@@ -127,5 +128,14 @@ func (e *Entity) UpdateRole(v string) error {
 		return err
 	}
 	e.Role = v
+	return nil
+}
+
+func (e *Entity) UpdateImageUrl(v string) error {
+	url, err := utils.NewUrl(v)
+	if err != nil {
+		return err
+	}
+	e.ImageUrl = url.String()
 	return nil
 }

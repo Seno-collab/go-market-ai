@@ -15,6 +15,11 @@ type GetProfileSuccessResponseDoc struct {
 	Data *authapp.GetProfileResponse `json:"data,omitempty"`
 }
 
+type UpdateProfileSuccessResponseDoc struct {
+	response.SuccessBaseDoc
+	Data *authapp.GetProfileResponse `json:"data,omitempty"`
+}
+
 type RefreshTokenSuccessResponseDoc struct {
 	response.SuccessBaseDoc
 	Data *authapp.RefreshTokenResponse `json:"data,omitempty"`

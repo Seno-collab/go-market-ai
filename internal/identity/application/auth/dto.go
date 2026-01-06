@@ -36,10 +36,17 @@ type GetProfileResponse struct {
 	FullName string `json:"full_name"`
 	Role     string `json:"role"`
 	IsActive bool   `json:"is_active"`
+	ImageUrl string `json:"image_url"`
 }
 
 type ChangePasswordRequest struct {
 	NewPassword     string `json:"new_password"`
 	OldPassword     string `json:"old_password"`
 	ConfirmPassword string `json:"confirm_password"`
+}
+
+type UpdateProfileRequest struct {
+	Email    string `json:"email"`
+	FullName string `json:"full_name"`
+	ImageUrl string `json:"image_url"`
 }

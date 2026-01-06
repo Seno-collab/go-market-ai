@@ -151,6 +151,44 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "Update the profile information of the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Update user profile",
+                "parameters": [
+                    {
+                        "description": "Profile update payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/authapp.UpdateProfileRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.UpdateProfileSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
             }
         },
         "/api/auth/refresh-token": {
@@ -388,7 +426,43 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "delete": {
+                "description": "Delete menu item by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Delete menu item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Menu item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete menu item successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.DeleteMenuItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            },
+            "patch": {
                 "description": "Update menu item by ID",
                 "consumes": [
                     "application/json"
@@ -423,42 +497,6 @@ const docTemplate = `{
                         "description": "Update menu item successfully",
                         "schema": {
                             "$ref": "#/definitions/app.UpdateMenuItemSuccessResponseDoc"
-                        }
-                    },
-                    "default": {
-                        "description": "Errors",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorDoc"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete menu item by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Menu"
-                ],
-                "summary": "Delete menu item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Menu item ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Delete menu item successfully",
-                        "schema": {
-                            "$ref": "#/definitions/app.DeleteMenuItemSuccessResponseDoc"
                         }
                     },
                     "default": {
@@ -1822,6 +1860,20 @@ const docTemplate = `{
                 }
             }
         },
+        "app.UpdateProfileSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/authapp.GetProfileResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
         "app.UpdateRestaurantSuccessResponseDoc": {
             "type": "object",
             "properties": {
@@ -1879,6 +1931,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "full_name": {
+                    "type": "string"
+                },
+                "image_url": {
                     "type": "string"
                 },
                 "is_active": {
@@ -1952,6 +2007,20 @@ const docTemplate = `{
         },
         "authapp.RegisterSuccess": {
             "type": "object"
+        },
+        "authapp.UpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                }
+            }
         },
         "domain.MenuItemType": {
             "type": "string",

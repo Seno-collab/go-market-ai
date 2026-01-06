@@ -44,7 +44,7 @@ func (q *Queries) GetPasswordByID(ctx context.Context, id uuid.UUID) (string, er
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT u.id, u.email, u.full_name, r.role_name, u.password_hash, u.is_active, u.created_at, u.updated_at FROM "users" u
+SELECT u.id, u.email, u.full_name, r.role_name, u.password_hash, u.is_active, u.created_at, u.updated_at, u.image_url FROM "users" u
 LEFT JOIN  "roles" r ON r.id = u.role_id
 WHERE email = $1 LIMIT 1
 `
@@ -58,6 +58,7 @@ type GetUserByEmailRow struct {
 	IsActive     bool
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	ImageUrl     *string
 }
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email *string) (GetUserByEmailRow, error) {
@@ -72,12 +73,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email *string) (GetUserByE
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ImageUrl,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at FROM "users" u
+SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at, u.image_url FROM "users" u
 LEFT JOIN "roles" r ON r.id = u.role_id
 WHERE u.id = $1 LIMIT 1
 `
@@ -90,6 +92,7 @@ type GetUserByIDRow struct {
 	IsActive  bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	ImageUrl  *string
 }
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow, error) {
@@ -103,12 +106,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ImageUrl,
 	)
 	return i, err
 }
 
 const getUserByName = `-- name: GetUserByName :one
-SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at FROM "users" u
+SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at, u.image_url FROM "users" u
 LEFT JOIN  "roles" r ON r.id = u.role_id
 WHERE full_name = $1 LIMIT 1
 `
@@ -121,6 +125,7 @@ type GetUserByNameRow struct {
 	IsActive  bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	ImageUrl  *string
 }
 
 func (q *Queries) GetUserByName(ctx context.Context, fullName string) (GetUserByNameRow, error) {
@@ -134,6 +139,7 @@ func (q *Queries) GetUserByName(ctx context.Context, fullName string) (GetUserBy
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ImageUrl,
 	)
 	return i, err
 }
@@ -174,14 +180,20 @@ func (q *Queries) UpdatePasswordByID(ctx context.Context, arg UpdatePasswordByID
 
 const updateUser = `-- name: UpdateUser :exec
 UPDATE "users"
-SET full_name = $1, email = $2, password_hash = $3, is_active = $4, updated_at = NOW()
-WHERE id = $5
+SET full_name = $1,
+    email = $2,
+    password_hash = $3,
+    image_url = $4,
+    is_active = $5,
+    updated_at = NOW()
+WHERE id = $6
 `
 
 type UpdateUserParams struct {
 	FullName     string
 	Email        *string
 	PasswordHash string
+	ImageUrl     *string
 	IsActive     bool
 	ID           uuid.UUID
 }
@@ -191,6 +203,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 		arg.FullName,
 		arg.Email,
 		arg.PasswordHash,
+		arg.ImageUrl,
 		arg.IsActive,
 		arg.ID,
 	)

@@ -119,7 +119,6 @@ func (h *MenuItemHandler) Update(c echo.Context) error {
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
-
 	var in menuitemapp.UpdateMenuItemRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)

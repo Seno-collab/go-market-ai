@@ -43,6 +43,7 @@ func NewServer() *echo.Echo {
 		AllowMethods: []string{
 			echo.GET,
 			echo.PUT,
+			echo.PATCH,
 			echo.POST,
 			echo.DELETE,
 		},

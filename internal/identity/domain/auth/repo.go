@@ -13,4 +13,5 @@ type Repository interface {
 	GetByName(ctx context.Context, name string) (*Entity, error)
 	ChangePassword(ctx context.Context, password string, userID uuid.UUID) error
 	GetPasswordByID(ctx context.Context, userID uuid.UUID) (string, error)
+	UpdateProfile(ctx context.Context, u *Entity) error
 }

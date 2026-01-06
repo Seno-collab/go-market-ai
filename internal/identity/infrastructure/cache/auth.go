@@ -15,6 +15,7 @@ type AuthData struct {
 	FullName string
 	Role     string
 	IsActive bool
+	ImageUrl string
 }
 
 type AuthCache struct {

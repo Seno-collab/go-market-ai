@@ -23,6 +23,7 @@ type User struct {
 	Email        *string
 	PasswordHash string
 	RoleID       int
+	ImageUrl     *string
 	IsActive     bool
 	CreatedAt    time.Time
 	UpdatedAt    time.Time

@@ -56,6 +56,7 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 		Email:    storedUser.Email.String(),
 		IsActive: storedUser.IsActive,
 		FullName: storedUser.FullName,
+		ImageUrl: storedUser.ImageUrl,
 	}
 	keyAuthCache := fmt.Sprintf("profile_%s", storedUser.ID.String())
 	if err := s.Cache.SetAuthCache(keyAuthCache, dataCache, time.Duration(s.Config.JwtExpiresIn*int(time.Second))); err != nil {

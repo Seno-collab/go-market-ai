@@ -72,6 +72,7 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 		Email:    record.Email.String(),
 		IsActive: record.IsActive,
 		FullName: record.FullName,
+		ImageUrl: record.ImageUrl,
 	}
 	keyAuthCache := fmt.Sprintf("profile_%s", record.ID.String())
 	if err := uc.Cache.SetAuthCache(keyAuthCache, dataCache, time.Duration(uc.Config.JwtExpiresIn*int(time.Second))); err != nil {

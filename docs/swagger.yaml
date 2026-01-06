@@ -309,6 +309,15 @@ definitions:
       response_code:
         type: string
     type: object
+  app.UpdateProfileSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/authapp.GetProfileResponse'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
   app.UpdateRestaurantSuccessResponseDoc:
     properties:
       message:
@@ -346,6 +355,8 @@ definitions:
       email:
         type: string
       full_name:
+        type: string
+      image_url:
         type: string
       is_active:
         type: boolean
@@ -392,6 +403,15 @@ definitions:
         type: string
     type: object
   authapp.RegisterSuccess:
+    type: object
+  authapp.UpdateProfileRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      image_url:
+        type: string
     type: object
   domain.MenuItemType:
     enum:
@@ -878,6 +898,31 @@ paths:
       summary: Get user profile
       tags:
       - Auth
+    patch:
+      consumes:
+      - application/json
+      description: Update the profile information of the authenticated user
+      parameters:
+      - description: Profile update payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/authapp.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile updated successfully
+          schema:
+            $ref: '#/definitions/app.UpdateProfileSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Update user profile
+      tags:
+      - Auth
   /api/auth/refresh-token:
     post:
       consumes:
@@ -1031,7 +1076,7 @@ paths:
       summary: Get menu item by ID
       tags:
       - Menu
-    put:
+    patch:
       consumes:
       - application/json
       description: Update menu item by ID

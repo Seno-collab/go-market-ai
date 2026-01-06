@@ -36,6 +36,10 @@ func (au *AuthRepo) GetByEmail(ctx context.Context, email string) (*auth.Entity,
 	if u.RoleName != nil {
 		role = *u.RoleName
 	}
+	imageUrl := ""
+	if u.ImageUrl != nil {
+		imageUrl = *u.ImageUrl
+	}
 	pw, _ := auth.NewPasswordFromHash(u.PasswordHash)
 	return &auth.Entity{
 		ID:       u.ID,
@@ -43,6 +47,7 @@ func (au *AuthRepo) GetByEmail(ctx context.Context, email string) (*auth.Entity,
 		FullName: u.FullName,
 		Password: pw,
 		Role:     role,
+		ImageUrl: imageUrl,
 		IsActive: u.IsActive,
 	}, nil
 }
@@ -68,11 +73,19 @@ func (au *AuthRepo) GetByName(ctx context.Context, name string) (*auth.Entity, e
 		return nil, err
 	}
 	em, err := utils.NewEmail(*u.Email)
+	if err != nil {
+		return nil, auth.ErrInvalidEmail
+	}
+	imageUrl := ""
+	if u.ImageUrl != nil {
+		imageUrl = *u.ImageUrl
+	}
 	return &auth.Entity{
 		ID:       u.ID,
 		Email:    em,
 		FullName: u.FullName,
 		Role:     *u.RoleName,
+		ImageUrl: imageUrl,
 		IsActive: u.IsActive,
 	}, nil
 }
@@ -86,11 +99,16 @@ func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, er
 		return nil, auth.ErrUserNotFound
 	}
 	em, err := utils.NewEmail(*u.Email)
+	imageUrl := ""
+	if u.ImageUrl != nil {
+		imageUrl = *u.ImageUrl
+	}
 	return &auth.Entity{
 		ID:       u.ID,
 		Email:    em,
 		FullName: u.FullName,
 		Role:     *u.RoleName,
+		ImageUrl: imageUrl,
 		IsActive: u.IsActive,
 	}, nil
 }
@@ -104,4 +122,20 @@ func (au *AuthRepo) ChangePassword(ctx context.Context, NewPasswordHash string, 
 
 func (au *AuthRepo) GetPasswordByID(ctx context.Context, id uuid.UUID) (string, error) {
 	return au.queries.GetPasswordByID(ctx, id)
+}
+
+func (au *AuthRepo) UpdateProfile(ctx context.Context, u *auth.Entity) error {
+	email := u.Email.String()
+	password, err := au.GetPasswordByID(ctx, u.ID)
+	if err != nil {
+		return err
+	}
+	return au.queries.UpdateUser(ctx, sqlc.UpdateUserParams{
+		FullName:     u.FullName,
+		Email:        &email,
+		PasswordHash: password,
+		ImageUrl:     &u.ImageUrl,
+		IsActive:     u.IsActive,
+		ID:           u.ID,
+	})
 }

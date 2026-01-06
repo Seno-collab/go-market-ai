@@ -17,6 +17,7 @@ type AuthHandler struct {
 	RefreshTokenUseCase   *authapp.RefreshTokenUseCase
 	ProfileUseCase        *authapp.GetProfileUseCase
 	ChangePasswordUseCase *authapp.ChangePasswordUseCase
+	UpdateProfileUseCase  *authapp.UpdateProfileUseCase
 	LogoutUseCase         *authapp.LogoutUseCase
 	Logger                zerolog.Logger
 }
@@ -27,6 +28,7 @@ func NewAuthHandler(
 	refreshTokenUseCase *authapp.RefreshTokenUseCase,
 	profileUseCase *authapp.GetProfileUseCase,
 	changePasswordUseCase *authapp.ChangePasswordUseCase,
+	updateProfileUseCase *authapp.UpdateProfileUseCase,
 	logoutUseCase *authapp.LogoutUseCase,
 	logger zerolog.Logger,
 ) *AuthHandler {
@@ -36,6 +38,7 @@ func NewAuthHandler(
 		RefreshTokenUseCase:   refreshTokenUseCase,
 		ProfileUseCase:        profileUseCase,
 		ChangePasswordUseCase: changePasswordUseCase,
+		UpdateProfileUseCase:  updateProfileUseCase,
 		LogoutUseCase:         logoutUseCase,
 		Logger:                logger.With().Str("component", "AuthHandler").Logger(),
 	}
@@ -154,8 +157,43 @@ func (h *AuthHandler) GetProfile(c echo.Context) error {
 		FullName: profile.FullName,
 		Role:     profile.Role,
 		IsActive: profile.IsActive,
+		ImageUrl: profile.ImageUrl,
 	}
 	return response.Success(c, resp, "Profile retrieved successfully")
+}
+
+// UpdateProfile godoc
+// @Summary Update user profile
+// @Description Update the profile information of the authenticated user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body authapp.UpdateProfileRequest true "Profile update payload"
+// @Success 200 {object} app.UpdateProfileSuccessResponseDoc "Profile updated successfully"
+// @Failure default {object} response.ErrorDoc "Errors"
+// @Router /api/auth/profile [patch]
+func (h *AuthHandler) UpdateProfile(c echo.Context) error {
+	var in authapp.UpdateProfileRequest
+	if err := c.Bind(&in); err != nil {
+		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
+	}
+	userID := c.Get("user_id")
+	if userID == nil {
+		return response.Error(c, http.StatusUnauthorized, "Unauthorized")
+	}
+	userUUID, ok := userID.(uuid.UUID)
+	if !ok {
+		h.Logger.Error().Msg("failed to update profile: invalid user ID type")
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
+	}
+	profile, err := h.UpdateProfileUseCase.Execute(c.Request().Context(), userUUID, in)
+	if err != nil {
+		if ae, ok := err.(domainerr.AppError); ok {
+			return response.Error(c, ae.Status, ae.Msg)
+		}
+		return response.Error(c, http.StatusInternalServerError, "Internal server error")
+	}
+	return response.Success(c, profile, "Profile updated successfully")
 }
 
 // ChangePassword godoc

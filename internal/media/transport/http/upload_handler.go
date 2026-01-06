@@ -1,13 +1,19 @@
 package uploadhttp
 
 import (
+	"errors"
 	uploadapp "go-ai/internal/media/application/upload"
 	"go-ai/internal/media/infrastructure/storage"
 	"go-ai/internal/transport/response"
+	"io"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog"
+)
+
+const (
+	maxLogoSizeBytes = 5 * 1024 * 1024 // 5MB cap for logo uploads
 )
 
 type UpLoadHandler struct {
@@ -39,12 +45,37 @@ func (h *UpLoadHandler) UploadLogoHandler() echo.HandlerFunc {
 			h.Logger.Error().Err(err).Msg("Upload logo: missing file")
 			return response.Error(c, http.StatusBadRequest, "Logo file is required")
 		}
+		if fileHeader.Size > maxLogoSizeBytes {
+			return response.Error(c, http.StatusBadRequest, "Logo file is too large")
+		}
 		file, err := fileHeader.Open()
 		if err != nil {
 			h.Logger.Error().Err(err).Msg("Upload logo: cannot open file")
 			return response.Error(c, http.StatusBadRequest, "Unable to open file")
 		}
 		defer file.Close()
+
+		head := make([]byte, 512)
+		n, err := io.ReadFull(file, head)
+		if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
+			h.Logger.Error().Err(err).Msg("Upload logo: unable to read file")
+			return response.Error(c, http.StatusBadRequest, "Unable to read file")
+		}
+		contentType := http.DetectContentType(head[:n])
+		if contentType != "image/png" && contentType != "image/jpeg" && contentType != "image/webp" {
+			return response.Error(c, http.StatusBadRequest, "Unsupported image type")
+		}
+		fileHeader.Header.Set("Content-Type", contentType)
+
+		// reopen to reset the stream after sniffing
+		file.Close()
+		file, err = fileHeader.Open()
+		if err != nil {
+			h.Logger.Error().Err(err).Msg("Upload logo: cannot reopen file")
+			return response.Error(c, http.StatusBadRequest, "Unable to open file")
+		}
+		defer file.Close()
+
 		url, err := h.MC.UploadLogo(c.Request().Context(), file, fileHeader)
 		if err != nil {
 			h.Logger.Error().Err(err).Msg("Upload logo: MinIO upload error")
