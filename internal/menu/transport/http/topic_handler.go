@@ -140,7 +140,7 @@ func (h *TopicHandler) Update(c echo.Context) error {
 // @Param limit query int false "Items per page (default: 20)"
 // @Success 200 {object} app.GetTopicsByRestaurantSuccessResponseDoc "Get topics by restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
-// @Router /api/menu/restaurant/topics [get]
+// @Router /api/menu/topics/search [get]
 func (h *TopicHandler) GetTopics(c echo.Context) error {
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {

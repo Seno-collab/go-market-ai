@@ -29,7 +29,7 @@ func RegisterTopicRoutes(api *echo.Group, h *TopicHandler, auth *middlewares.Ide
 	r.GET(topicIDPath, h.Get)
 	r.PUT(topicIDPath, h.Update)
 	r.DELETE(topicIDPath, h.Delete)
-	r.GET("/restaurant/topics", h.GetTopics)
+	r.GET("/topics/search", h.GetTopics)
 	r.GET("/topics/combobox", h.GetCombobox)
 }
 
