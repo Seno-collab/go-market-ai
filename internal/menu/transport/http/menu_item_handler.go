@@ -1,7 +1,9 @@
 package menuhttp
 
 import (
+	"errors"
 	menuitemapp "go-ai/internal/menu/application/menu_item"
+	"go-ai/internal/menu/domain"
 	"go-ai/internal/transport/response"
 	"net/http"
 
@@ -10,8 +12,8 @@ import (
 )
 
 const (
-	errMissingTopicID             = "Missing topic ID"
-	errInvalidTopicIDFormat       = "Invalid topic ID format"
+	errMissingMenuItemID          = "Missing menu item ID"
+	errInvalidMenuItemIDFormat    = "Invalid menu item ID format"
 	errFailedGetMenuItem          = "Failed to get menu item"
 	logGetMenuItemError           = "Get menu item error"
 	logUpdateStatusMenuItemError  = "Update status menu item error"
@@ -43,7 +45,7 @@ func NewMenuItemHandler(
 		UpdateUseCase:       updateUseCase,
 		GetMenuItemsUseCase: getMenuItemsUseCase,
 		UpdateStatusUseCase: updateStatusUseCase,
-		Logger:              logger,
+		Logger:              logger.With().Str("handler", "MenuItemHandler").Logger(),
 	}
 }
 
@@ -69,6 +71,9 @@ func (h *MenuItemHandler) Create(c echo.Context) error {
 	}
 	err = h.CreateUseCase.Execute(c.Request().Context(), in, restaurantID)
 	if err != nil {
+		if errors.Is(err, domain.ErrTopicNotFound) {
+			return response.Error(c, http.StatusBadRequest, "Topic not found for this restaurant")
+		}
 		h.Logger.Error().Err(err).Msg("Create menu item error")
 		return response.Error(c, http.StatusBadRequest, "Failed to create menu item")
 	}
@@ -86,7 +91,7 @@ func (h *MenuItemHandler) Create(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items/{id} [get]
 func (h *MenuItemHandler) Get(c echo.Context) error {
-	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingTopicID, errInvalidTopicIDFormat)
+	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingMenuItemID, errInvalidMenuItemIDFormat)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
@@ -115,7 +120,7 @@ func (h *MenuItemHandler) Get(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items/{id} [patch]
 func (h *MenuItemHandler) Update(c echo.Context) error {
-	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingTopicID, errInvalidTopicIDFormat)
+	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingMenuItemID, errInvalidMenuItemIDFormat)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
@@ -147,14 +152,9 @@ func (h *MenuItemHandler) Update(c echo.Context) error {
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items/{id} [delete]
 func (h *MenuItemHandler) Delete(c echo.Context) error {
-	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingTopicID, errInvalidTopicIDFormat)
+	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingMenuItemID, errInvalidMenuItemIDFormat)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
-	}
-
-	var in menuitemapp.UpdateMenuItemRequest
-	if err := c.Bind(&in); err != nil {
-		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
@@ -214,10 +214,13 @@ func (h *MenuItemHandler) UpdateStatus(c echo.Context) error {
 		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
 	}
 	restaurantID, err := getRestaurantID(c)
-	idInt64, err := parseRequiredIDParam(c.Param("id"), "Missing menu item ID", "Invalid menu item ID format")
 	if err != nil {
 		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
 		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
+	}
+	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingMenuItemID, errInvalidMenuItemIDFormat)
+	if err != nil {
+		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
 	err = h.UpdateStatusUseCase.Execute(c.Request().Context(), restaurantID, idInt64, in)
 	if err != nil {

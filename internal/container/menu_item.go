@@ -16,7 +16,8 @@ type MenuItemModule struct {
 
 func InitMenuItemModule(pool *pgxpool.Pool, log zerolog.Logger) *MenuItemModule {
 	repo := db.NewMenuRepo(pool)
-	createUseCase := menuitemapp.NewCreateUseCase(repo)
+	topicRepo := db.NewTopicRepo(pool)
+	createUseCase := menuitemapp.NewCreateUseCase(repo, topicRepo)
 	getUseCase := menuitemapp.NewGetUseCase(repo)
 	updateUseCase := menuitemapp.NewUpdateUseCase(repo)
 	deleteUseCase := menuitemapp.NewDeleteUseCase(repo)

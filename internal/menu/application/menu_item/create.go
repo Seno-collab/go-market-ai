@@ -7,12 +7,14 @@ import (
 )
 
 type CreateUseCase struct {
-	Repo domain.MenuItemRepository
+	Repo      domain.MenuItemRepository
+	TopicRepo domain.TopicRepository
 }
 
-func NewCreateUseCase(repo domain.MenuItemRepository) *CreateUseCase {
+func NewCreateUseCase(repo domain.MenuItemRepository, topicRepo domain.TopicRepository) *CreateUseCase {
 	return &CreateUseCase{
-		Repo: repo,
+		Repo:      repo,
+		TopicRepo: topicRepo,
 	}
 }
 
@@ -27,6 +29,13 @@ func (uc *CreateUseCase) Execute(ctx context.Context, req CreateMenuItemRequest,
 	}
 	if !req.Type.Valid() {
 		return domain.ErrRecordUpdateFailed
+	}
+	// Validate topic exists for this restaurant
+	if req.TopicID != 0 {
+		_, err := uc.TopicRepo.GetTopic(ctx, req.TopicID, restaurantID)
+		if err != nil {
+			return domain.ErrTopicNotFound
+		}
 	}
 	entity, err := domain.NewMenuItem(domain.NewMenuItemParams{
 		Name:         req.Name,
