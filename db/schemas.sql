@@ -11,7 +11,7 @@ END; $$;
 
 
 -- ====== TOPIC (category cha-con) ======
-CREATE TABLE IF NOT EXISTS topic (
+CREATE TABLE IF NOT EXISTS topics (
   id            BIGSERIAL PRIMARY KEY,
   restaurant_id INT NOT NULL REFERENCES restaurant(id) ON DELETE CASCADE,
   name          TEXT NOT NULL,
@@ -40,7 +40,7 @@ END $$;
 
 
 -- ====== MENU ITEM (món ăn / đồ uống / extra / combo) ======
-CREATE TABLE IF NOT EXISTS menu_item (
+CREATE TABLE IF NOT EXISTS menu_items (
   id             BIGSERIAL PRIMARY KEY,
   restaurant_id  INT NOT NULL REFERENCES restaurant(id) ON DELETE CASCADE,
   topic_id       BIGINT REFERENCES topic(id) ON DELETE SET NULL,
@@ -64,7 +64,7 @@ BEFORE UPDATE ON menu_item
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ====== VARIANT (size/kích cỡ… nếu cần) ======
-CREATE TABLE IF NOT EXISTS menu_item_variant (
+CREATE TABLE IF NOT EXISTS menu_item_variants (
   id             BIGSERIAL PRIMARY KEY,
   menu_item_id   BIGINT NOT NULL REFERENCES menu_item(id) ON DELETE CASCADE,
   name           TEXT NOT NULL,                 -- ví dụ: "Size lớn"
@@ -85,7 +85,7 @@ FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ====== OPTION GROUPS (nhóm lựa chọn: ví dụ "Chọn thêm", "Thêm thịt") ======
 -- Gắn nhóm vào 1 hoặc nhiều món: qua bảng nối menu_item_option_group
-CREATE TABLE IF NOT EXISTS option_group (
+CREATE TABLE IF NOT EXISTS option_groups (
   id             BIGSERIAL PRIMARY KEY,
   restaurant_id  INT NOT NULL REFERENCES restaurant(id) ON DELETE CASCADE,
   name           TEXT NOT NULL,                 -- ví dụ: "Đồ thêm", "Chọn món chính"
@@ -99,10 +99,10 @@ CREATE TABLE IF NOT EXISTS option_group (
   CHECK (max_select IS NULL OR max_select >= 0)
 );
 CREATE TRIGGER trg_option_group_updated_at
-BEFORE UPDATE ON option_group
+BEFORE UPDATE ON option_groups
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-CREATE TABLE IF NOT EXISTS menu_item_option_group (
+CREATE TABLE IF NOT EXISTS menu_item_option_groups (
   menu_item_id  BIGINT NOT NULL REFERENCES menu_item(id) ON DELETE CASCADE,
   option_group_id BIGINT NOT NULL REFERENCES option_group(id) ON DELETE CASCADE,
   sort_order    INT NOT NULL DEFAULT 0,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS menu_item_option_group (
 -- Có thể:
 --  (A) định nghĩa tên & phụ thu trực tiếp, hoặc
 --  (B) tham chiếu tới 1 menu_item type='extra' để tái sử dụng giá/ảnh/mô tả
-CREATE TABLE IF NOT EXISTS option_item (
+CREATE TABLE IF NOT EXISTS option_items (
   id               BIGSERIAL PRIMARY KEY,
   option_group_id  BIGINT NOT NULL REFERENCES option_group(id) ON DELETE CASCADE,
   name             TEXT,                        -- dùng khi không link tới menu_item extra
@@ -129,15 +129,15 @@ CREATE TABLE IF NOT EXISTS option_item (
   CHECK (quantity_min >= 0),
   CHECK (quantity_max IS NULL OR quantity_max >= 0)
 );
-CREATE INDEX IF NOT EXISTS idx_option_group ON option_item(option_group_id);
+CREATE INDEX IF NOT EXISTS idx_option_group ON option_items(option_group_id);
 CREATE TRIGGER trg_option_item_updated_at
-BEFORE UPDATE ON option_item
+BEFORE UPDATE ON option_items
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ====== COMBO ======
 -- Combo bản chất cũng là 1 menu_item(type='combo').
 -- Các nhóm trong combo (chọn X từ Y), và các item thuộc mỗi nhóm:
-CREATE TABLE IF NOT EXISTS combo_group (
+CREATE TABLE IF NOT EXISTS combo_groups (
   id             BIGSERIAL PRIMARY KEY,
   combo_item_id  BIGINT NOT NULL REFERENCES menu_item(id) ON DELETE CASCADE, -- phải là type='combo'
   name           TEXT NOT NULL,                 -- ví dụ: "Món chính", "Món phụ", "Đồ uống"
@@ -150,12 +150,12 @@ CREATE TABLE IF NOT EXISTS combo_group (
   CHECK (max_select >= 0),
   CHECK (max_select >= min_select)
 );
-CREATE INDEX IF NOT EXISTS idx_combo_group_combo ON combo_group(combo_item_id);
+CREATE INDEX IF NOT EXISTS idx_combo_group_combo ON combo_groups(combo_item_id);
 CREATE TRIGGER trg_combo_group_updated_at
-BEFORE UPDATE ON combo_group
+BEFORE UPDATE ON combo_groups
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-CREATE TABLE IF NOT EXISTS combo_group_item (
+CREATE TABLE IF NOT EXISTS combo_group_items (
   id               BIGSERIAL PRIMARY KEY,
   combo_group_id   BIGINT NOT NULL REFERENCES combo_group(id) ON DELETE CASCADE,
   menu_item_id     BIGINT NOT NULL REFERENCES menu_item(id) ON DELETE RESTRICT, -- món có thể chọn trong nhóm
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS combo_group_item (
 );
 CREATE INDEX IF NOT EXISTS idx_combo_group_item_group ON combo_group_item(combo_group_id);
 CREATE TRIGGER trg_combo_group_item_updated_at
-BEFORE UPDATE ON combo_group_item
+BEFORE UPDATE ON combo_group_items
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ====== RÀNG BUỘC DỮ LIỆU THÊM (khuyến nghị) ======
@@ -183,12 +183,12 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_constraint WHERE conname = 'chk_combo_group_combo_type'
   ) THEN
-    ALTER TABLE combo_group
+    ALTER TABLE combo_groups
     ADD CONSTRAINT chk_combo_group_combo_type
     CHECK (
       EXISTS (
         SELECT 1
-        FROM menu_item mi
+        FROM menu_items mi
         WHERE mi.id = combo_item_id
           AND mi.type = 'combo'
       )
@@ -207,7 +207,7 @@ BEGIN
     CHECK (
       linked_menu_item IS NULL OR
       EXISTS (
-        SELECT 1 FROM menu_item mi
+        SELECT 1 FROM menu_items mi
         WHERE mi.id = linked_menu_item
           AND mi.type = 'extra'
       )

@@ -50,3 +50,7 @@ func RegisterOptionItemRoutes(api *echo.Group, h *OptionItemHandler, auth *middl
 	r.PUT(optionItemIDPath, h.Update)
 	r.DELETE(optionItemIDPath, h.Delete)
 }
+
+func RegisterMenusRoutes(api *echo.Group, h *MenuHandler) {
+	api.GET("/menus", h.ListMenus)
+}

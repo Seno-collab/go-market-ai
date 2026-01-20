@@ -37,7 +37,7 @@ func NewTopicHandler(
 		UpdateUseCase:      updateUseCase,
 		DeleteUseCase:      deleteUseCase,
 		GetComboboxUseCase: getComboboxUseCase,
-		Logger:             logger,
+		Logger:             logger.With().Str("handler", "TopicHandler").Logger(),
 	}
 }
 

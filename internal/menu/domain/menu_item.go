@@ -50,6 +50,13 @@ func NewMenuItem(params NewMenuItemParams) (*MenuItem, error) {
 	if !params.Type.Valid() {
 		return nil, errors.New("Menu: invalid type")
 	}
+
+	var topicPtr *TopicID
+	if params.TopicID != 0 {
+		topic := params.TopicID
+		topicPtr = &topic
+	}
+
 	return &MenuItem{
 		Name:         params.Name,
 		BasePrice:    params.Price,
@@ -58,7 +65,7 @@ func NewMenuItem(params NewMenuItemParams) (*MenuItem, error) {
 		Sku:          params.SKU,
 		Description:  params.Description,
 		RestaurantID: params.RestaurantID,
-		TopicID:      &params.TopicID,
+		TopicID:      topicPtr,
 		IsActive:     true,
 	}, nil
 }

@@ -103,12 +103,12 @@ sql:
         emit_interface: false
         emit_pointers_for_null_types: true
         overrides:
-          - column: "combo_group_item.quantity_max"
+          - column: "combo_group_items.quantity_max"
             go_type:
               type: "int32"
-          - column: "option_item.quantity_max"
+          - column: "option_items.quantity_max"
             go_type:
               type: "int32"
-          - column: "option_group.max_select"
+          - column: "option_groups.max_select"
             go_type:
               type: "int32"

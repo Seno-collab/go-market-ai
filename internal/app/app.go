@@ -29,6 +29,9 @@ func BuildApp(e *echo.Echo, pool *pgxpool.Pool, redis *redis.Client, cfg *config
 	menuModule := container.InitMenuItemModule(pool, log)
 	menuhttp.RegisterMenuItemRoutes(api, menuModule.MenuItemHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)
 
+	menusModule := container.InitMenuModule(pool, log)
+	menuhttp.RegisterMenusRoutes(api, menusModule.Handler)
+
 	topicModule := container.InitTopicModule(pool, log)
 	menuhttp.RegisterTopicRoutes(api, topicModule.TopicHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)
 

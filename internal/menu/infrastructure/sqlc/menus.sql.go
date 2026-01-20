@@ -13,7 +13,7 @@ import (
 )
 
 const attachOptionGroupToItem = `-- name: AttachOptionGroupToItem :exec
-INSERT INTO menu_item_option_group (menu_item_id, option_group_id, sort_order)
+INSERT INTO menu_item_option_groups(menu_item_id, option_group_id, sort_order)
 VALUES ($1, $2, $3)
 ON CONFLICT (menu_item_id, option_group_id) DO NOTHING
 `
@@ -44,8 +44,8 @@ func (q *Queries) CountMenuItems(ctx context.Context, restaurantID int32) (int64
 
 const countOptionItems = `-- name: CountOptionItems :one
 SELECT COUNT(*)
-FROM option_item oi
-JOIN option_group og ON og.id = oi.option_group_id
+FROM option_items oi
+JOIN option_groups og ON og.id = oi.option_group_id
 WHERE oi.option_group_id = $1
   AND og.restaurant_id = $2
 ORDER BY oi.sort_order, oi.id
@@ -64,7 +64,7 @@ func (q *Queries) CountOptionItems(ctx context.Context, arg CountOptionItemsPara
 }
 
 const countTopicsByRestaurant = `-- name: CountTopicsByRestaurant :one
-SELECT COUNT(*) FROM topic WHERE restaurant_id = $1
+SELECT COUNT(*) FROM topics WHERE restaurant_id = $1
 `
 
 func (q *Queries) CountTopicsByRestaurant(ctx context.Context, restaurantID int32) (int64, error) {
@@ -75,7 +75,7 @@ func (q *Queries) CountTopicsByRestaurant(ctx context.Context, restaurantID int3
 }
 
 const createComboGroup = `-- name: CreateComboGroup :exec
-INSERT INTO combo_group (
+INSERT INTO combo_groups (
     combo_item_id, name, min_select, max_select, sort_order
 )
 VALUES ($1, $2, $3, $4, $5)
@@ -101,7 +101,7 @@ func (q *Queries) CreateComboGroup(ctx context.Context, arg CreateComboGroupPara
 }
 
 const createComboGroupItem = `-- name: CreateComboGroupItem :exec
-INSERT INTO combo_group_item (
+INSERT INTO combo_group_items (
     combo_group_id, menu_item_id,
     price_delta, quantity_default, quantity_min,
     quantity_max, sort_order
@@ -171,7 +171,7 @@ func (q *Queries) CreateMenuItem(ctx context.Context, arg CreateMenuItemParams) 
 }
 
 const createOptionGroup = `-- name: CreateOptionGroup :one
-INSERT INTO option_group (
+INSERT INTO option_groups (
     restaurant_id, name, min_select, max_select, is_required, sort_order
 )
 VALUES ($1, $2, $3, $4, $5, $6)
@@ -202,7 +202,7 @@ func (q *Queries) CreateOptionGroup(ctx context.Context, arg CreateOptionGroupPa
 }
 
 const createOptionItem = `-- name: CreateOptionItem :one
-INSERT INTO option_item (
+INSERT INTO option_items (
     option_group_id, name, linked_menu_item,
     price_delta, quantity_min, quantity_max, sort_order
 )
@@ -236,7 +236,7 @@ func (q *Queries) CreateOptionItem(ctx context.Context, arg CreateOptionItemPara
 }
 
 const createTopic = `-- name: CreateTopic :one
-INSERT INTO topic (restaurant_id, name, slug, parent_id, sort_order)
+INSERT INTO topics (restaurant_id, name, slug, parent_id, sort_order)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id, restaurant_id, name, slug, parent_id, sort_order, is_active, created_at, updated_at
 `
@@ -273,7 +273,7 @@ func (q *Queries) CreateTopic(ctx context.Context, arg CreateTopicParams) (Topic
 }
 
 const createVariant = `-- name: CreateVariant :exec
-INSERT INTO menu_item_variant (
+INSERT INTO menu_item_variants (
     menu_item_id, name, price_delta, is_default, sort_order
 )
 VALUES ($1, $2, $3, $4, $5)
@@ -300,7 +300,7 @@ func (q *Queries) CreateVariant(ctx context.Context, arg CreateVariantParams) er
 }
 
 const deleteComboGroup = `-- name: DeleteComboGroup :exec
-DELETE FROM combo_group WHERE id = $1
+DELETE FROM combo_groups WHERE id = $1
 `
 
 func (q *Queries) DeleteComboGroup(ctx context.Context, id int64) error {
@@ -309,7 +309,7 @@ func (q *Queries) DeleteComboGroup(ctx context.Context, id int64) error {
 }
 
 const deleteComboGroupItem = `-- name: DeleteComboGroupItem :exec
-DELETE FROM combo_group_item WHERE id = $1
+DELETE FROM combo_group_items WHERE id = $1
 `
 
 func (q *Queries) DeleteComboGroupItem(ctx context.Context, id int64) error {
@@ -332,7 +332,7 @@ func (q *Queries) DeleteMenuItem(ctx context.Context, arg DeleteMenuItemParams) 
 }
 
 const deleteOptionGroup = `-- name: DeleteOptionGroup :exec
-DELETE FROM option_group
+DELETE FROM option_groups
 WHERE id = $1
   AND restaurant_id = $2
 `
@@ -348,8 +348,8 @@ func (q *Queries) DeleteOptionGroup(ctx context.Context, arg DeleteOptionGroupPa
 }
 
 const deleteOptionItem = `-- name: DeleteOptionItem :exec
-DELETE FROM option_item oi
-USING option_group og
+DELETE FROM option_items oi
+USING option_groups og
 WHERE oi.id = $1
   AND oi.option_group_id = og.id
   AND og.restaurant_id = $2
@@ -366,7 +366,7 @@ func (q *Queries) DeleteOptionItem(ctx context.Context, arg DeleteOptionItemPara
 }
 
 const deleteTopic = `-- name: DeleteTopic :exec
-DELETE FROM topic
+DELETE FROM topics
 WHERE id = $1
   AND restaurant_id = $2
 `
@@ -383,7 +383,7 @@ func (q *Queries) DeleteTopic(ctx context.Context, arg DeleteTopicParams) error 
 
 const getComboGroupItems = `-- name: GetComboGroupItems :many
 SELECT id, combo_group_id, menu_item_id, price_delta, quantity_default, quantity_min, quantity_max, sort_order, created_at, updated_at
-FROM combo_group_item
+FROM combo_group_items
 WHERE combo_group_id = $1
 ORDER BY sort_order, id
 `
@@ -430,13 +430,13 @@ SELECT
     cg.id, cg.combo_item_id, cg.name, cg.min_select, cg.max_select, cg.sort_order, cg.created_at, cg.updated_at,
     cgi.id, cgi.combo_group_id, cgi.menu_item_id, cgi.price_delta, cgi.quantity_default, cgi.quantity_min, cgi.quantity_max, cgi.sort_order, cgi.created_at, cgi.updated_at
 FROM menu_items mi
-LEFT JOIN topic t ON t.id = mi.topic_id
-LEFT JOIN menu_item_variant mv ON mv.menu_item_id = mi.id
-LEFT JOIN menu_item_option_group mog ON mog.menu_item_id = mi.id
-LEFT JOIN option_group og ON og.id = mog.option_group_id
-LEFT JOIN option_item oi ON oi.option_group_id = og.id
-LEFT JOIN combo_group cg ON cg.combo_item_id = mi.id
-LEFT JOIN combo_group_item cgi ON cgi.combo_group_id = cg.id
+LEFT JOIN topics t ON t.id = mi.topic_id
+LEFT JOIN menu_item_variants mv ON mv.menu_item_id = mi.id
+LEFT JOIN menu_item_option_groups mog ON mog.menu_item_id = mi.id
+LEFT JOIN option_groups og ON og.id = mog.option_group_id
+LEFT JOIN option_items oi ON oi.option_group_id = og.id
+LEFT JOIN combo_groups cg ON cg.combo_item_id = mi.id
+LEFT JOIN combo_group_items cgi ON cgi.combo_group_id = cg.id
 WHERE mi.restaurant_id = $1
 `
 
@@ -685,32 +685,32 @@ FROM menu_items
 WHERE restaurant_id = $1
   AND is_active = $2
   AND (
-          $3::text = ''
-          OR name ILIKE '%' || $3 || '%'
-          OR description ILIKE '%' || $3 || '%'
-        ) AND (NULLIF($4::text, '') IS NULL
-          OR type = $4::menu_item_type)
+          $5::text = ''
+          OR name ILIKE '%' || $5 || '%'
+          OR description ILIKE '%' || $5 || '%'
+        ) AND (NULLIF($6::text, '') IS NULL
+        OR type = $6::menu_item_type)
 ORDER BY sort_order, id
-LIMIT $5 OFFSET $6
+LIMIT $3 OFFSET $4
 `
 
 type GetMenuItemsByRestaurantAndActiveParams struct {
 	RestaurantID int32
 	IsActive     bool
-	Column3      string
-	Column4      string
 	Limit        int32
 	Offset       int32
+	Name         string
+	Type         string
 }
 
 func (q *Queries) GetMenuItemsByRestaurantAndActive(ctx context.Context, arg GetMenuItemsByRestaurantAndActiveParams) ([]MenuItem, error) {
 	rows, err := q.db.Query(ctx, getMenuItemsByRestaurantAndActive,
 		arg.RestaurantID,
 		arg.IsActive,
-		arg.Column3,
-		arg.Column4,
 		arg.Limit,
 		arg.Offset,
+		arg.Name,
+		arg.Type,
 	)
 	if err != nil {
 		return nil, err
@@ -746,7 +746,7 @@ func (q *Queries) GetMenuItemsByRestaurantAndActive(ctx context.Context, arg Get
 
 const getOptionGroup = `-- name: GetOptionGroup :one
 SELECT id, restaurant_id, name, min_select, max_select, is_required, sort_order, created_at, updated_at
-FROM option_group
+FROM option_groups
 WHERE id = $1
   AND restaurant_id = $2
 `
@@ -775,8 +775,8 @@ func (q *Queries) GetOptionGroup(ctx context.Context, arg GetOptionGroupParams) 
 
 const getOptionGroupsByItem = `-- name: GetOptionGroupsByItem :many
 SELECT og.id, og.restaurant_id, og.name, og.min_select, og.max_select, og.is_required, og.sort_order, og.created_at, og.updated_at
-FROM option_group og
-JOIN menu_item_option_group mig ON mig.option_group_id = og.id
+FROM option_groups og
+JOIN menu_item_option_groups mig ON mig.option_group_id = og.id
 WHERE mig.menu_item_id = $1
   AND og.restaurant_id = $2
 ORDER BY og.sort_order, og.id
@@ -827,8 +827,8 @@ func (q *Queries) GetOptionGroupsByItem(ctx context.Context, arg GetOptionGroups
 
 const getOptionItem = `-- name: GetOptionItem :one
 SELECT oi.id, oi.option_group_id, oi.name, oi.linked_menu_item, oi.price_delta, oi.quantity_min, oi.quantity_max, oi.sort_order, oi.is_active, oi.created_at, oi.updated_at
-FROM option_item oi
-JOIN option_group og ON og.id = oi.option_group_id
+FROM option_items oi
+JOIN option_groups og ON og.id = oi.option_group_id
 WHERE oi.id = $1
   AND og.restaurant_id = $2
 `
@@ -859,8 +859,8 @@ func (q *Queries) GetOptionItem(ctx context.Context, arg GetOptionItemParams) (O
 
 const getOptionItemsByGroup = `-- name: GetOptionItemsByGroup :many
 SELECT oi.id, oi.option_group_id, oi.name, oi.linked_menu_item, oi.price_delta, oi.quantity_min, oi.quantity_max, oi.sort_order, oi.is_active, oi.created_at, oi.updated_at
-FROM option_item oi
-JOIN option_group og ON og.id = oi.option_group_id
+FROM option_items oi
+JOIN option_groups og ON og.id = oi.option_group_id
 WHERE oi.option_group_id = $1
   AND og.restaurant_id = $2
 ORDER BY oi.sort_order, oi.id
@@ -912,7 +912,7 @@ func (q *Queries) GetOptionItemsByGroup(ctx context.Context, arg GetOptionItemsB
 }
 
 const getTopic = `-- name: GetTopic :one
-SELECT id, restaurant_id, name, slug, parent_id, sort_order, is_active, created_at, updated_at FROM topic WHERE id = $1 AND restaurant_id = $2
+SELECT id, restaurant_id, name, slug, parent_id, sort_order, is_active, created_at, updated_at FROM topics WHERE id = $1 AND restaurant_id = $2
 `
 
 type GetTopicParams struct {
@@ -939,7 +939,7 @@ func (q *Queries) GetTopic(ctx context.Context, arg GetTopicParams) (Topic, erro
 
 const getTopicsByRestaurant = `-- name: GetTopicsByRestaurant :many
 SELECT id, restaurant_id, name, slug, parent_id, sort_order, is_active, created_at, updated_at
-FROM topic
+FROM topics
 WHERE restaurant_id = $1 AND ( $2::text = '' OR name = $2)
 ORDER BY sort_order, id
 LIMIT $3 OFFSET $4
@@ -988,7 +988,7 @@ func (q *Queries) GetTopicsByRestaurant(ctx context.Context, arg GetTopicsByRest
 }
 
 const getTopicsByRestaurantCombobox = `-- name: GetTopicsByRestaurantCombobox :many
-SELECT id as Value, name as TEXT FROM topic WHERE restaurant_id = $1 and is_active = true
+SELECT id as Value, name as TEXT FROM topics WHERE restaurant_id = $1 and is_active = true
 `
 
 type GetTopicsByRestaurantComboboxRow struct {
@@ -1018,7 +1018,7 @@ func (q *Queries) GetTopicsByRestaurantCombobox(ctx context.Context, restaurantI
 
 const getVariantsByItem = `-- name: GetVariantsByItem :many
 SELECT id, menu_item_id, name, price_delta, is_default, sort_order, created_at, updated_at
-FROM menu_item_variant
+FROM menu_item_variants
 WHERE menu_item_id = $1
 ORDER BY sort_order, id
 `
@@ -1052,8 +1052,72 @@ func (q *Queries) GetVariantsByItem(ctx context.Context, menuItemID int64) ([]Me
 	return items, nil
 }
 
+const listMenus = `-- name: ListMenus :many
+SELECT
+    m.id, m.restaurant_id, m.topic_id, m.type, m.name, m.description, m.image_url, m.sku, m.base_price, m.is_active, m.sort_order, m.created_at, m.updated_at
+FROM menu_items m
+JOIN topics t ON m.topic_id = t.id
+WHERE m.restaurant_id = $1
+  AND (NULLIF($2::text, '') IS NULL OR m.type = $2::menu_item_type)
+  AND (NULLIF($3::bigint, 0) IS NULL OR m.id < $3)
+  AND (COALESCE($4::text[], '{}'::text[]) = '{}' OR t.name = ANY($4))
+  AND m.is_active = true
+GROUP BY m.id, m.name, m.restaurant_id, m.type
+HAVING (COALESCE($4::text[], '{}'::text[]) = '{}' OR COUNT(DISTINCT t.name) = cardinality($4))
+ORDER BY m.id DESC
+LIMIT $5
+`
+
+type ListMenusParams struct {
+	RestaurantID int32
+	MenuType     string
+	Cursor       int64
+	TopicNames   []string
+	PageSize     int32
+}
+
+func (q *Queries) ListMenus(ctx context.Context, arg ListMenusParams) ([]MenuItem, error) {
+	rows, err := q.db.Query(ctx, listMenus,
+		arg.RestaurantID,
+		arg.MenuType,
+		arg.Cursor,
+		arg.TopicNames,
+		arg.PageSize,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MenuItem
+	for rows.Next() {
+		var i MenuItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.RestaurantID,
+			&i.TopicID,
+			&i.Type,
+			&i.Name,
+			&i.Description,
+			&i.ImageUrl,
+			&i.Sku,
+			&i.BasePrice,
+			&i.IsActive,
+			&i.SortOrder,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateComboGroup = `-- name: UpdateComboGroup :exec
-UPDATE combo_group
+UPDATE combo_groups
 SET
     name = $2,
     min_select = $3,
@@ -1130,7 +1194,7 @@ func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) 
 }
 
 const updateOptionGroup = `-- name: UpdateOptionGroup :exec
-UPDATE option_group
+UPDATE option_groups
 SET
     name = $3,
     min_select = $4,
@@ -1166,7 +1230,7 @@ func (q *Queries) UpdateOptionGroup(ctx context.Context, arg UpdateOptionGroupPa
 }
 
 const updateOptionItem = `-- name: UpdateOptionItem :exec
-UPDATE option_item oi
+UPDATE option_items oi
 SET
     name = $2,
     linked_menu_item = $3,
@@ -1175,7 +1239,7 @@ SET
     quantity_max = $6,
     sort_order = $7,
     updated_at = NOW()
-FROM option_group og
+FROM option_groups og
 WHERE oi.id = $1
   AND oi.option_group_id = og.id
   AND og.restaurant_id = $8
@@ -1225,7 +1289,7 @@ func (q *Queries) UpdateStatusMenuItem(ctx context.Context, arg UpdateStatusMenu
 }
 
 const updateTopic = `-- name: UpdateTopic :exec
-UPDATE topic
+UPDATE topics
 SET
     name = $3,
     slug = $4,
@@ -1258,7 +1322,7 @@ func (q *Queries) UpdateTopic(ctx context.Context, arg UpdateTopicParams) error 
 }
 
 const updateVariant = `-- name: UpdateVariant :exec
-UPDATE menu_item_variant
+UPDATE menu_item_variants
 SET
     name = $2,
     price_delta = $3,

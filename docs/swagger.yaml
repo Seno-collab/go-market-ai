@@ -425,6 +425,42 @@ definitions:
     - ItemDrink
     - ItemExtra
     - ItemCombo
+  domain.MenuType:
+    enum:
+    - dish
+    - beverage
+    - extra
+    - combo
+    type: string
+    x-enum-varnames:
+    - MenuTypeDish
+    - MenuTypeBeverage
+    - MenuTypeExtra
+    - MenuTypeCombo
+  menuapp.ListMenusResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/menuapp.MenuResponse'
+        type: array
+      nextCursor:
+        type: integer
+    type: object
+  menuapp.MenuResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      restaurantId:
+        type: integer
+      topics:
+        items:
+          type: string
+        type: array
+      type:
+        $ref: '#/definitions/domain.MenuType'
+    type: object
   menuitemapp.CreateMenuItemRequest:
     properties:
       description:
@@ -1398,38 +1434,6 @@ paths:
       summary: Update option item
       tags:
       - OptionItem
-  /api/menu/restaurant/topics:
-    get:
-      consumes:
-      - application/json
-      description: Get list of topics by restaurant ID
-      parameters:
-      - description: Topic name keyword
-        in: query
-        name: name
-        type: string
-      - description: 'Page number (default: 1)'
-        in: query
-        name: page
-        type: integer
-      - description: 'Items per page (default: 20)'
-        in: query
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get topics by restaurant successfully
-          schema:
-            $ref: '#/definitions/app.GetTopicsByRestaurantSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get topics by restaurant
-      tags:
-      - Topic
   /api/menu/topics:
     post:
       consumes:
@@ -1557,6 +1561,87 @@ paths:
       summary: Get topic combobox
       tags:
       - Topic
+  /api/menu/topics/search:
+    get:
+      consumes:
+      - application/json
+      description: Get list of topics by restaurant ID
+      parameters:
+      - description: Topic name keyword
+        in: query
+        name: name
+        type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get topics by restaurant successfully
+          schema:
+            $ref: '#/definitions/app.GetTopicsByRestaurantSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get topics by restaurant
+      tags:
+      - Topic
+  /api/menus:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve menus filtered by restaurant, type, and optional topics
+        using cursor-based pagination
+      parameters:
+      - description: Restaurant ID
+        in: header
+        name: X-Restaurant-Id
+        required: true
+        type: integer
+      - description: Menu type
+        enum:
+        - dish
+        - beverage
+        - extra
+        - combo
+        in: query
+        name: type
+        required: true
+        type: string
+      - description: Comma-separated topic names, e.g. \
+        in: query
+        name: topics
+        type: string
+      - description: Items per page (default 20, max 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Pagination cursor (last returned menu id)
+        format: int64
+        in: query
+        name: cursor
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Menus page
+          schema:
+            $ref: '#/definitions/menuapp.ListMenusResponse'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: List menus with cursor pagination
+      tags:
+      - Menu
   /api/restaurants:
     post:
       consumes:

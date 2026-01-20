@@ -13,4 +13,5 @@ var (
 	ErrOptionItemInvalidPrice    = errors.New("Option_item: price delta must >= 0")
 	ErrComboNotComboType         = errors.New("Combo: must be type=combo")
 	ErrRecordUpdateFailed        = errors.New("Record update failed")
+	ErrTopicNotFound             = errors.New("Topic: not found")
 )

@@ -37,7 +37,7 @@ func ApplyDefaultPaginated(page, limit *int32) (int32, int32, int32) {
 	if page != nil && *page > 0 {
 		pageValue = *page
 	}
-	if limit != nil && *limit > 0 && *limit < 100 {
+	if limit != nil && *limit > 0 && *limit <= 100 {
 		limitValue = *limit
 	}
 	offset := (pageValue - 1) * limitValue

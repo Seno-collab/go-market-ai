@@ -45,6 +45,7 @@ type GetMenuItemsByRestaurantResponseDoc struct {
 	response.PaginatedResponseDoc
 	Items []menuitemapp.GetMenuItemResponse `json:"items"`
 }
+
 type GetMenuItemsByRestaurantSuccessResponseDoc struct {
 	response.SuccessBaseDoc
 	Data GetMenuItemsByRestaurantResponseDoc `json:"data"`

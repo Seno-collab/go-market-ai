@@ -32,11 +32,11 @@ func (m *IdentityMiddleware) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 		if authHeader == "" {
 			return response.Error(c, 401, "Missing Authorization header")
 		}
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
+		scheme, token, ok := strings.Cut(authHeader, " ")
+		token = strings.TrimSpace(token)
+		if !ok || scheme != "Bearer" || token == "" {
 			return response.Error(c, 401, "Invalid Authorization header format")
 		}
-		token := parts[1]
 		claims, err := security.VerifyToken(token, m.Config.JwtAccessSecret)
 		if err != nil || claims == nil {
 			return response.Error(c, 401, "Invalid token")

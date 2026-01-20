@@ -32,7 +32,7 @@ func NewOptionItemHandler(
 		GetByGroupUseCase: getByGroupUseCase,
 		UpdateUseCase:     updateUseCase,
 		DeleteUseCase:     deleteUseCase,
-		Logger:            logger,
+		Logger:            logger.With().Str("handler", "OptionItemHandler").Logger(),
 	}
 }
 

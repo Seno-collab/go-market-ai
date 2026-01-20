@@ -900,55 +900,6 @@
                 }
             }
         },
-        "/api/menu/restaurant/topics": {
-            "get": {
-                "description": "Get list of topics by restaurant ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Topic"
-                ],
-                "summary": "Get topics by restaurant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Topic name keyword",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number (default: 1)",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Items per page (default: 20)",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Get topics by restaurant successfully",
-                        "schema": {
-                            "$ref": "#/definitions/app.GetTopicsByRestaurantSuccessResponseDoc"
-                        }
-                    },
-                    "default": {
-                        "description": "Errors",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorDoc"
-                        }
-                    }
-                }
-            }
-        },
         "/api/menu/topics": {
             "post": {
                 "description": "Create a new topic with name, price, description, and optional image or logo",
@@ -1010,6 +961,55 @@
                             "items": {
                                 "$ref": "#/definitions/app.GetTopicsByRestaurantComboboxSuccessResponseDoc"
                             }
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menu/topics/search": {
+            "get": {
+                "description": "Get list of topics by restaurant ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Topic"
+                ],
+                "summary": "Get topics by restaurant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Topic name keyword",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default: 20)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get topics by restaurant successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetTopicsByRestaurantSuccessResponseDoc"
                         }
                     },
                     "default": {
@@ -1129,6 +1129,76 @@
                         "description": "Delete topic successfully",
                         "schema": {
                             "$ref": "#/definitions/app.DeleteTopicSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/menus": {
+            "get": {
+                "description": "Retrieve menus filtered by restaurant, type, and optional topics using cursor-based pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "List menus with cursor pagination",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Restaurant ID",
+                        "name": "X-Restaurant-Id",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "dish",
+                            "beverage",
+                            "extra",
+                            "combo"
+                        ],
+                        "type": "string",
+                        "description": "Menu type",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma-separated topic names, e.g. \\",
+                        "name": "topics",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default 20, max 50)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Pagination cursor (last returned menu id)",
+                        "name": "cursor",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Menus page",
+                        "schema": {
+                            "$ref": "#/definitions/menuapp.ListMenusResponse"
                         }
                     },
                     "default": {
@@ -2025,6 +2095,58 @@
                 "ItemExtra",
                 "ItemCombo"
             ]
+        },
+        "domain.MenuType": {
+            "type": "string",
+            "enum": [
+                "dish",
+                "beverage",
+                "extra",
+                "combo"
+            ],
+            "x-enum-varnames": [
+                "MenuTypeDish",
+                "MenuTypeBeverage",
+                "MenuTypeExtra",
+                "MenuTypeCombo"
+            ]
+        },
+        "menuapp.ListMenusResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/menuapp.MenuResponse"
+                    }
+                },
+                "nextCursor": {
+                    "type": "integer"
+                }
+            }
+        },
+        "menuapp.MenuResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "restaurantId": {
+                    "type": "integer"
+                },
+                "topics": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.MenuType"
+                }
+            }
         },
         "menuitemapp.CreateMenuItemRequest": {
             "type": "object",
