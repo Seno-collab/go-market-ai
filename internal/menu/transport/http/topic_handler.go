@@ -3,6 +3,7 @@ package menuhttp
 import (
 	topicapp "go-ai/internal/menu/application/topic"
 	"go-ai/internal/transport/response"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -152,14 +153,14 @@ func (h *TopicHandler) GetTopics(c echo.Context) error {
 	name := strings.TrimSpace(c.QueryParam("name"))
 	if v := c.QueryParam("page"); v != "" {
 		p, err := strconv.Atoi(v)
-		if err != nil || p < 1 {
+		if err != nil || p < 1 || p > math.MaxInt32 {
 			return response.Error(c, http.StatusBadRequest, "invalid page")
 		}
 		page = p
 	}
 	if v := c.QueryParam("limit"); v != "" {
 		l, err := strconv.Atoi(v)
-		if err != nil || l < 1 || l > 100 {
+		if err != nil || l < 1 || l > 100 || l > math.MaxInt32 {
 			return response.Error(c, http.StatusBadRequest, "invalid limit")
 		}
 		limit = l
