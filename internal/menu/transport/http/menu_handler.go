@@ -78,7 +78,7 @@ func (h *MenuHandler) ListMenus(c echo.Context) error {
 
 	var limit int32
 	if rawLimit := strings.TrimSpace(c.QueryParam("limit")); rawLimit != "" {
-		l, err := strconv.Atoi(rawLimit)
+		l, err := strconv.ParseInt(rawLimit, 10, 32)
 		if err != nil || l < 1 {
 			return response.Error(c, http.StatusBadRequest, errLimitMustBePos)
 		}
