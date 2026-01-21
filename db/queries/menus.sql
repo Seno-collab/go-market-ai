@@ -40,20 +40,11 @@ WHERE id = $1
 -- name: GetMenuItemsByRestaurant :many
 SELECT *
 FROM menu_items
-WHERE restaurant_id = $1 AND (
-        $2::text = ''
-        OR name ILIKE '%' || $2 || '%'
-        OR description ILIKE '%' || $2 || '%'
-      ) AND (NULLIF($3::text, '') IS NULL
-        OR type = $3::menu_item_type)
-ORDER BY sort_order, id
-LIMIT $4 OFFSET $5;
-
--- name: GetMenuItemsByRestaurantAndActive :many
-SELECT *
-FROM menu_items
-WHERE restaurant_id = $1
-  AND is_active = $2
+WHERE restaurant_id = sqlc.arg(restaurant_id)
+  AND (
+          sqlc.narg(is_active)::boolean IS NULL
+          OR is_active = sqlc.narg(is_active)::boolean
+      )
   AND (
           sqlc.arg(name)::text = ''
           OR name ILIKE '%' || sqlc.arg(name) || '%'
@@ -61,12 +52,21 @@ WHERE restaurant_id = $1
         ) AND (NULLIF(sqlc.arg(type)::text, '') IS NULL
         OR type = sqlc.arg(type)::menu_item_type)
 ORDER BY sort_order, id
-LIMIT $3 OFFSET $4;
+LIMIT sqlc.arg(limit_value) OFFSET sqlc.arg(offset_value);
 
 -- name: CountMenuItems :one
 SELECT COUNT(*)
 FROM menu_items
-WHERE restaurant_id = $1;
+WHERE restaurant_id = sqlc.arg(restaurant_id) AND (
+    sqlc.narg(is_active)::boolean IS NULL
+    OR is_active = sqlc.narg(is_active)::boolean
+  )
+  AND (
+          sqlc.narg(name)::text = ''
+          OR name ILIKE '%' || sqlc.arg(name) || '%'
+          OR description ILIKE '%' || sqlc.arg(name) || '%'
+        ) AND (NULLIF(sqlc.narg(type)::text, '') IS NULL
+        OR type = sqlc.narg(type)::menu_item_type);
 
 -- name: GetMenuItemByID :one
 SELECT *

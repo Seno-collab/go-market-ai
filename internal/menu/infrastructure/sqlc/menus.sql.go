@@ -32,11 +32,32 @@ func (q *Queries) AttachOptionGroupToItem(ctx context.Context, arg AttachOptionG
 const countMenuItems = `-- name: CountMenuItems :one
 SELECT COUNT(*)
 FROM menu_items
-WHERE restaurant_id = $1
+WHERE restaurant_id = $1 AND (
+    $2::boolean IS NULL
+    OR is_active = $2::boolean
+  )
+  AND (
+          $3::text = ''
+          OR name ILIKE '%' || $3 || '%'
+          OR description ILIKE '%' || $3 || '%'
+        ) AND (NULLIF($4::text, '') IS NULL
+        OR type = $4::menu_item_type)
 `
 
-func (q *Queries) CountMenuItems(ctx context.Context, restaurantID int32) (int64, error) {
-	row := q.db.QueryRow(ctx, countMenuItems, restaurantID)
+type CountMenuItemsParams struct {
+	RestaurantID int32
+	IsActive     *bool
+	Name         *string
+	Type         *string
+}
+
+func (q *Queries) CountMenuItems(ctx context.Context, arg CountMenuItemsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countMenuItems,
+		arg.RestaurantID,
+		arg.IsActive,
+		arg.Name,
+		arg.Type,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -621,96 +642,38 @@ func (q *Queries) GetMenuItemByID(ctx context.Context, arg GetMenuItemByIDParams
 const getMenuItemsByRestaurant = `-- name: GetMenuItemsByRestaurant :many
 SELECT id, restaurant_id, topic_id, type, name, description, image_url, sku, base_price, is_active, sort_order, created_at, updated_at
 FROM menu_items
-WHERE restaurant_id = $1 AND (
-        $2::text = ''
-        OR name ILIKE '%' || $2 || '%'
-        OR description ILIKE '%' || $2 || '%'
-      ) AND (NULLIF($3::text, '') IS NULL
-        OR type = $3::menu_item_type)
+WHERE restaurant_id = $1
+  AND (
+          $2::boolean IS NULL
+          OR is_active = $2::boolean
+      )
+  AND (
+          $3::text = ''
+          OR name ILIKE '%' || $3 || '%'
+          OR description ILIKE '%' || $3 || '%'
+        ) AND (NULLIF($4::text, '') IS NULL
+        OR type = $4::menu_item_type)
 ORDER BY sort_order, id
-LIMIT $4 OFFSET $5
+LIMIT $6 OFFSET $5
 `
 
 type GetMenuItemsByRestaurantParams struct {
 	RestaurantID int32
-	Column2      string
-	Column3      string
-	Limit        int32
-	Offset       int32
+	IsActive     *bool
+	Name         string
+	Type         string
+	OffsetValue  int32
+	LimitValue   int32
 }
 
 func (q *Queries) GetMenuItemsByRestaurant(ctx context.Context, arg GetMenuItemsByRestaurantParams) ([]MenuItem, error) {
 	rows, err := q.db.Query(ctx, getMenuItemsByRestaurant,
 		arg.RestaurantID,
-		arg.Column2,
-		arg.Column3,
-		arg.Limit,
-		arg.Offset,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []MenuItem
-	for rows.Next() {
-		var i MenuItem
-		if err := rows.Scan(
-			&i.ID,
-			&i.RestaurantID,
-			&i.TopicID,
-			&i.Type,
-			&i.Name,
-			&i.Description,
-			&i.ImageUrl,
-			&i.Sku,
-			&i.BasePrice,
-			&i.IsActive,
-			&i.SortOrder,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getMenuItemsByRestaurantAndActive = `-- name: GetMenuItemsByRestaurantAndActive :many
-SELECT id, restaurant_id, topic_id, type, name, description, image_url, sku, base_price, is_active, sort_order, created_at, updated_at
-FROM menu_items
-WHERE restaurant_id = $1
-  AND is_active = $2
-  AND (
-          $5::text = ''
-          OR name ILIKE '%' || $5 || '%'
-          OR description ILIKE '%' || $5 || '%'
-        ) AND (NULLIF($6::text, '') IS NULL
-        OR type = $6::menu_item_type)
-ORDER BY sort_order, id
-LIMIT $3 OFFSET $4
-`
-
-type GetMenuItemsByRestaurantAndActiveParams struct {
-	RestaurantID int32
-	IsActive     bool
-	Limit        int32
-	Offset       int32
-	Name         string
-	Type         string
-}
-
-func (q *Queries) GetMenuItemsByRestaurantAndActive(ctx context.Context, arg GetMenuItemsByRestaurantAndActiveParams) ([]MenuItem, error) {
-	rows, err := q.db.Query(ctx, getMenuItemsByRestaurantAndActive,
-		arg.RestaurantID,
 		arg.IsActive,
-		arg.Limit,
-		arg.Offset,
 		arg.Name,
 		arg.Type,
+		arg.OffsetValue,
+		arg.LimitValue,
 	)
 	if err != nil {
 		return nil, err

@@ -117,27 +117,14 @@ func (r *MenuItemRepo) DeleteMenuItem(ctx context.Context, id int64, restaurantI
 }
 
 func (r *MenuItemRepo) GetMenuItems(ctx context.Context, param domain.SearchMenuItemsParam) ([]domain.MenuItem, int64, error) {
-	var rows []sqlc.MenuItem
-	var err error
-	if param.IsActive == nil {
-		rows, err = r.queries.GetMenuItemsByRestaurant(ctx, sqlc.GetMenuItemsByRestaurantParams{
-			RestaurantID: param.RestaurantID,
-			Limit:        param.Limit,
-			Offset:       param.Offset,
-			Column2:      param.Filter,
-			Column3:      param.Category,
-		})
-	} else {
-		isActive := *param.IsActive
-		rows, err = r.queries.GetMenuItemsByRestaurantAndActive(ctx, sqlc.GetMenuItemsByRestaurantAndActiveParams{
-			RestaurantID: param.RestaurantID,
-			Limit:        param.Limit,
-			Offset:       param.Offset,
-			IsActive:     isActive,
-			Name:         param.Filter,
-			Type:         param.Category,
-		})
-	}
+	rows, err := r.queries.GetMenuItemsByRestaurant(ctx, sqlc.GetMenuItemsByRestaurantParams{
+		RestaurantID: param.RestaurantID,
+		Name:         param.Filter,
+		Type:         param.Category,
+		OffsetValue:  param.Offset,
+		LimitValue:   param.Limit,
+		IsActive:     param.IsActive,
+	})
 
 	if err != nil {
 		return nil, 0, err
@@ -178,7 +165,12 @@ func (r *MenuItemRepo) GetMenuItems(ctx context.Context, param domain.SearchMenu
 			CreatedAt:    row.CreatedAt,
 		})
 	}
-	total, err := r.queries.CountMenuItems(ctx, param.RestaurantID)
+	total, err := r.queries.CountMenuItems(ctx, sqlc.CountMenuItemsParams{
+		RestaurantID: param.RestaurantID,
+		IsActive:     param.IsActive,
+		Name:         &param.Filter,
+		Type:         &param.Category,
+	})
 	if err != nil {
 		return nil, 0, err
 	}
