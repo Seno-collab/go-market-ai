@@ -63,7 +63,7 @@ func (uc *GetMenuItemsUseCase) Execute(ctx context.Context, restaurantID int32, 
 			Items:      resp,
 			Page:       page,
 			Limit:      limit,
-			TotalItems: int64(len(resp)),
+			TotalItems: total,
 			TotalPages: totalPages,
 		},
 	}, nil

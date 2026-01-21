@@ -84,10 +84,10 @@ func NewLogger(cfgs ...LoggerConfig) zerolog.Logger {
 			Out:        os.Stdout,
 			TimeFormat: time.RFC3339,
 			FormatLevel: func(i any) string {
-				return fmt.Sprintf("[%-6s]", i)
+				return fmt.Sprintf("[%s]", i)
 			},
 			FormatMessage: func(i any) string {
-				return fmt.Sprintf("| %-20s |", i)
+				return fmt.Sprintf("| %s |", i)
 			},
 			FormatCaller: func(i any) string {
 				return fmt.Sprintf("[%s]", i)

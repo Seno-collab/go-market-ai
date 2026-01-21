@@ -1,3 +1,8 @@
+GO ?= go
+SWAG_VERSION ?= v1.16.2
+SWAG_BIN := $(shell command -v swag 2>/dev/null)
+SWAG := $(if $(SWAG_BIN),$(SWAG_BIN),$(GO) run github.com/swaggo/swag/cmd/swag@$(SWAG_VERSION))
+
 run:
 	go test ./...
 	go run cmd/api/main.go
@@ -12,7 +17,7 @@ migrate:
 	migrate create -ext sql -dir db/migrations -seq "$$(date +%Y%m%d_%H%M%S)_$${name}"
 
 swagger:
-	swag init -g cmd/api/main.go
+	$(SWAG) init -g cmd/api/main.go
 
 include .env
 export $(shell sed 's/=.*//' .env)
@@ -36,5 +41,5 @@ up:
 		up
 
 build:
-	swag init -g cmd/main.go -o docs
-	go run cmd/main.go
+	$(SWAG) init -g cmd/api/main.go -o docs
+	go run cmd/api/main.go

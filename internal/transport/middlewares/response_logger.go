@@ -34,7 +34,7 @@ func ResponseLoggerMiddleware() echo.MiddlewareFunc {
 
 			latency := time.Since(start)
 			responseBody := formatBody(responseBuf.Bytes())
-			logger.Info().
+			logger.Debug().
 				Int("status", res.Status).
 				Int64("latency_ms", latency.Milliseconds()).
 				Int64("size", res.Size).

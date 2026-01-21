@@ -31,7 +31,7 @@ func RequestLoggerMiddleware(baseLogger zerolog.Logger) echo.MiddlewareFunc {
 			requestID := res.Header().Get(echo.HeaderXRequestID)
 			requestBody, requestBodyLogged := readRequestBody(req)
 			reqLogger := buildRequestLogger(baseLogger, c, requestID, requestBody, requestBodyLogged)
-			reqLogger.Info().Msg("incoming request")
+			reqLogger.Debug().Msg("incoming request")
 
 			ctx := requestContextWithID(baseLogger, req.Context(), requestID)
 			c.SetRequest(req.WithContext(ctx))

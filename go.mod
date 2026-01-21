@@ -46,6 +46,7 @@ require (
 	github.com/prometheus/common v0.63.0 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
+	github.com/swaggo/files v1.0.1 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
