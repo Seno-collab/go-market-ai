@@ -85,6 +85,11 @@ services:
 
   next-ai:
     image: senonguyen2109/next-ai:latest
+    environment:
+      # Server-side API URL (inside Docker network)
+      API_URL: http://app:8080
+      # Client-side API URL (browser access)
+      NEXT_PUBLIC_API_URL: http://localhost:8080
     restart: always
 
   nginx:
