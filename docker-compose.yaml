@@ -91,7 +91,6 @@ services:
       - "8080:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./frontend/dist:/usr/share/nginx/html:ro
     restart: always
   fail2ban:
     image: lscr.io/linuxserver/fail2ban:latest
