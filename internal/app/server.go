@@ -39,7 +39,7 @@ func NewServer() *echo.Echo {
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000"},
+		AllowOrigins: []string{"http://localhost:3000", "http://157.66.218.138:3000"},
 		AllowMethods: []string{
 			echo.GET,
 			echo.PUT,
