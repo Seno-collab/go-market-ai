@@ -83,10 +83,15 @@ services:
       retries: 10
     restart: always
 
+  next-ai:
+    image: senonguyen2109/next-ai:latest
+    restart: always
+
   nginx:
     image: nginx:1.27-alpine
     depends_on:
       - app
+      - next-ai
     ports:
       - "8080:80"
     volumes:
