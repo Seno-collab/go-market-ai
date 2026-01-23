@@ -5,6 +5,7 @@ import (
 
 	"go-ai/internal/menu/domain"
 	"go-ai/internal/menu/infrastructure/sqlc"
+	"go-ai/pkg/utils"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -48,11 +49,18 @@ func (r *MenuListRepo) ListMenus(ctx context.Context, params domain.ListMenusPar
 
 	menus := make([]domain.Menu, 0, len(rows))
 	for _, row := range rows {
+		price, _ := utils.NumericToMoney(row.BasePrice)
+		imageURLStr := ""
+		if row.ImageUrl != nil {
+			imageURLStr = *row.ImageUrl
+		}
+		imageURL, _ := utils.NewUrl(imageURLStr)
 		menus = append(menus, domain.Menu{
-			ID:           row.ID,
-			Name:         row.Name,
-			RestaurantID: row.RestaurantID,
-			Type:         domain.MenuType(row.Type),
+			ID:        row.ID,
+			Name:      row.Name,
+			Type:      domain.MenuType(row.Type),
+			ImageURL:  imageURL,
+			BasePrice: price,
 		})
 	}
 

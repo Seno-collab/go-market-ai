@@ -247,6 +247,24 @@ definitions:
       response_code:
         type: string
     type: object
+  app.HealthFailureResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/healthapp.HealthResponse'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
+  app.HealthSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/healthapp.HealthResponse'
+      message:
+        type: string
+      response_code:
+        type: string
+    type: object
   app.LoginSuccessResponseDoc:
     properties:
       data:
@@ -433,10 +451,41 @@ definitions:
     - combo
     type: string
     x-enum-varnames:
-    - MenuTypeDish
-    - MenuTypeBeverage
-    - MenuTypeExtra
-    - MenuTypeCombo
+    - ItemDish
+    - ItemDrink
+    - ItemExtra
+    - ItemCombo
+  healthapp.HealthResponse:
+    properties:
+      checked_at:
+        example: "2026-01-22T12:34:56Z"
+        type: string
+      environment:
+        example: development
+        type: string
+      services:
+        items:
+          $ref: '#/definitions/healthapp.ServiceStatus'
+        type: array
+      status:
+        example: up
+        type: string
+    type: object
+  healthapp.ServiceStatus:
+    properties:
+      error:
+        example: 'dial tcp 127.0.0.1:5432: connect: connection refused'
+        type: string
+      latency_ms:
+        example: 12
+        type: integer
+      name:
+        example: postgres
+        type: string
+      status:
+        example: up
+        type: string
+    type: object
   menuapp.ListMenusResponse:
     properties:
       items:
@@ -678,14 +727,6 @@ definitions:
       Thursday: "4"
       Tuesday: "2"
       Wednesday: "3"
-    x-enum-descriptions:
-    - "0"
-    - "1"
-    - "2"
-    - "3"
-    - "4"
-    - "5"
-    - "6"
     x-enum-varnames:
     - Sunday
     - Monday
@@ -1011,6 +1052,23 @@ paths:
       summary: Register a new userRegisterRequest
       tags:
       - Auth
+  /api/health:
+    get:
+      description: Provides service health along with dependency status.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Service healthy
+          schema:
+            $ref: '#/definitions/app.HealthSuccessResponseDoc'
+        "503":
+          description: Service degraded or down
+          schema:
+            $ref: '#/definitions/app.HealthFailureResponseDoc'
+      summary: Health check
+      tags:
+      - Health
   /api/menu/item/{id}/option-groups:
     get:
       consumes:
@@ -1624,7 +1682,6 @@ paths:
         name: limit
         type: integer
       - description: Pagination cursor (last returned menu id)
-        format: int64
         in: query
         name: cursor
         type: integer

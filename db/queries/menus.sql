@@ -267,17 +267,16 @@ DELETE FROM combo_group_items WHERE id = $1;
 
 
 -- name: ListMenus :many
-SELECT
-    m.*
+SELECT m.*
 FROM menu_items m
-JOIN topics t ON m.topic_id = t.id
 WHERE m.restaurant_id = sqlc.arg(restaurant_id)
-  AND (NULLIF(sqlc.arg(menu_type)::text, '') IS NULL OR m.type = sqlc.arg(menu_type)::menu_item_type)
-  AND (NULLIF(sqlc.arg(cursor)::bigint, 0) IS NULL OR m.id < sqlc.arg(cursor))
-  AND (COALESCE(sqlc.arg(topic_names)::text[], '{}'::text[]) = '{}' OR t.name = ANY(sqlc.arg(topic_names)))
   AND m.is_active = true
-GROUP BY m.id, m.name, m.restaurant_id, m.type
-HAVING (COALESCE(sqlc.arg(topic_names)::text[], '{}'::text[]) = '{}' OR COUNT(DISTINCT t.name) = cardinality(sqlc.arg(topic_names)))
+  AND (sqlc.arg(menu_type)::text = '' OR m.type = sqlc.arg(menu_type)::menu_item_type)
+  AND (sqlc.arg(cursor)::bigint = 0 OR m.id < sqlc.arg(cursor))
+  AND (
+    COALESCE(array_length(sqlc.arg(topic_names)::text[], 1), 0) = 0
+    OR m.topic_id IN (SELECT id FROM topics WHERE name = ANY(sqlc.arg(topic_names)::text[]))
+  )
 ORDER BY m.id DESC
 LIMIT sqlc.arg(page_size);
 

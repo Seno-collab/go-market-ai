@@ -1016,17 +1016,16 @@ func (q *Queries) GetVariantsByItem(ctx context.Context, menuItemID int64) ([]Me
 }
 
 const listMenus = `-- name: ListMenus :many
-SELECT
-    m.id, m.restaurant_id, m.topic_id, m.type, m.name, m.description, m.image_url, m.sku, m.base_price, m.is_active, m.sort_order, m.created_at, m.updated_at
+SELECT m.id, m.restaurant_id, m.topic_id, m.type, m.name, m.description, m.image_url, m.sku, m.base_price, m.is_active, m.sort_order, m.created_at, m.updated_at
 FROM menu_items m
-JOIN topics t ON m.topic_id = t.id
 WHERE m.restaurant_id = $1
-  AND (NULLIF($2::text, '') IS NULL OR m.type = $2::menu_item_type)
-  AND (NULLIF($3::bigint, 0) IS NULL OR m.id < $3)
-  AND (COALESCE($4::text[], '{}'::text[]) = '{}' OR t.name = ANY($4))
   AND m.is_active = true
-GROUP BY m.id, m.name, m.restaurant_id, m.type
-HAVING (COALESCE($4::text[], '{}'::text[]) = '{}' OR COUNT(DISTINCT t.name) = cardinality($4))
+  AND ($2::text = '' OR m.type = $2::menu_item_type)
+  AND ($3::bigint = 0 OR m.id < $3)
+  AND (
+    COALESCE(array_length($4::text[], 1), 0) = 0
+    OR m.topic_id IN (SELECT id FROM topics WHERE name = ANY($4::text[]))
+  )
 ORDER BY m.id DESC
 LIMIT $5
 `

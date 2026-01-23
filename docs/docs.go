@@ -271,6 +271,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/health": {
+            "get": {
+                "description": "Provides service health along with dependency status.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "Service healthy",
+                        "schema": {
+                            "$ref": "#/definitions/app.HealthSuccessResponseDoc"
+                        }
+                    },
+                    "503": {
+                        "description": "Service degraded or down",
+                        "schema": {
+                            "$ref": "#/definitions/app.HealthFailureResponseDoc"
+                        }
+                    }
+                }
+            }
+        },
         "/api/menu/item/{id}/option-groups": {
             "get": {
                 "description": "Get option groups attached to a specific menu item",
@@ -1199,7 +1225,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "format": "int64",
                         "description": "Pagination cursor (last returned menu id)",
                         "name": "cursor",
                         "in": "query"
@@ -1833,6 +1858,34 @@ const docTemplate = `{
                 }
             }
         },
+        "app.HealthFailureResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/healthapp.HealthResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.HealthSuccessResponseDoc": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/healthapp.HealthResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_code": {
+                    "type": "string"
+                }
+            }
+        },
         "app.LoginSuccessResponseDoc": {
             "type": "object",
             "properties": {
@@ -2116,11 +2169,55 @@ const docTemplate = `{
                 "combo"
             ],
             "x-enum-varnames": [
-                "MenuTypeDish",
-                "MenuTypeBeverage",
-                "MenuTypeExtra",
-                "MenuTypeCombo"
+                "ItemDish",
+                "ItemDrink",
+                "ItemExtra",
+                "ItemCombo"
             ]
+        },
+        "healthapp.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "checked_at": {
+                    "type": "string",
+                    "example": "2026-01-22T12:34:56Z"
+                },
+                "environment": {
+                    "type": "string",
+                    "example": "development"
+                },
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/healthapp.ServiceStatus"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "up"
+                }
+            }
+        },
+        "healthapp.ServiceStatus": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "dial tcp 127.0.0.1:5432: connect: connection refused"
+                },
+                "latency_ms": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "name": {
+                    "type": "string",
+                    "example": "postgres"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "up"
+                }
+            }
         },
         "menuapp.ListMenusResponse": {
             "type": "object",
@@ -2485,15 +2582,6 @@ const docTemplate = `{
                 "Tuesday": "2",
                 "Wednesday": "3"
             },
-            "x-enum-descriptions": [
-                "0",
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6"
-            ],
             "x-enum-varnames": [
                 "Sunday",
                 "Monday",

@@ -3,6 +3,7 @@ package menuapp
 import (
 	"context"
 	"go-ai/internal/menu/domain"
+	"strconv"
 )
 
 const (
@@ -19,11 +20,12 @@ type ListMenusRequest struct {
 }
 
 type MenuResponse struct {
-	ID           int64           `json:"id"`
-	Name         string          `json:"name"`
-	Type         domain.MenuType `json:"type"`
-	RestaurantID int32           `json:"restaurantId"`
-	Topics       []string        `json:"topics,omitempty"`
+	ID        int64           `json:"id"`
+	Name      string          `json:"name"`
+	Type      domain.MenuType `json:"type"`
+	ImageURL  string          `json:"imageUrl"`
+	BasePrice string          `json:"basePrice"`
+	Topics    []string        `json:"topics,omitempty"`
 }
 
 type ListMenusResponse struct {
@@ -65,11 +67,12 @@ func (uc *ListMenusUseCase) Execute(ctx context.Context, req ListMenusRequest) (
 	items := make([]MenuResponse, 0, len(menus))
 	for _, m := range menus {
 		items = append(items, MenuResponse{
-			ID:           m.ID,
-			Name:         m.Name,
-			Type:         m.Type,
-			RestaurantID: m.RestaurantID,
-			Topics:       m.Topics,
+			ID:        m.ID,
+			Name:      m.Name,
+			Type:      m.Type,
+			ImageURL:  m.ImageURL.String(),
+			BasePrice: strconv.FormatInt(int64(m.BasePrice), 10),
+			Topics:    m.Topics,
 		})
 	}
 	return &ListMenusResponse{
