@@ -497,12 +497,14 @@ definitions:
     type: object
   menuapp.MenuResponse:
     properties:
+      basePrice:
+        type: string
       id:
         type: integer
+      imageUrl:
+        type: string
       name:
         type: string
-      restaurantId:
-        type: integer
       topics:
         items:
           type: string
@@ -727,6 +729,14 @@ definitions:
       Thursday: "4"
       Tuesday: "2"
       Wednesday: "3"
+    x-enum-descriptions:
+    - "0"
+    - "1"
+    - "2"
+    - "3"
+    - "4"
+    - "5"
+    - "6"
     x-enum-varnames:
     - Sunday
     - Monday
@@ -1682,6 +1692,7 @@ paths:
         name: limit
         type: integer
       - description: Pagination cursor (last returned menu id)
+        format: int64
         in: query
         name: cursor
         type: integer

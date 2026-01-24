@@ -1225,6 +1225,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "format": "int64",
                         "description": "Pagination cursor (last returned menu id)",
                         "name": "cursor",
                         "in": "query"
@@ -2236,14 +2237,17 @@ const docTemplate = `{
         "menuapp.MenuResponse": {
             "type": "object",
             "properties": {
+                "basePrice": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
-                "name": {
+                "imageUrl": {
                     "type": "string"
                 },
-                "restaurantId": {
-                    "type": "integer"
+                "name": {
+                    "type": "string"
                 },
                 "topics": {
                     "type": "array",
@@ -2582,6 +2586,15 @@ const docTemplate = `{
                 "Tuesday": "2",
                 "Wednesday": "3"
             },
+            "x-enum-descriptions": [
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6"
+            ],
             "x-enum-varnames": [
                 "Sunday",
                 "Monday",
