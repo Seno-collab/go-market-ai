@@ -83,15 +83,6 @@ services:
       retries: 10
     restart: always
 
-  next-ai:
-    image: senonguyen2109/next-ai:latest
-    environment:
-      # Server-side API URL (inside Docker network)
-      API_URL: http://app:8080
-      # Client-side API URL (browser access)
-      NEXT_PUBLIC_API_URL: http://localhost:8080
-    restart: always
-
   nginx:
     image: nginx:1.27-alpine
     depends_on:
@@ -102,6 +93,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     restart: always
+
   fail2ban:
     image: lscr.io/linuxserver/fail2ban:latest
     container_name: fail2ban
