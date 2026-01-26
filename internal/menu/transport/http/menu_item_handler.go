@@ -23,6 +23,7 @@ const (
 type MenuItemHandler struct {
 	CreateUseCase       *menuitemapp.CreateUseCase
 	GetUseCase          *menuitemapp.GetUseCase
+	GetDetailUseCase    *menuitemapp.DetailUseCase
 	UpdateUseCase       *menuitemapp.UpdateUseCase
 	DeleteUseCase       *menuitemapp.DeleteUseCase
 	GetMenuItemsUseCase *menuitemapp.GetMenuItemsUseCase
@@ -33,6 +34,7 @@ type MenuItemHandler struct {
 func NewMenuItemHandler(
 	createUseCase *menuitemapp.CreateUseCase,
 	getUseCase *menuitemapp.GetUseCase,
+	getDetailUseCase *menuitemapp.DetailUseCase,
 	updateUseCase *menuitemapp.UpdateUseCase,
 	deleteUseCase *menuitemapp.DeleteUseCase,
 	getMenuItemsUseCase *menuitemapp.GetMenuItemsUseCase,
@@ -41,6 +43,7 @@ func NewMenuItemHandler(
 	return &MenuItemHandler{
 		CreateUseCase:       createUseCase,
 		GetUseCase:          getUseCase,
+		GetDetailUseCase:    getDetailUseCase,
 		DeleteUseCase:       deleteUseCase,
 		UpdateUseCase:       updateUseCase,
 		GetMenuItemsUseCase: getMenuItemsUseCase,
@@ -106,6 +109,34 @@ func (h *MenuItemHandler) Get(c echo.Context) error {
 		return response.Error(c, http.StatusBadRequest, errFailedGetMenuItem)
 	}
 	return response.Success(c, resp, "Get menu item successfully")
+}
+
+// GetMenuItemWithOptions godoc
+// @Summary Get menu item with option groups and items
+// @Description Get a menu item detail including its option groups and option items
+// @Tags Menu
+// @Accept json
+// @Produce json
+// @Param id path string true "Menu item ID"
+// @Success 200 {object} app.GetMenuItemSuccessResponseDoc "Get menu item with options successfully"
+// @Failure default {object} response.ErrorDoc "Errors"
+// @Router /api/menu/items/{id}/detail [get]
+func (h *MenuItemHandler) GetDetail(c echo.Context) error {
+	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingMenuItemID, errInvalidMenuItemIDFormat)
+	if err != nil {
+		return response.Error(c, http.StatusBadRequest, err.Error())
+	}
+	restaurantID, err := getRestaurantID(c)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
+		return response.Error(c, http.StatusBadRequest, errInvalidRestaurantID)
+	}
+	resp, err := h.GetDetailUseCase.Execute(c.Request().Context(), idInt64, restaurantID)
+	if err != nil {
+		h.Logger.Error().Err(err).Msg(logGetMenuItemError)
+		return response.Error(c, http.StatusBadRequest, errFailedGetMenuItem)
+	}
+	return response.Success(c, resp, "Get menu item with options successfully")
 }
 
 // UpdateMenuItemHandler godoc

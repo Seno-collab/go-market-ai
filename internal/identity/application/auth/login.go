@@ -59,11 +59,11 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 		ImageUrl: storedUser.ImageUrl,
 	}
 	keyAuthCache := fmt.Sprintf("profile_%s", storedUser.ID.String())
-	if err := s.Cache.SetAuthCache(keyAuthCache, dataCache, time.Duration(s.Config.JwtExpiresIn*int(time.Second))); err != nil {
+	if err := s.Cache.SetAuthCache(ctx, keyAuthCache, dataCache, time.Duration(s.Config.JwtExpiresIn*int(time.Second))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
 	keyRefreshToken := fmt.Sprintf("refresh_token_%s", storedUser.ID.String())
-	if err := s.Cache.SetRefreshTokenCache(keyRefreshToken, refreshToken, time.Duration(s.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
+	if err := s.Cache.SetRefreshTokenCache(ctx, keyRefreshToken, refreshToken, time.Duration(s.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
 	return &LoginResponse{

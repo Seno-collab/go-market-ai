@@ -49,12 +49,18 @@ func (r *MenuListRepo) ListMenus(ctx context.Context, params domain.ListMenusPar
 
 	menus := make([]domain.Menu, 0, len(rows))
 	for _, row := range rows {
-		price, _ := utils.NumericToMoney(row.BasePrice)
+		price, err := utils.NumericToMoney(row.BasePrice)
+		if err != nil {
+			return nil, nil, err
+		}
 		imageURLStr := ""
 		if row.ImageUrl != nil {
 			imageURLStr = *row.ImageUrl
 		}
-		imageURL, _ := utils.NewUrl(imageURLStr)
+		imageURL, err := utils.NewUrl(imageURLStr)
+		if err != nil {
+			return nil, nil, err
+		}
 		menus = append(menus, domain.Menu{
 			ID:        row.ID,
 			Name:      row.Name,

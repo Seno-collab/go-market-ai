@@ -1210,6 +1210,31 @@ paths:
       summary: Update menu item
       tags:
       - Menu
+  /api/menu/items/{id}/detail:
+    get:
+      consumes:
+      - application/json
+      description: Get a menu item detail including its option groups and option items
+      parameters:
+      - description: Menu item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get menu item with options successfully
+          schema:
+            $ref: '#/definitions/app.GetMenuItemSuccessResponseDoc'
+        default:
+          description: Errors
+          schema:
+            $ref: '#/definitions/response.ErrorDoc'
+      summary: Get menu item with option groups and items
+      tags:
+      - Menu
   /api/menu/items/{id}/status:
     patch:
       consumes:

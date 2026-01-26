@@ -29,6 +29,33 @@ type GetMenuItemResponse struct {
 	CreateAt    time.Time           `json:"created_at"`
 }
 
+type OptionItemDetail struct {
+	ID             int64  `json:"id"`
+	OptionGroupID  int64  `json:"option_group_id"`
+	Name           string `json:"name"`
+	LinkedMenuItem *int64 `json:"linked_menu_item,omitempty"`
+	PriceDelta     int64  `json:"price_delta"`
+	QuantityMin    int32  `json:"quantity_min"`
+	QuantityMax    int32  `json:"quantity_max"`
+	SortOrder      int32  `json:"sort_order"`
+	IsActive       bool   `json:"is_active"`
+}
+
+type OptionGroupDetail struct {
+	ID         int64              `json:"id"`
+	Name       string             `json:"name"`
+	MinSelect  int32              `json:"min_select"`
+	MaxSelect  int32              `json:"max_select"`
+	IsRequired bool               `json:"is_required"`
+	SortOrder  int32              `json:"sort_order"`
+	Items      []OptionItemDetail `json:"items"`
+}
+
+type MenuItemDetailResponse struct {
+	GetMenuItemResponse
+	OptionGroups []OptionGroupDetail `json:"option_groups"`
+}
+
 type UpdateMenuItemRequest struct {
 	Name        string              `json:"name"`
 	Sku         string              `json:"sku"`

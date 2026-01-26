@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"go-ai/internal/platform/config"
-	"go-ai/pkg/logger"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/rs/zerolog"
 )
 
 type MinioClient struct {
@@ -15,29 +15,33 @@ type MinioClient struct {
 	Bucket string
 }
 
-func NewMinioClient() *MinioClient {
-	logger := logger.NewLogger().With().Str("component", "minio").Logger()
-	config, _ := config.LoadConfig()
-	endpoint := fmt.Sprintf("%s:%s", config.MinioEndPoint, config.MinioPort)
+func NewMinioClient(cfg *config.Config, log zerolog.Logger) (*MinioClient, error) {
+	log = log.With().Str("component", "minio").Logger()
+
+	endpoint := fmt.Sprintf("%s:%s", cfg.MinioEndPoint, cfg.MinioPort)
 	client, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(config.MinioAccessKey, config.MinioSecretKey, ""),
-		Secure: config.MinioUseSSL,
+		Creds:  credentials.NewStaticV4(cfg.MinioAccessKey, cfg.MinioSecretKey, ""),
+		Secure: cfg.MinioUseSSL,
 	})
 	if err != nil {
-		logger.Fatal().Err(err).Msg("Failed to connect MinIO")
+		return nil, err
 	}
+
 	ctx := context.Background()
-	exists, _ := client.BucketExists(ctx, config.Bucket)
+	exists, err := client.BucketExists(ctx, cfg.Bucket)
+	if err != nil {
+		return nil, err
+	}
 	if !exists {
-		if err := client.MakeBucket(ctx, config.Bucket, minio.MakeBucketOptions{}); err != nil {
-			logger.Fatal().Err(err).Msg("Cannot create bucket")
+		if err := client.MakeBucket(ctx, cfg.Bucket, minio.MakeBucketOptions{}); err != nil {
+			return nil, err
 		}
-		logger.Info().Str("bucket", config.Bucket).Msg("Bucket created")
+		log.Info().Str("bucket", cfg.Bucket).Msg("Bucket created")
 	}
 	return &MinioClient{
 		Client: client,
-		Bucket: config.Bucket,
-	}
+		Bucket: cfg.Bucket,
+	}, nil
 }
 
 func (m *MinioClient) PublicURL(objectName string) string {

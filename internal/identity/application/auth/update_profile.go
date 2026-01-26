@@ -77,7 +77,7 @@ func (uc *UpdateProfileUseCase) Execute(ctx context.Context, userID uuid.UUID, r
 	}
 
 	keyAuth := fmt.Sprintf("profile_%s", userID.String())
-	uc.Cache.SetAuthCache(keyAuth, &cache.AuthData{
+	uc.Cache.SetAuthCache(ctx, keyAuth, &cache.AuthData{
 		UserID:   userID,
 		Email:    user.Email.String(),
 		FullName: user.FullName,

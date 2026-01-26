@@ -51,11 +51,17 @@ func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) 
 	if err != nil {
 		return uuid.Nil, err
 	}
-	hasedPassword, err := security.HashPassword(request.Password)
+
+	rawPassword, err := auth.NewPassword(request.Password)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	hashedPassword, err := security.HashPassword(rawPassword.String())
 	if err != nil {
 		return uuid.Nil, domainerr.ErrInternalServerError
 	}
-	pw, _ := auth.NewPasswordFromHash(hasedPassword)
+	pw, _ := auth.NewPasswordFromHash(hashedPassword)
 	return s.Repo.CreateUser(ctx, &auth.Entity{
 		FullName: request.FullName,
 		Email:    email,

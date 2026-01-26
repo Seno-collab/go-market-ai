@@ -27,8 +27,12 @@ func BuildApp(e *echo.Echo, pool *pgxpool.Pool, redis *redis.Client, cfg *config
 	restaurantModule := container.InitRestaurantModule(pool, initIdentityModule.Middleware, initIdentityModule.RbacService, log)
 	restauranthttp.RegisterRestaurantRoutes(api, restaurantModule.Handler, initIdentityModule.Middleware, initIdentityModule.RbacService)
 
-	mediaModule := container.InitMediaModule(initIdentityModule.Middleware, log)
-	uploadhttp.RegisterMediaRoutes(api, mediaModule.Handler, mediaModule.Auth)
+	mediaModule, err := container.InitMediaModule(initIdentityModule.Middleware, cfg, log)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to init media module")
+	} else {
+		uploadhttp.RegisterMediaRoutes(api, mediaModule.Handler, mediaModule.Auth)
+	}
 
 	menuModule := container.InitMenuItemModule(pool, log)
 	menuhttp.RegisterMenuItemRoutes(api, menuModule.MenuItemHandler, initIdentityModule.Middleware, initIdentityModule.RbacService)

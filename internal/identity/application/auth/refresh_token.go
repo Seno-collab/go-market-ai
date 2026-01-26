@@ -44,7 +44,7 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 		return nil, auth.ErrTokenMissing
 	}
 	keyRefreshToken := fmt.Sprintf("refresh_token_%s", userID)
-	cachedRefreshToken, err := uc.Cache.GetRefreshTokenCache(keyRefreshToken)
+	cachedRefreshToken, err := uc.Cache.GetRefreshTokenCache(ctx, keyRefreshToken)
 	if err != nil {
 		return nil, err
 	}
@@ -75,10 +75,10 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 		ImageUrl: record.ImageUrl,
 	}
 	keyAuthCache := fmt.Sprintf("profile_%s", record.ID.String())
-	if err := uc.Cache.SetAuthCache(keyAuthCache, dataCache, time.Duration(uc.Config.JwtExpiresIn*int(time.Second))); err != nil {
+	if err := uc.Cache.SetAuthCache(ctx, keyAuthCache, dataCache, time.Duration(uc.Config.JwtExpiresIn*int(time.Second))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
-	if err := uc.Cache.SetRefreshTokenCache(keyRefreshToken, refreshToken, time.Duration(uc.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
+	if err := uc.Cache.SetRefreshTokenCache(ctx, keyRefreshToken, refreshToken, time.Duration(uc.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
 	return &RefreshTokenResponse{

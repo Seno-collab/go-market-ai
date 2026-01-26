@@ -534,6 +534,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/menu/items/{id}/detail": {
+            "get": {
+                "description": "Get a menu item detail including its option groups and option items",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Get menu item with option groups and items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Menu item ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get menu item with options successfully",
+                        "schema": {
+                            "$ref": "#/definitions/app.GetMenuItemSuccessResponseDoc"
+                        }
+                    },
+                    "default": {
+                        "description": "Errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorDoc"
+                        }
+                    }
+                }
+            }
+        },
         "/api/menu/items/{id}/status": {
             "patch": {
                 "description": "Enable or disable menu item by ID",

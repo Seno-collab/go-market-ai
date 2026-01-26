@@ -1,6 +1,9 @@
 package auth
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 type Password struct {
 	value string
@@ -14,8 +17,11 @@ var (
 )
 
 func NewPassword(v string) (Password, error) {
-	if v == "" {
-		return Password{value: ""}, nil
+	if strings.TrimSpace(v) == "" {
+		return Password{}, ErrPasswordTooShort
+	}
+	if len(v) < 6 {
+		return Password{}, ErrPasswordTooShort
 	}
 	if !lowercase.MatchString(v) {
 		return Password{}, ErrWeakPassword

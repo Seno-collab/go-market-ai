@@ -51,7 +51,7 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 			IsActive: record.IsActive,
 			ImageUrl: record.ImageUrl,
 		}
-		uc.Cache.SetAuthCache(keyAuth, authData, time.Duration(60*int(time.Minute)))
+		uc.Cache.SetAuthCache(ctx, keyAuth, authData, time.Duration(60*int(time.Minute)))
 		return profile, nil
 	}
 	profile = &GetProfileResponse{
