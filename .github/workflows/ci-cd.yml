@@ -73,7 +73,6 @@ jobs:
               docker buildx prune -af || true
 
           docker compose down
-          docker network create app-network
           docker compose up -d --build --remove-orphans
           docker image prune -f
           EOF
