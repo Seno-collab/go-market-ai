@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -25,7 +25,7 @@ const maskedValue = "******"
 
 func RequestLoggerMiddleware(baseLogger zerolog.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			req := c.Request()
 			res := c.Response()
 			requestID := res.Header().Get(echo.HeaderXRequestID)
@@ -53,7 +53,7 @@ func readRequestBody(req *http.Request) ([]byte, bool) {
 	return bodyBytes, len(bodyBytes) > 0
 }
 
-func buildRequestLogger(baseLogger zerolog.Logger, c echo.Context, requestID string, body []byte, logBody bool) zerolog.Logger {
+func buildRequestLogger(baseLogger zerolog.Logger, c *echo.Context, requestID string, body []byte, logBody bool) zerolog.Logger {
 	logger := baseLogger.With().
 		Str("request_id", requestID).
 		Str("method", c.Request().Method).

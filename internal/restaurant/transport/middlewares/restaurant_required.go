@@ -7,7 +7,7 @@ package middlewares
 // 	"net/http"
 
 // 	"github.com/google/uuid"
-// 	"github.com/labstack/echo/v4"
+// 	"github.com/labstack/echo/v5"
 // )
 
 // type RestaurantRequired struct {

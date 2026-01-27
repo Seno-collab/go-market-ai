@@ -5,7 +5,7 @@ import (
 	"go-ai/internal/transport/response"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -46,7 +46,7 @@ func NewOptionItemHandler(
 // @Success 200 {object} app.CreateOptionItemSuccessResponseDoc "Create option item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item [post]
-func (h *OptionItemHandler) Create(c echo.Context) error {
+func (h *OptionItemHandler) Create(c *echo.Context) error {
 	var req optionitemapp.CreateOptionItemRequest
 	if err := c.Bind(&req); err != nil {
 		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
@@ -74,7 +74,7 @@ func (h *OptionItemHandler) Create(c echo.Context) error {
 // @Success 200 {object} app.GetOptionItemSuccessResponseDoc "Get option item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item/{id} [get]
-func (h *OptionItemHandler) Get(c echo.Context) error {
+func (h *OptionItemHandler) Get(c *echo.Context) error {
 	id, err := parseRequiredIDParam(c.Param("id"), "Invalid option item ID", "Invalid option item ID")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -102,7 +102,7 @@ func (h *OptionItemHandler) Get(c echo.Context) error {
 // @Success 200 {object} app.GetOptionItemsSuccessResponseDoc "Get option items successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group/{id}/option-items [get]
-func (h *OptionItemHandler) GetByGroup(c echo.Context) error {
+func (h *OptionItemHandler) GetByGroup(c *echo.Context) error {
 	var in optionitemapp.GetOptionItemsRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
@@ -135,7 +135,7 @@ func (h *OptionItemHandler) GetByGroup(c echo.Context) error {
 // @Success 200 {object} app.UpdateOptionItemSuccessResponseDoc "Update option item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item/{id} [put]
-func (h *OptionItemHandler) Update(c echo.Context) error {
+func (h *OptionItemHandler) Update(c *echo.Context) error {
 	id, err := parseRequiredIDParam(c.Param("id"), "Invalid option item ID", "Invalid option item ID")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -166,7 +166,7 @@ func (h *OptionItemHandler) Update(c echo.Context) error {
 // @Success 200 {object} app.DeleteOptionItemSuccessResponseDoc "Delete option item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-item/{id} [delete]
-func (h *OptionItemHandler) Delete(c echo.Context) error {
+func (h *OptionItemHandler) Delete(c *echo.Context) error {
 	id, err := parseRequiredIDParam(c.Param("id"), "Invalid option item ID", "Invalid option item ID")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())

@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -50,7 +50,7 @@ func NewRestaurantHandler(
 // @Success 200 {object} app.CreateRestaurantSuccessResponseDoc "Create restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/restaurants [post]
-func (h *RestaurantHandler) Create(c echo.Context) error {
+func (h *RestaurantHandler) Create(c *echo.Context) error {
 	var in restaurantapp.CreateRestaurantRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
@@ -87,7 +87,7 @@ func (h *RestaurantHandler) Create(c echo.Context) error {
 // @Success 200 {object} app.GetRestaurantByIDSuccessResponseDoc "Get restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/restaurants/{id} [get]
-func (h *RestaurantHandler) GetByID(c echo.Context) error {
+func (h *RestaurantHandler) GetByID(c *echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
 		return response.Error(c, http.StatusBadRequest, "Missing restaurant id")
@@ -117,7 +117,7 @@ func (h *RestaurantHandler) GetByID(c echo.Context) error {
 // @Success 200 {object} app.UpdateRestaurantSuccessResponseDoc "Update restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/restaurants/{id} [put]
-func (h *RestaurantHandler) Update(c echo.Context) error {
+func (h *RestaurantHandler) Update(c *echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
 		return response.Error(c, http.StatusBadRequest, "Missing restaurant id")
@@ -163,7 +163,7 @@ func (h *RestaurantHandler) Update(c echo.Context) error {
 // @Success 200 {object} app.DeleteRestaurantSuccessResponseDoc "Restaurant deleted successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/restaurants/{id} [delete]
-func (h *RestaurantHandler) Delete(c echo.Context) error {
+func (h *RestaurantHandler) Delete(c *echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
 		return response.Error(c, http.StatusBadRequest, "Missing restaurant id")
@@ -204,7 +204,7 @@ func (h *RestaurantHandler) Delete(c echo.Context) error {
 // @Success      200 {array} app.GetComboboxRestaurantSuccessResponseDoc "Get restaurant combobox successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router       /api/restaurants/combobox [get]
-func (h *RestaurantHandler) GetCombobox(c echo.Context) error {
+func (h *RestaurantHandler) GetCombobox(c *echo.Context) error {
 	userID := c.Get("user_id")
 	if userID == nil {
 		return response.Error(c, http.StatusUnauthorized, "Unauthorized")

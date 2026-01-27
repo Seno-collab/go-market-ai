@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type ResponseDTO[T any] struct {
@@ -28,7 +28,7 @@ type SuccessBaseDoc struct {
 	ResponseCode string `json:"response_code,omitempty"`
 }
 
-func Success[T any](ctx echo.Context, data T, message string) error {
+func Success[T any](ctx *echo.Context, data T, message string) error {
 	setJSON(ctx)
 	resp := &ResponseDTO[T]{
 		Data:         data,
@@ -38,7 +38,7 @@ func Success[T any](ctx echo.Context, data T, message string) error {
 	return ctx.JSON(http.StatusOK, resp)
 }
 
-func SuccessWithStatus[T any](ctx echo.Context, statusCode int, data T, message string) error {
+func SuccessWithStatus[T any](ctx *echo.Context, statusCode int, data T, message string) error {
 	setJSON(ctx)
 	resp := &ResponseDTO[T]{
 		Data:         data,
@@ -48,7 +48,7 @@ func SuccessWithStatus[T any](ctx echo.Context, statusCode int, data T, message 
 	return ctx.JSON(statusCode, resp)
 }
 
-func Error(ctx echo.Context, code int, msg string) error {
+func Error(ctx *echo.Context, code int, msg string) error {
 	setJSON(ctx)
 	resp := &ResponseDTO[any]{
 		Message:      msg,
@@ -57,7 +57,7 @@ func Error(ctx echo.Context, code int, msg string) error {
 	return ctx.JSON(code, resp)
 }
 
-func setJSON(ctx echo.Context) {
+func setJSON(ctx *echo.Context) {
 	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 }
 

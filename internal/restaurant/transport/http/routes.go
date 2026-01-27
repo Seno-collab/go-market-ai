@@ -4,7 +4,7 @@ import (
 	"go-ai/internal/identity/domain/rbac"
 	middlewares "go-ai/internal/identity/transport/middlewares"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func RegisterRestaurantRoutes(api *echo.Group, h *RestaurantHandler, auth *middlewares.IdentityMiddleware, rbacSvc rbac.Service) {

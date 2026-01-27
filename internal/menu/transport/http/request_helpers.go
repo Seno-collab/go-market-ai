@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 const (
@@ -30,7 +30,7 @@ func parseRequiredIDParam(raw, missingMsg, invalidMsg string) (int64, error) {
 	return id, nil
 }
 
-func getRestaurantID(c echo.Context) (int32, error) {
+func getRestaurantID(c *echo.Context) (int32, error) {
 	val := c.Request().Header.Get("X-Restaurant-Id")
 	if val == "" {
 		if ctxVal := c.Get("restaurant_id"); ctxVal != nil {

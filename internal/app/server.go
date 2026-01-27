@@ -14,12 +14,11 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/labstack/echo-contrib/prometheus"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo-contrib/echoprometheus"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
-	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type AppServer struct {
@@ -34,18 +33,17 @@ func NewServer() *echo.Echo {
 	e := echo.New()
 	logger := logger.NewLogger()
 
-	p := prometheus.NewPrometheus("echo", nil)
-	p.Use(e)
+	e.Use(echoprometheus.NewMiddleware("echo"))
+	e.GET("/metrics", echoprometheus.NewHandler())
 
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:3000", "http://157.66.218.138:3000"},
 		AllowMethods: []string{
-			echo.GET,
-			echo.PUT,
-			echo.PATCH,
-			echo.POST,
-			echo.DELETE,
+			http.MethodGet,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodPost,
+			http.MethodDelete,
 		},
 		AllowHeaders:     []string{"*"},
 		AllowCredentials: true,
@@ -94,8 +92,12 @@ func Run(e *echo.Echo) error {
 	BuildApp(e, pool, redisClient, cfg, log)
 	chServer := make(chan error, 1)
 	serverAddr := ":" + cfg.ServerPort
+	srv := &http.Server{
+		Addr:    serverAddr,
+		Handler: e,
+	}
 	go func() {
-		if err := e.Start(serverAddr); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatal().Err(err).Msg("Server startup failed")
 			chServer <- err
 		}
@@ -115,7 +117,7 @@ func Run(e *echo.Echo) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := e.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal().Err(err).Msg("Forced shutdown")
 	}
 

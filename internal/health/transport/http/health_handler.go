@@ -5,7 +5,7 @@ import (
 	"go-ai/internal/transport/response"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -29,7 +29,7 @@ func NewHealthHandler(checker *healthapp.CheckHealthUseCase, logger zerolog.Logg
 // @Success 200 {object} app.HealthSuccessResponseDoc "Service healthy"
 // @Failure 503 {object} app.HealthFailureResponseDoc "Service degraded or down"
 // @Router /api/health [get]
-func (h *HealthHandler) Health(c echo.Context) error {
+func (h *HealthHandler) Health(c *echo.Context) error {
 	result, ok := h.checker.Execute(c.Request().Context())
 
 	statusCode := http.StatusOK

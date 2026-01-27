@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -14,23 +14,27 @@ const maxLoggedBodyBytes = 2048
 
 func ResponseLoggerMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			start := time.Now()
 
-			res := c.Response()
+			resWriter := c.Response()
+			res, ok := resWriter.(*echo.Response)
+			if !ok {
+				return next(c)
+			}
 			req := c.Request()
 
 			logger := zerolog.Ctx(req.Context())
 
 			var responseBuf bytes.Buffer
-			origWriter := res.Writer
+			origWriter := res.ResponseWriter
 			respLogger := &responseCaptureWriter{
 				ResponseWriter: origWriter,
 				buf:            &responseBuf,
 			}
-			res.Writer = respLogger
+			res.ResponseWriter = respLogger
 			err := next(c)
-			res.Writer = origWriter
+			res.ResponseWriter = origWriter
 
 			latency := time.Since(start)
 			responseBody := formatBody(responseBuf.Bytes())

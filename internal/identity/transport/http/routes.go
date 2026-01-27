@@ -3,7 +3,7 @@ package identityhttp
 import (
 	middlewares "go-ai/internal/identity/transport/middlewares"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func RegisterIdentityRoutes(api *echo.Group, h *AuthHandler, m *middlewares.IdentityMiddleware) {

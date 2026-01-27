@@ -7,7 +7,7 @@ import (
 	"go-ai/internal/transport/response"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -62,7 +62,7 @@ func NewMenuItemHandler(
 // @Success 200 {object} app.CreateMenuItemSuccessResponseDoc "Create menu item success"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items [post]
-func (h *MenuItemHandler) Create(c echo.Context) error {
+func (h *MenuItemHandler) Create(c *echo.Context) error {
 	var in menuitemapp.CreateMenuItemRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
@@ -93,7 +93,7 @@ func (h *MenuItemHandler) Create(c echo.Context) error {
 // @Success 200 {object} app.GetMenuItemSuccessResponseDoc "Get menu item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items/{id} [get]
-func (h *MenuItemHandler) Get(c echo.Context) error {
+func (h *MenuItemHandler) Get(c *echo.Context) error {
 	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingMenuItemID, errInvalidMenuItemIDFormat)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -121,7 +121,7 @@ func (h *MenuItemHandler) Get(c echo.Context) error {
 // @Success 200 {object} app.GetMenuItemSuccessResponseDoc "Get menu item with options successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items/{id}/detail [get]
-func (h *MenuItemHandler) GetDetail(c echo.Context) error {
+func (h *MenuItemHandler) GetDetail(c *echo.Context) error {
 	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingMenuItemID, errInvalidMenuItemIDFormat)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -150,7 +150,7 @@ func (h *MenuItemHandler) GetDetail(c echo.Context) error {
 // @Success 200 {object} app.UpdateMenuItemSuccessResponseDoc "Update menu item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items/{id} [patch]
-func (h *MenuItemHandler) Update(c echo.Context) error {
+func (h *MenuItemHandler) Update(c *echo.Context) error {
 	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingMenuItemID, errInvalidMenuItemIDFormat)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -182,7 +182,7 @@ func (h *MenuItemHandler) Update(c echo.Context) error {
 // @Success 200 {object} app.DeleteMenuItemSuccessResponseDoc "Delete menu item successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items/{id} [delete]
-func (h *MenuItemHandler) Delete(c echo.Context) error {
+func (h *MenuItemHandler) Delete(c *echo.Context) error {
 	idInt64, err := parseRequiredIDParam(c.Param("id"), errMissingMenuItemID, errInvalidMenuItemIDFormat)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -210,7 +210,7 @@ func (h *MenuItemHandler) Delete(c echo.Context) error {
 // @Success 200 {object} app.GetMenuItemsByRestaurantSuccessResponseDoc "Get menu items by restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items/search [post]
-func (h *MenuItemHandler) Search(c echo.Context) error {
+func (h *MenuItemHandler) Search(c *echo.Context) error {
 	var in menuitemapp.GetMenuItemsRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
@@ -239,7 +239,7 @@ func (h *MenuItemHandler) Search(c echo.Context) error {
 // @Success 200 {object} app.UpdateMenuItemStatusSuccessResponseDoc "Update menu item status successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/items/{id}/status [patch]
-func (h *MenuItemHandler) UpdateStatus(c echo.Context) error {
+func (h *MenuItemHandler) UpdateStatus(c *echo.Context) error {
 	var in menuitemapp.UpdateMenuItemStatusRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)

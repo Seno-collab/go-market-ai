@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -52,7 +52,7 @@ func NewTopicHandler(
 // @Success      200   {object}  app.CreateTopicSuccessResponseDoc  "Create topic success"
 // @Failure      default {object} response.ErrorDoc                "Errors"
 // @Router       /api/menu/topics [post]
-func (h *TopicHandler) Create(c echo.Context) error {
+func (h *TopicHandler) Create(c *echo.Context) error {
 	var in topicapp.CreateTopicRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
@@ -80,7 +80,7 @@ func (h *TopicHandler) Create(c echo.Context) error {
 // @Success 200 {object} app.GetTopicSuccessResponseDoc "Get topic successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/topics/{id} [get]
-func (h *TopicHandler) Get(c echo.Context) error {
+func (h *TopicHandler) Get(c *echo.Context) error {
 	idInt64, err := parseRequiredIDParam(c.Param("id"), "Missing topic ID", "Invalid topic ID format")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -109,7 +109,7 @@ func (h *TopicHandler) Get(c echo.Context) error {
 // @Success 200 {object} app.UpdateTopicSuccessResponseDoc "Update topic successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/topics/{id} [put]
-func (h *TopicHandler) Update(c echo.Context) error {
+func (h *TopicHandler) Update(c *echo.Context) error {
 	idInt64, err := parseRequiredIDParam(c.Param("id"), "Missing topic ID", "Invalid topic ID format")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -142,7 +142,7 @@ func (h *TopicHandler) Update(c echo.Context) error {
 // @Success 200 {object} app.GetTopicsByRestaurantSuccessResponseDoc "Get topics by restaurant successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/topics/search [get]
-func (h *TopicHandler) GetTopics(c echo.Context) error {
+func (h *TopicHandler) GetTopics(c *echo.Context) error {
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)
@@ -183,7 +183,7 @@ func (h *TopicHandler) GetTopics(c echo.Context) error {
 // @Success 200 {object} app.DeleteTopicSuccessResponseDoc "Delete topic successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/topics/{id} [delete]
-func (h *TopicHandler) Delete(c echo.Context) error {
+func (h *TopicHandler) Delete(c *echo.Context) error {
 	idInt64, err := parseRequiredIDParam(c.Param("id"), "Missing topic ID", "Invalid topic ID format")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -209,7 +209,7 @@ func (h *TopicHandler) Delete(c echo.Context) error {
 // @Success 200 {array} app.GetTopicsByRestaurantComboboxSuccessResponseDoc "Get topic combobox successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/topics/combobox [get]
-func (h *TopicHandler) GetCombobox(c echo.Context) error {
+func (h *TopicHandler) GetCombobox(c *echo.Context) error {
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)

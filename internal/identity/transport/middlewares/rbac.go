@@ -6,12 +6,12 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func RequirePermission(s rbac.Service, perm string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			userId := c.Get("user_id")
 			if userId == nil {
 				return response.Error(c, http.StatusUnauthorized, "Unauthorized")

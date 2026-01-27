@@ -5,7 +5,7 @@ import (
 	"go-ai/internal/transport/response"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -48,7 +48,7 @@ func NewOptionGroupHandler(
 // @Success 200 {object} app.CreateOptionGroupSuccessResponseDoc "Create option group successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group [post]
-func (h *OptionGroupHandler) Create(c echo.Context) error {
+func (h *OptionGroupHandler) Create(c *echo.Context) error {
 	var req optiongroupapp.CreateOptionGroupRequest
 	if err := c.Bind(&req); err != nil {
 		return response.Error(c, http.StatusBadRequest, errInvalidRequestPayload)
@@ -76,7 +76,7 @@ func (h *OptionGroupHandler) Create(c echo.Context) error {
 // @Success 200 {object} app.GetOptionGroupSuccessResponseDoc "Get option group successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group/{id} [get]
-func (h *OptionGroupHandler) Get(c echo.Context) error {
+func (h *OptionGroupHandler) Get(c *echo.Context) error {
 	id, err := parseRequiredIDParam(c.Param("id"), errInvalidOptionGroupID, errInvalidOptionGroupID)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -104,7 +104,7 @@ func (h *OptionGroupHandler) Get(c echo.Context) error {
 // @Success 200 {object} app.GetOptionGroupsSuccessResponseDoc "Get option groups successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/item/{id}/option-groups [get]
-func (h *OptionGroupHandler) GetByMenuItem(c echo.Context) error {
+func (h *OptionGroupHandler) GetByMenuItem(c *echo.Context) error {
 	menuItemID, err := parseRequiredIDParam(c.Param("id"), "Invalid menu item ID", "Invalid menu item ID")
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -133,7 +133,7 @@ func (h *OptionGroupHandler) GetByMenuItem(c echo.Context) error {
 // @Success 200 {object} app.UpdateOptionGroupSuccessResponseDoc "Update option group successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group/{id} [put]
-func (h *OptionGroupHandler) Update(c echo.Context) error {
+func (h *OptionGroupHandler) Update(c *echo.Context) error {
 	id, err := parseRequiredIDParam(c.Param("id"), errInvalidOptionGroupID, errInvalidOptionGroupID)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -164,7 +164,7 @@ func (h *OptionGroupHandler) Update(c echo.Context) error {
 // @Success 200 {object} app.DeleteOptionGroupSuccessResponseDoc "Delete option group successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/menu/option-group/{id} [delete]
-func (h *OptionGroupHandler) Delete(c echo.Context) error {
+func (h *OptionGroupHandler) Delete(c *echo.Context) error {
 	id, err := parseRequiredIDParam(c.Param("id"), errInvalidOptionGroupID, errInvalidOptionGroupID)
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())

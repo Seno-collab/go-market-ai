@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -39,7 +39,7 @@ func NewUploadHandler(mc *storage.MinioClient, logger zerolog.Logger) *UpLoadHan
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/upload/logo [post]
 func (h *UpLoadHandler) UploadLogoHandler() echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c *echo.Context) error {
 		fileHeader, err := c.FormFile("logo")
 		if err != nil {
 			h.Logger.Error().Err(err).Msg("Upload logo: missing file")

@@ -9,7 +9,7 @@ import (
 	"go-ai/internal/menu/domain"
 	"go-ai/internal/transport/response"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -45,7 +45,7 @@ func NewMenuHandler(listUseCase *menuapp.ListMenusUseCase, logger zerolog.Logger
 // @Success      200 {object} menuapp.ListMenusResponse "Menus page"
 // @Failure      default {object} response.ErrorDoc "Errors"
 // @Router       /api/menus [get]
-func (h *MenuHandler) ListMenus(c echo.Context) error {
+func (h *MenuHandler) ListMenus(c *echo.Context) error {
 	restaurantID, err := getRestaurantID(c)
 	if err != nil {
 		h.Logger.Error().Err(err).Msg(logInvalidRestaurantID)

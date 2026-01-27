@@ -3,7 +3,7 @@ package uploadhttp
 import (
 	middlewares "go-ai/internal/identity/transport/middlewares"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func RegisterMediaRoutes(api *echo.Group, h *UpLoadHandler, auth *middlewares.IdentityMiddleware) {

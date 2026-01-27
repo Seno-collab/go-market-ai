@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/rs/zerolog"
 )
 
@@ -54,7 +54,7 @@ func NewAuthHandler(
 // @Success 200 {object} app.RegisterSuccessResponseDoc "User created successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/register [post]
-func (h *AuthHandler) Register(c echo.Context) error {
+func (h *AuthHandler) Register(c *echo.Context) error {
 	var in authapp.RegisterRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
@@ -79,7 +79,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 // @Success 200 {object} app.LoginSuccessResponseDoc "Login successful"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/login [post]
-func (h *AuthHandler) Login(c echo.Context) error {
+func (h *AuthHandler) Login(c *echo.Context) error {
 	var in authapp.LoginRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
@@ -109,7 +109,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 // @Success 200 {object} app.RefreshTokenSuccessResponseDoc "Token refreshed successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/refresh-token [post]
-func (h *AuthHandler) RefreshToken(c echo.Context) error {
+func (h *AuthHandler) RefreshToken(c *echo.Context) error {
 	var in authapp.RefreshTokenRequest
 	if err := c.Bind(&in); err != nil {
 		h.Logger.Error().Err(err).Msg("Bind json")
@@ -135,7 +135,7 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 // @Success 200 {object} app.GetProfileSuccessResponseDoc "Profile retrieved successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/profile [get]
-func (h *AuthHandler) GetProfile(c echo.Context) error {
+func (h *AuthHandler) GetProfile(c *echo.Context) error {
 	userID := c.Get("user_id")
 	if userID == nil {
 		return response.Error(c, http.StatusUnauthorized, "Unauthorized")
@@ -172,7 +172,7 @@ func (h *AuthHandler) GetProfile(c echo.Context) error {
 // @Success 200 {object} app.UpdateProfileSuccessResponseDoc "Profile updated successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/profile [patch]
-func (h *AuthHandler) UpdateProfile(c echo.Context) error {
+func (h *AuthHandler) UpdateProfile(c *echo.Context) error {
 	var in authapp.UpdateProfileRequest
 	if err := c.Bind(&in); err != nil {
 		return response.Error(c, http.StatusBadRequest, "Invalid request payload")
@@ -206,7 +206,7 @@ func (h *AuthHandler) UpdateProfile(c echo.Context) error {
 // @Success 200 {object} app.ChangePasswordSuccessResponseDoc "Password changed successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/change-password [patch]
-func (h *AuthHandler) ChangePassword(c echo.Context) error {
+func (h *AuthHandler) ChangePassword(c *echo.Context) error {
 	var in authapp.ChangePasswordRequest
 	if err := c.Bind(&in); err != nil {
 		h.Logger.Error().Err(err).Msg("Bind json")
@@ -240,7 +240,7 @@ func (h *AuthHandler) ChangePassword(c echo.Context) error {
 // @Success 200 {object} app.LogoutSuccessResponseDoc "Successfully logged out"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/logout [post]
-func (h *AuthHandler) Logout(c echo.Context) error {
+func (h *AuthHandler) Logout(c *echo.Context) error {
 	userID := c.Get("user_id")
 	if userID == nil {
 		return response.Error(c, http.StatusUnauthorized, "Unauthorized")
