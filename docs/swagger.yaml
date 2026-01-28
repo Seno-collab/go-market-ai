@@ -3,14 +3,10 @@ definitions:
     properties:
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.CreateMenuItemSuccessResponseDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.CreateOptionGroupSuccessResponseDoc:
@@ -19,16 +15,12 @@ definitions:
         $ref: '#/definitions/optiongroupapp.CreateOptionGroupResponse'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.CreateOptionItemSuccessResponseDoc:
     properties:
       data:
         $ref: '#/definitions/optionitemapp.CreateOptionItemResponse'
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.CreateRestaurantSuccessResponseDoc:
@@ -37,49 +29,35 @@ definitions:
         $ref: '#/definitions/restaurantapp.CreateRestaurantResponse'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.CreateTopicSuccessResponseDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.DeleteMenuItemSuccessResponseDoc:
     properties:
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.DeleteOptionGroupSuccessResponseDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.DeleteOptionItemSuccessResponseDoc:
     properties:
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.DeleteRestaurantSuccessResponseDoc:
     properties:
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.DeleteTopicSuccessResponseDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.GetComboboxRestaurantSuccessResponseDoc:
@@ -90,16 +68,12 @@ definitions:
         type: array
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.GetMenuItemSuccessResponseDoc:
     properties:
       data:
         $ref: '#/definitions/menuitemapp.GetMenuItemResponse'
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.GetMenuItemsByRestaurantResponseDoc:
@@ -127,16 +101,12 @@ definitions:
         $ref: '#/definitions/app.GetMenuItemsByRestaurantResponseDoc'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.GetOptionGroupSuccessResponseDoc:
     properties:
       data:
         $ref: '#/definitions/optiongroupapp.GetOptionGroupResponse'
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.GetOptionGroupsSuccessResponseDoc:
@@ -145,16 +115,12 @@ definitions:
         $ref: '#/definitions/optiongroupapp.GetOptionGroupsResponse'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.GetOptionItemSuccessResponseDoc:
     properties:
       data:
         $ref: '#/definitions/optionitemapp.GetOptionItemResponse'
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.GetOptionItemsResponseDoc:
@@ -180,16 +146,12 @@ definitions:
         $ref: '#/definitions/app.GetOptionItemsResponseDoc'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.GetProfileSuccessResponseDoc:
     properties:
       data:
         $ref: '#/definitions/authapp.GetProfileResponse'
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.GetRestaurantByIDSuccessResponseDoc:
@@ -198,14 +160,10 @@ definitions:
         $ref: '#/definitions/restaurantapp.GetRestaurantByIDResponse'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.GetTopicSuccessResponseDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.GetTopicsByRestaurantComboboxSuccessResponseDoc:
@@ -215,8 +173,6 @@ definitions:
           $ref: '#/definitions/response.Combobox'
         type: array
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.GetTopicsByRestaurantResponseDoc:
@@ -244,16 +200,12 @@ definitions:
         $ref: '#/definitions/app.GetTopicsByRestaurantResponseDoc'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.HealthFailureResponseDoc:
     properties:
       data:
         $ref: '#/definitions/healthapp.HealthResponse'
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.HealthSuccessResponseDoc:
@@ -262,8 +214,6 @@ definitions:
         $ref: '#/definitions/healthapp.HealthResponse'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.LoginSuccessResponseDoc:
     properties:
@@ -271,14 +221,10 @@ definitions:
         $ref: '#/definitions/authapp.LoginResponse'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.LogoutSuccessResponseDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.RefreshTokenSuccessResponseDoc:
@@ -287,8 +233,6 @@ definitions:
         $ref: '#/definitions/authapp.RefreshTokenResponse'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.RegisterSuccessResponseDoc:
     properties:
@@ -296,35 +240,25 @@ definitions:
         $ref: '#/definitions/authapp.RegisterSuccess'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.UpdateMenuItemStatusSuccessResponseDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.UpdateMenuItemSuccessResponseDoc:
     properties:
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.UpdateOptionGroupSuccessResponseDoc:
     properties:
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.UpdateOptionItemSuccessResponseDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.UpdateProfileSuccessResponseDoc:
@@ -333,21 +267,15 @@ definitions:
         $ref: '#/definitions/authapp.GetProfileResponse'
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.UpdateRestaurantSuccessResponseDoc:
     properties:
       message:
         type: string
-      response_code:
-        type: string
     type: object
   app.UpdateTopicSuccessResponseDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   app.UploadLogoSuccessResponseDoc:
@@ -355,8 +283,6 @@ definitions:
       data:
         $ref: '#/definitions/uploadapp.UploadLogoResponse'
       message:
-        type: string
-      response_code:
         type: string
     type: object
   authapp.ChangePasswordRequest:
@@ -707,8 +633,6 @@ definitions:
   response.ErrorDoc:
     properties:
       message:
-        type: string
-      response_code:
         type: string
     type: object
   restaurant.DayOfWeek:

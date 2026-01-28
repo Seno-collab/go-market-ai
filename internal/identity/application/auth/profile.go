@@ -25,8 +25,8 @@ func NewGetProfileUseCase(repo auth.Repository, cache *cache.AuthCache) *GetProf
 }
 
 func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*GetProfileResponse, error) {
-	keyAuth := fmt.Sprintf("profile_%s", userID.String())
-	cacheData, err := uc.Cache.GetAuthCache(ctx, keyAuth)
+	sessionKey := fmt.Sprintf("session_%s", userID.String())
+	cacheData, err := uc.Cache.GetAuthCache(ctx, sessionKey)
 	if err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
@@ -43,7 +43,7 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 			IsActive: record.IsActive,
 			ImageUrl: record.ImageUrl,
 		}
-		authData := &cache.AuthData{
+		authData := &cache.UserCache{
 			UserID:   userID,
 			Email:    record.Email.String(),
 			FullName: record.FullName,
@@ -51,7 +51,7 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 			IsActive: record.IsActive,
 			ImageUrl: record.ImageUrl,
 		}
-		uc.Cache.SetAuthCache(ctx, keyAuth, authData, time.Duration(60*int(time.Minute)))
+		uc.Cache.SetAuthCache(ctx, sessionKey, authData, time.Duration(60*int(time.Minute)))
 		return profile, nil
 	}
 	profile = &GetProfileResponse{

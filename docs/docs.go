@@ -1523,9 +1523,6 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1533,9 +1530,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1548,9 +1542,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1561,9 +1552,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/optionitemapp.CreateOptionItemResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1576,9 +1564,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1586,9 +1571,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1598,9 +1580,6 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1608,9 +1587,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1620,9 +1596,6 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1631,9 +1604,6 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1641,9 +1611,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1659,9 +1626,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1672,9 +1636,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/menuitemapp.GetMenuItemResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1714,9 +1675,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1727,9 +1685,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/optiongroupapp.GetOptionGroupResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1742,9 +1697,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1755,9 +1707,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/optionitemapp.GetOptionItemResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1794,9 +1743,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1807,9 +1753,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/authapp.GetProfileResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1822,9 +1765,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1832,9 +1772,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1849,9 +1786,6 @@ const docTemplate = `{
                     }
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1891,9 +1825,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1904,9 +1835,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/healthapp.HealthResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1919,9 +1847,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1933,9 +1858,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1943,9 +1865,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1958,9 +1877,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1972,9 +1888,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1982,9 +1895,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1994,9 +1904,6 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -2005,9 +1912,6 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -2015,9 +1919,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -2030,9 +1931,6 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -2041,9 +1939,6 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -2051,9 +1946,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -2065,9 +1957,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/uploadapp.UploadLogoResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -2597,9 +2486,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }

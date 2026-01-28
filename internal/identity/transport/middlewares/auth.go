@@ -51,13 +51,13 @@ func (m *IdentityMiddleware) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 		if sid == "" {
 			return response.Error(c, 401, "Unauthorized access")
 		}
-		keyAuth := fmt.Sprintf("profile_%s", sid)
-		authData, err := m.Cache.GetAuthCache(c.Request().Context(), keyAuth)
-		if err != nil || authData == nil {
+		keyAuth := fmt.Sprintf("session_%s", sid)
+		userData, err := m.Cache.GetAuthCache(c.Request().Context(), keyAuth)
+		if err != nil || userData == nil {
 			return response.Error(c, 401, "Unauthorized access")
 		}
-		c.Set("user_id", authData.UserID)
-		c.Set("role", authData.Role)
+		c.Set("user_id", userData.UserID)
+		c.Set("role", userData.Role)
 		return next(c)
 	}
 }

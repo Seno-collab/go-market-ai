@@ -1512,9 +1512,6 @@
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1522,9 +1519,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1537,9 +1531,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1550,9 +1541,6 @@
                     "$ref": "#/definitions/optionitemapp.CreateOptionItemResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1565,9 +1553,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1575,9 +1560,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1587,9 +1569,6 @@
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1597,9 +1576,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1609,9 +1585,6 @@
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1620,9 +1593,6 @@
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1630,9 +1600,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1648,9 +1615,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1661,9 +1625,6 @@
                     "$ref": "#/definitions/menuitemapp.GetMenuItemResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1703,9 +1664,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1716,9 +1674,6 @@
                     "$ref": "#/definitions/optiongroupapp.GetOptionGroupResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1731,9 +1686,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1744,9 +1696,6 @@
                     "$ref": "#/definitions/optionitemapp.GetOptionItemResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1783,9 +1732,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1796,9 +1742,6 @@
                     "$ref": "#/definitions/authapp.GetProfileResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1811,9 +1754,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1821,9 +1761,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1838,9 +1775,6 @@
                     }
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1880,9 +1814,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1893,9 +1824,6 @@
                     "$ref": "#/definitions/healthapp.HealthResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1908,9 +1836,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1922,9 +1847,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1932,9 +1854,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1947,9 +1866,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1961,9 +1877,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1971,9 +1884,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -1983,9 +1893,6 @@
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -1994,9 +1901,6 @@
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -2004,9 +1908,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -2019,9 +1920,6 @@
                 },
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -2030,9 +1928,6 @@
             "properties": {
                 "message": {
                     "type": "string"
-                },
-                "response_code": {
-                    "type": "string"
                 }
             }
         },
@@ -2040,9 +1935,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -2054,9 +1946,6 @@
                     "$ref": "#/definitions/uploadapp.UploadLogoResponse"
                 },
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }
@@ -2586,9 +2475,6 @@
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                },
-                "response_code": {
                     "type": "string"
                 }
             }

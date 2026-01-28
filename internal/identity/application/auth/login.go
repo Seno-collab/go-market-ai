@@ -51,7 +51,7 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
-	dataCache := &cache.AuthData{
+	dataCache := &cache.UserCache{
 		UserID:   storedUser.ID,
 		Role:     storedUser.Role,
 		Email:    storedUser.Email.String(),
@@ -59,7 +59,7 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 		FullName: storedUser.FullName,
 		ImageUrl: storedUser.ImageUrl,
 	}
-	keyAuthCache := fmt.Sprintf("profile_%s", sid)
+	keyAuthCache := fmt.Sprintf("session_%s", sid)
 	if err := s.Cache.SetAuthCache(ctx, keyAuthCache, dataCache, time.Duration(s.Config.JwtExpiresIn*int(time.Minute))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}

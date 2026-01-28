@@ -41,8 +41,8 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	if cachedRefreshToken != request.RefreshToken {
 		return nil, auth.ErrTokenMalformed
 	}
-	keyAuthCache := fmt.Sprintf("profile_%s", claims.Sid)
-	authData, err := uc.Cache.GetAuthCache(ctx, keyAuthCache)
+	sessionKey := fmt.Sprintf("session_%s", claims.Sid)
+	authData, err := uc.Cache.GetAuthCache(ctx, sessionKey)
 	record, err := uc.Repo.GetByEmail(ctx, authData.Email)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
-	dataCache := &cache.AuthData{
+	dataCache := &cache.UserCache{
 		UserID:   record.ID,
 		Role:     record.Role,
 		Email:    record.Email.String(),
@@ -67,7 +67,7 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 		FullName: record.FullName,
 		ImageUrl: record.ImageUrl,
 	}
-	if err := uc.Cache.SetAuthCache(ctx, keyAuthCache, dataCache, time.Duration(uc.Config.JwtExpiresIn*int(time.Second))); err != nil {
+	if err := uc.Cache.SetAuthCache(ctx, sessionKey, dataCache, time.Duration(uc.Config.JwtExpiresIn*int(time.Second))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
 	if err := uc.Cache.SetRefreshTokenCache(ctx, keyRefreshToken, refreshToken, time.Duration(uc.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {

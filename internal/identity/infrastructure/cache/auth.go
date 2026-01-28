@@ -9,7 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type AuthData struct {
+type UserCache struct {
 	UserID   uuid.UUID
 	Email    string
 	FullName string
@@ -28,7 +28,7 @@ func NewAuthCache(redis *redis.Client) *AuthCache {
 	}
 }
 
-func (authCache *AuthCache) GetAuthCache(ctx context.Context, key string) (*AuthData, error) {
+func (authCache *AuthCache) GetAuthCache(ctx context.Context, key string) (*UserCache, error) {
 	val, err := authCache.Redis.Get(ctx, key).Result()
 	if err == redis.Nil {
 		return nil, nil
@@ -36,14 +36,14 @@ func (authCache *AuthCache) GetAuthCache(ctx context.Context, key string) (*Auth
 	if err != nil {
 		return nil, err
 	}
-	authData := &AuthData{}
+	authData := &UserCache{}
 	if err := json.Unmarshal([]byte(val), authData); err != nil {
 		return nil, err
 	}
 	return authData, nil
 }
 
-func (authCache *AuthCache) SetAuthCache(ctx context.Context, key string, value *AuthData, ttl time.Duration) error {
+func (authCache *AuthCache) SetAuthCache(ctx context.Context, key string, value *UserCache, ttl time.Duration) error {
 	b, err := json.Marshal(value)
 	if err != nil {
 		return err
