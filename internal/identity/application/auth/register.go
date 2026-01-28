@@ -28,6 +28,11 @@ func NewRegisterUseCase(repo auth.Repository, cache *cache.AuthCache) *RegisterU
 
 func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) (uuid.UUID, error) {
 
+	email, err := utils.NewEmail(request.Email)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
 	// unique email
 	record, err := s.Repo.GetByEmail(ctx, request.Email)
 	if err != nil {
@@ -36,7 +41,7 @@ func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) 
 		}
 	}
 	if record != nil {
-		return uuid.Nil, auth.ErrUserAlreadyExists
+		return uuid.Nil, auth.ErrEmailAlreadyExists
 	}
 	record, err = s.Repo.GetByName(ctx, request.FullName)
 	if err != nil {
@@ -46,10 +51,6 @@ func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) 
 	}
 	if record != nil {
 		return uuid.Nil, auth.ErrNameAlreadyExists
-	}
-	email, err := utils.NewEmail(request.Email)
-	if err != nil {
-		return uuid.Nil, err
 	}
 
 	rawPassword, err := auth.NewPassword(request.Password)

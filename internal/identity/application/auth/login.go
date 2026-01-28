@@ -42,11 +42,12 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 	if !security.CheckPasswordHash(req.Password, storedUser.Password.String()) {
 		return nil, auth.ErrInvalidCredentials
 	}
-	accessToken, err := security.GenerateToken(storedUser.ID, storedUser.Email.String(), s.Config.JwtAccessSecret, s.Config.JwtExpiresIn)
+	sid := security.GenerateKey()
+	accessToken, err := security.GenerateToken(sid, s.Config.JwtAccessSecret, s.Config.JwtExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
-	refreshToken, err := security.GenerateToken(storedUser.ID, storedUser.Email.String(), s.Config.JwtRefreshSecret, s.Config.JwtRefreshExpiresIn)
+	refreshToken, err := security.GenerateToken(sid, s.Config.JwtRefreshSecret, s.Config.JwtRefreshExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
@@ -58,11 +59,11 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 		FullName: storedUser.FullName,
 		ImageUrl: storedUser.ImageUrl,
 	}
-	keyAuthCache := fmt.Sprintf("profile_%s", storedUser.ID.String())
-	if err := s.Cache.SetAuthCache(ctx, keyAuthCache, dataCache, time.Duration(s.Config.JwtExpiresIn*int(time.Second))); err != nil {
+	keyAuthCache := fmt.Sprintf("profile_%s", sid)
+	if err := s.Cache.SetAuthCache(ctx, keyAuthCache, dataCache, time.Duration(s.Config.JwtExpiresIn*int(time.Minute))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
-	keyRefreshToken := fmt.Sprintf("refresh_token_%s", storedUser.ID.String())
+	keyRefreshToken := fmt.Sprintf("refresh_token_%s", sid)
 	if err := s.Cache.SetRefreshTokenCache(ctx, keyRefreshToken, refreshToken, time.Duration(s.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}

@@ -9,8 +9,6 @@ import (
 	"go-ai/internal/platform/security"
 	domainerr "go-ai/pkg/domain_err"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type RefreshTokenUseCase struct {
@@ -35,15 +33,7 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	if err != nil {
 		return nil, auth.ErrTokenNotActive
 	}
-	userID := claims.UserID
-	if userID == uuid.Nil {
-		return nil, auth.ErrTokenMissing
-	}
-	email := claims.Email
-	if email == "" {
-		return nil, auth.ErrTokenMissing
-	}
-	keyRefreshToken := fmt.Sprintf("refresh_token_%s", userID)
+	keyRefreshToken := fmt.Sprintf("refresh_token_%s", claims.Sid)
 	cachedRefreshToken, err := uc.Cache.GetRefreshTokenCache(ctx, keyRefreshToken)
 	if err != nil {
 		return nil, err
@@ -51,18 +41,21 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	if cachedRefreshToken != request.RefreshToken {
 		return nil, auth.ErrTokenMalformed
 	}
-	record, err := uc.Repo.GetByEmail(ctx, email)
+	keyAuthCache := fmt.Sprintf("profile_%s", claims.Sid)
+	authData, err := uc.Cache.GetAuthCache(ctx, keyAuthCache)
+	record, err := uc.Repo.GetByEmail(ctx, authData.Email)
 	if err != nil {
 		return nil, err
 	}
 	if !record.IsActive {
 		return nil, auth.ErrUserInactive
 	}
-	accessToken, err := security.GenerateToken(userID, email, uc.Config.JwtAccessSecret, uc.Config.JwtExpiresIn)
+	sid := security.GenerateKey()
+	accessToken, err := security.GenerateToken(sid, uc.Config.JwtAccessSecret, uc.Config.JwtExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
-	refreshToken, err := security.GenerateToken(userID, email, uc.Config.JwtRefreshSecret, uc.Config.JwtRefreshExpiresIn)
+	refreshToken, err := security.GenerateToken(sid, uc.Config.JwtRefreshSecret, uc.Config.JwtRefreshExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
@@ -74,7 +67,6 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 		FullName: record.FullName,
 		ImageUrl: record.ImageUrl,
 	}
-	keyAuthCache := fmt.Sprintf("profile_%s", record.ID.String())
 	if err := uc.Cache.SetAuthCache(ctx, keyAuthCache, dataCache, time.Duration(uc.Config.JwtExpiresIn*int(time.Second))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}

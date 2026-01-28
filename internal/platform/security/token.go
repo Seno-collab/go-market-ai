@@ -1,26 +1,25 @@
 package security
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 )
 
 type JWTClaims struct {
-	UserID uuid.UUID `json:"user_id"`
-	Email  string    `json:"email"`
+	Sid string `json:"sid"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(userID uuid.UUID, email, key string, duration int) (string, error) {
+func GenerateToken(sid, key string, duration int) (string, error) {
 	if duration <= 0 {
 		duration = 60 // default to 60 seconds
 	}
 	expiresAt := time.Now().Add(time.Duration(duration) * time.Second)
 	claims := JWTClaims{
-		UserID: userID,
-		Email:  email,
+		Sid: sid,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "go-ai",
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -45,4 +44,10 @@ func VerifyToken(tokenString string, key string) (*JWTClaims, error) {
 		return claims, nil
 	}
 	return nil, jwt.ErrTokenInvalidClaims
+}
+
+func GenerateKey() string {
+	b := make([]byte, 32) // 256 bit
+	rand.Read(b)
+	return base64.RawURLEncoding.EncodeToString(b)
 }

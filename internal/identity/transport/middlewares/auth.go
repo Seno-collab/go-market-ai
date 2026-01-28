@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 )
 
@@ -48,16 +47,16 @@ func (m *IdentityMiddleware) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 		if time.Now().After(exp.Time) {
 			return response.Error(c, 401, "Token has expired")
 		}
-		userID := claims.UserID
-		if userID == uuid.Nil {
+		sid := claims.Sid
+		if sid == "" {
 			return response.Error(c, 401, "Unauthorized access")
 		}
-		keyAuth := fmt.Sprintf("profile_%s", userID)
+		keyAuth := fmt.Sprintf("profile_%s", sid)
 		authData, err := m.Cache.GetAuthCache(c.Request().Context(), keyAuth)
 		if err != nil || authData == nil {
 			return response.Error(c, 401, "Unauthorized access")
 		}
-		c.Set("user_id", userID)
+		c.Set("user_id", authData.UserID)
 		c.Set("role", authData.Role)
 		return next(c)
 	}
