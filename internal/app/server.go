@@ -8,6 +8,7 @@ import (
 	"go-ai/internal/transport/middlewares"
 	"go-ai/internal/transport/swagger"
 	"go-ai/pkg/logger"
+	"go-ai/pkg/metrics"
 	"net/http"
 	"os"
 	"os/signal"
@@ -32,9 +33,38 @@ type AppServer struct {
 	Logger zerolog.Logger
 }
 
+// ServerConfig holds configurable server settings
+type ServerConfig struct {
+	RateLimitRequests int
+	RateLimitBurst    int
+	RequestTimeout    time.Duration
+}
+
+// DefaultServerConfig returns default server configuration
+func DefaultServerConfig() ServerConfig {
+	return ServerConfig{
+		RateLimitRequests: 20,
+		RateLimitBurst:    50,
+		RequestTimeout:    30 * time.Second,
+	}
+}
+
+// ServerConfigFromConfig creates ServerConfig from application config
+func ServerConfigFromConfig(cfg *config.Config) ServerConfig {
+	return ServerConfig{
+		RateLimitRequests: cfg.RateLimitRequests,
+		RateLimitBurst:    cfg.RateLimitBurst,
+		RequestTimeout:    time.Duration(cfg.RequestTimeout) * time.Second,
+	}
+}
+
 func NewServer() *echo.Echo {
+	return NewServerWithConfig(DefaultServerConfig())
+}
+
+func NewServerWithConfig(srvCfg ServerConfig) *echo.Echo {
 	e := echo.New()
-	logger := logger.NewLogger()
+	log := logger.NewLogger()
 
 	e.Use(echoprometheus.NewMiddleware("echo"))
 	e.GET("/metrics", echoprometheus.NewHandler())
@@ -51,11 +81,22 @@ func NewServer() *echo.Echo {
 		AllowHeaders:     []string{"*"},
 		AllowCredentials: true,
 	}))
-	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
-	e.Use(middlewares.RequestIDMiddleware(logger))
-	e.Use(middleware.ContextTimeout(30 * time.Second))
+
+	// Configurable rate limiter with burst support
+	rateLimiterStore := middleware.NewRateLimiterMemoryStoreWithConfig(
+		middleware.RateLimiterMemoryStoreConfig{
+			Rate:      float64(srvCfg.RateLimitRequests),
+			Burst:     srvCfg.RateLimitBurst,
+			ExpiresIn: time.Minute,
+		},
+	)
+	e.Use(middleware.RateLimiter(rateLimiterStore))
+
+	e.Use(middlewares.RequestIDMiddleware(log))
+	e.Use(middlewares.MetricsMiddleware())
+	e.Use(middleware.ContextTimeout(srvCfg.RequestTimeout))
 	e.Use(middleware.Recover())
-	e.Use(middlewares.RequestLoggerMiddleware(logger))
+	e.Use(middlewares.RequestLoggerMiddleware(log))
 	e.Use(middlewares.ResponseLoggerMiddleware())
 
 	// Swagger UI
@@ -65,7 +106,6 @@ func NewServer() *echo.Echo {
 }
 
 func Run(e *echo.Echo) error {
-
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		return fmt.Errorf("load config failed: %w", err)
@@ -76,13 +116,18 @@ func Run(e *echo.Echo) error {
 		Str("environment", cfg.Environment).
 		Str("server_port", cfg.ServerPort).
 		Str("db_host", cfg.DBHost).
+		Int("db_max_conns", cfg.DBMaxConns).
+		Int("redis_pool_size", cfg.RedisPoolSize).
+		Int("rate_limit", cfg.RateLimitRequests).
 		Msg("Configuration loaded")
 
 	dsnPg := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName,
 	)
 
-	pool, err := container.ConnectPostgres(dsnPg)
+	// Connect to PostgreSQL with optimized pool settings
+	pgPoolCfg := container.PoolConfigFromConfig(cfg)
+	pool, err := container.ConnectPostgresWithConfig(dsnPg, pgPoolCfg)
 	if err != nil {
 		return fmt.Errorf("connect postgres failed: %w", err)
 	}
@@ -90,27 +135,42 @@ func Run(e *echo.Echo) error {
 	dsnRedis := fmt.Sprintf("redis://%s:%s@%s:%d/%d",
 		"", cfg.RedisPassword, cfg.RedisHost, cfg.RedisPort, cfg.RedisDB,
 	)
-	redisClient, err := container.ConnectRedis(dsnRedis)
+
+	// Connect to Redis with optimized pool settings
+	redisPoolCfg := container.RedisPoolConfigFromConfig(cfg)
+	redisClient, err := container.ConnectRedisWithConfig(dsnRedis, redisPoolCfg)
 	if err != nil {
 		return fmt.Errorf("connect redis failed: %w", err)
 	}
 
 	BuildApp(e, pool, redisClient, cfg, log)
+
+	// Start metrics collector for pool stats
+	metricsCollector := metrics.NewPoolMetricsCollector(pool, redisClient, log)
+	metricsCollector.Start(15 * time.Second)
+
 	chServer := make(chan error, 1)
 	serverAddr := ":" + cfg.ServerPort
 	srv := &http.Server{
-		Addr:    serverAddr,
-		Handler: e,
+		Addr:         serverAddr,
+		Handler:      e,
+		ReadTimeout:  time.Duration(cfg.RequestTimeout) * time.Second,
+		WriteTimeout: time.Duration(cfg.RequestTimeout) * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
+
 	go func() {
+		log.Info().Str("addr", serverAddr).Msg("Starting HTTP server")
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatal().Err(err).Msg("Server startup failed")
 			chServer <- err
 		}
 		close(chServer)
 	}()
+
 	ctxSignal, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
 	select {
 	case <-ctxSignal.Done():
 		log.Info().Str("signal", ctxSignal.Err().Error()).Msg("Server shutting down gracefully")
@@ -118,13 +178,31 @@ func Run(e *echo.Echo) error {
 		log.Error().Err(err).Msg("Server encountered an error")
 		return err
 	}
+
 	log.Info().Msg("Shutting down server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// Graceful shutdown with configurable timeout
+	shutdownTimeout := time.Duration(cfg.ShutdownTimeout) * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
+	// Shutdown HTTP server first
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal().Err(err).Msg("Forced shutdown")
+		log.Error().Err(err).Msg("HTTP server shutdown error")
+	}
+
+	// Stop metrics collector
+	log.Info().Msg("Stopping metrics collector...")
+	metricsCollector.Stop()
+
+	// Clean up database connections
+	log.Info().Msg("Closing database connections...")
+	pool.Close()
+
+	// Clean up Redis connections
+	log.Info().Msg("Closing Redis connections...")
+	if err := redisClient.Close(); err != nil {
+		log.Error().Err(err).Msg("Redis close error")
 	}
 
 	log.Info().Msg("Server exited gracefully")

@@ -37,6 +37,26 @@ type Config struct {
 	MinioSecretKey      string `mapstructure:"MINIO_SECRET_KEY"`
 	Bucket              string `mapstructure:"MINIO_BUCKET"`
 	MinioUseSSL         bool   `mapstructure:"MINIO_USE_SSL"`
+
+	// PostgreSQL Connection Pool Settings
+	DBMaxConns          int `mapstructure:"DB_MAX_CONNS"`
+	DBMinConns          int `mapstructure:"DB_MIN_CONNS"`
+	DBMaxConnLifetime   int `mapstructure:"DB_MAX_CONN_LIFETIME"`   // seconds
+	DBMaxConnIdleTime   int `mapstructure:"DB_MAX_CONN_IDLE_TIME"` // seconds
+	DBHealthCheckPeriod int `mapstructure:"DB_HEALTH_CHECK_PERIOD"` // seconds
+
+	// Redis Connection Pool Settings
+	RedisPoolSize     int `mapstructure:"REDIS_POOL_SIZE"`
+	RedisMinIdleConns int `mapstructure:"REDIS_MIN_IDLE_CONNS"`
+	RedisMaxRetries   int `mapstructure:"REDIS_MAX_RETRIES"`
+
+	// Rate Limiting Settings
+	RateLimitRequests int `mapstructure:"RATE_LIMIT_REQUESTS"` // requests per second
+	RateLimitBurst    int `mapstructure:"RATE_LIMIT_BURST"`    // burst size
+
+	// Timeout Settings
+	RequestTimeout  int `mapstructure:"REQUEST_TIMEOUT"`  // seconds
+	ShutdownTimeout int `mapstructure:"SHUTDOWN_TIMEOUT"` // seconds
 }
 
 func LoadConfig() (*Config, error) {
@@ -117,6 +137,26 @@ func setDefaults() {
 	viper.SetDefault("MINIO_SECRET_KEY", "minioadmin")
 	viper.SetDefault("MINIO_USE_SSL", false)
 	viper.SetDefault("MINIO_BUCKET", "uploads")
+
+	// PostgreSQL Connection Pool defaults
+	viper.SetDefault("DB_MAX_CONNS", 25)
+	viper.SetDefault("DB_MIN_CONNS", 5)
+	viper.SetDefault("DB_MAX_CONN_LIFETIME", 3600)   // 1 hour
+	viper.SetDefault("DB_MAX_CONN_IDLE_TIME", 300)   // 5 minutes
+	viper.SetDefault("DB_HEALTH_CHECK_PERIOD", 30)   // 30 seconds
+
+	// Redis Connection Pool defaults
+	viper.SetDefault("REDIS_POOL_SIZE", 10)
+	viper.SetDefault("REDIS_MIN_IDLE_CONNS", 5)
+	viper.SetDefault("REDIS_MAX_RETRIES", 3)
+
+	// Rate Limiting defaults
+	viper.SetDefault("RATE_LIMIT_REQUESTS", 20)
+	viper.SetDefault("RATE_LIMIT_BURST", 50)
+
+	// Timeout defaults
+	viper.SetDefault("REQUEST_TIMEOUT", 30)
+	viper.SetDefault("SHUTDOWN_TIMEOUT", 10)
 }
 
 // GetString returns a string value from config
