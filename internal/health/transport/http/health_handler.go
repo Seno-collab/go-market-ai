@@ -31,15 +31,9 @@ func NewHealthHandler(checker *healthapp.CheckHealthUseCase, logger zerolog.Logg
 // @Router /api/health [get]
 func (h *HealthHandler) Health(c *echo.Context) error {
 	result, ok := h.checker.Execute(c.Request().Context())
-
-	statusCode := http.StatusOK
-	message := "Service healthy"
-
 	if !ok || result.Status != healthapp.StatusUp {
-		statusCode = http.StatusServiceUnavailable
-		message = "Service degraded"
 		h.logger.Warn().Any("health", result).Msg("health check degraded")
+		return response.Error(c, http.StatusServiceUnavailable, "Service degraded")
 	}
-
-	return response.SuccessWithStatus(c, statusCode, result, message)
+	return response.Success(c, result, "Service healthy")
 }

@@ -33,15 +33,6 @@ func Success[T any](ctx *echo.Context, data T, message string) error {
 	return ctx.JSON(http.StatusOK, resp)
 }
 
-func SuccessWithStatus[T any](ctx *echo.Context, statusCode int, data T, message string) error {
-	setJSON(ctx)
-	resp := &ResponseDTO[T]{
-		Data:    &data,
-		Message: message,
-	}
-	return ctx.JSON(statusCode, resp)
-}
-
 func Error(ctx *echo.Context, code int, msg string) error {
 	setJSON(ctx)
 	resp := &ResponseDTO[any]{

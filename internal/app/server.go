@@ -6,12 +6,15 @@ import (
 	"go-ai/internal/container"
 	"go-ai/internal/platform/config"
 	"go-ai/internal/transport/middlewares"
+	"go-ai/internal/transport/swagger"
 	"go-ai/pkg/logger"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	_ "go-ai/docs"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo-contrib/echoprometheus"
@@ -54,6 +57,9 @@ func NewServer() *echo.Echo {
 	e.Use(middleware.Recover())
 	e.Use(middlewares.RequestLoggerMiddleware(logger))
 	e.Use(middlewares.ResponseLoggerMiddleware())
+
+	// Swagger UI
+	e.GET("/swagger/*", swagger.Handler(nil))
 
 	return e
 }
