@@ -21,7 +21,7 @@ func NewAuthRepo(pool *pgxpool.Pool) *AuthRepo {
 }
 
 func (au *AuthRepo) GetByEmail(ctx context.Context, email string) (*auth.Entity, error) {
-	u, err := au.queries.GetUserByEmail(ctx, &email)
+	u, err := au.queries.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, 
 	password := a.Password.String()
 
 	id, err := au.queries.CreateUser(ctx, sqlc.CreateUserParams{
-		Email:        &email,
+		Email:        email,
 		PasswordHash: password,
 		FullName:     a.FullName,
 	})
@@ -116,7 +116,7 @@ func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, er
 func (au *AuthRepo) ChangePassword(ctx context.Context, NewPasswordHash string, userID uuid.UUID) error {
 	return au.queries.UpdatePasswordByID(ctx, sqlc.UpdatePasswordByIDParams{
 		PasswordHash: NewPasswordHash,
-		ID:           userID,
+		UserID:       userID,
 	})
 }
 
@@ -132,10 +132,10 @@ func (au *AuthRepo) UpdateProfile(ctx context.Context, u *auth.Entity) error {
 	}
 	return au.queries.UpdateUser(ctx, sqlc.UpdateUserParams{
 		FullName:     u.FullName,
-		Email:        &email,
+		Email:        email,
 		PasswordHash: password,
-		ImageUrl:     &u.ImageUrl,
+		ImageUrl:     u.ImageUrl,
 		IsActive:     u.IsActive,
-		ID:           u.ID,
+		UserID:       u.ID,
 	})
 }

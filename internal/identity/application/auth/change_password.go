@@ -9,6 +9,12 @@ import (
 	"github.com/google/uuid"
 )
 
+type ChangePasswordRequest struct {
+	NewPassword     string `json:"new_password"`
+	OldPassword     string `json:"old_password"`
+	ConfirmPassword string `json:"confirm_password"`
+}
+
 type ChangePasswordUseCase struct {
 	Repo auth.Repository
 }

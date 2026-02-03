@@ -12,6 +12,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type GetProfileResponse struct {
+	Email    string `json:"email"`
+	FullName string `json:"full_name"`
+	Role     string `json:"role"`
+	IsActive bool   `json:"is_active"`
+	ImageUrl string `json:"image_url"`
+}
+
 type GetProfileUseCase struct {
 	Repo  auth.Repository
 	Cache *cache.AuthCache

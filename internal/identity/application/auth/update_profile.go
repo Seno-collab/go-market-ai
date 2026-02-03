@@ -14,6 +14,12 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+type UpdateProfileRequest struct {
+	Email    string `json:"email"`
+	FullName string `json:"full_name"`
+	ImageUrl string `json:"image_url"`
+}
+
 type UpdateProfileUseCase struct {
 	Repo  auth.Repository
 	Cache *cache.AuthCache

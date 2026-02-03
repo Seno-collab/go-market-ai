@@ -14,6 +14,12 @@ import (
 	"github.com/google/uuid"
 )
 
+type RegisterRequest struct {
+	Email    string `json:"email"`
+	FullName string `json:"full_name"`
+	Password string `json:"password"`
+}
+
 type RegisterUseCase struct {
 	Repo  auth.Repository
 	Cache *cache.AuthCache

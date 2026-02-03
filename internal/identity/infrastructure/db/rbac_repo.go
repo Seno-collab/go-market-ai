@@ -21,7 +21,7 @@ func NewRbacRepo(pool *pgxpool.Pool) *RbacRepo {
 
 func (ru *RbacRepo) GetUserRole(ctx context.Context, userID uuid.UUID) (rbac.UserRole, error) {
 	u, err := ru.q.GetUserRole(ctx, sqlc.GetUserRoleParams{
-		ID:       userID,
+		UserID:   userID,
 		IsActive: true,
 	})
 	if err != nil {

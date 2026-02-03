@@ -27,6 +27,17 @@ func NewLoginUseCase(repo auth.Repository, cache *cache.AuthCache, config *confi
 	}
 }
 
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpresIn     int    `json:"expires_in"`
+}
+
 func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginResponse, error) {
 	email, err := utils.NewEmail(req.Email)
 	if err != nil || email.String() == "" {

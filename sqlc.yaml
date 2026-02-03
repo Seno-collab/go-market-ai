@@ -3,10 +3,6 @@ version: "2"
 overrides:
   go:
     overrides:
-      - column: "restaurants.user_id"
-        go_type:
-          import: "github.com/google/uuid"
-          type: "UUID"
       - db_type: "uuid"
         go_type:
           import: "github.com/google/uuid"
@@ -26,25 +22,10 @@ overrides:
         go_type:
           type: "string"
 
-      - db_type: "menu_item_type"
-        go_type:
-          type: "string"
-
       - db_type: "pg_catalog.int4"
         nullable: true
         go_type:
           type: "int"
-
-      - db_type: "pg_catalog.time"
-        go_type:
-          type: "string"
-
-      - db_type: "time without time zone"
-        go_type:
-          type: "string"
-      - db_type: "time"
-        go_type:
-          type: "string"
 
 sql:
   - schema: "db/schemas/users.schema.sql"
@@ -59,56 +40,3 @@ sql:
         emit_json_tags: false
         emit_interface: false
         emit_pointers_for_null_types: true
-
-  - schema: "db/schemas/restaurants.schema.sql"
-    queries:
-      - "db/queries/restaurants.sql"
-    engine: "postgresql"
-    gen:
-      go:
-        package: "sqlc"
-        out: "internal/restaurant/infrastructure/sqlc/restaurant"
-        sql_package: "pgx/v5"
-        emit_json_tags: false
-        emit_interface: false
-        emit_pointers_for_null_types: true
-        overrides:
-          - column: "restaurant_hours.open_time"
-            go_type:
-              type: "string"
-
-          - column: "restaurant_hours.close_time"
-            go_type:
-              type: "string"
-
-          - column: "restaurants.created_by"
-            go_type:
-              import: "github.com/google/uuid"
-              type: "UUID"
-
-          - column: "restaurants.updated_by"
-            go_type:
-              import: "github.com/google/uuid"
-              type: "UUID"
-  - schema: "db/schemas/menus.schema.sql"
-    queries:
-      - "db/queries/menus.sql"
-    engine: "postgresql"
-    gen:
-      go:
-        package: "sqlc"
-        out: "internal/menu/infrastructure/sqlc/"
-        sql_package: "pgx/v5"
-        emit_json_tags: false
-        emit_interface: false
-        emit_pointers_for_null_types: true
-        overrides:
-          - column: "combo_group_items.quantity_max"
-            go_type:
-              type: "int32"
-          - column: "option_items.quantity_max"
-            go_type:
-              type: "int32"
-          - column: "option_groups.max_select"
-            go_type:
-              type: "int32"

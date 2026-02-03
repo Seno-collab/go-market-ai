@@ -13,12 +13,18 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO "users" (email, full_name, password_hash, role_id) VALUES ($1, $2, $3,(SELECT id FROM "roles" WHERE role_name = 'user'))
+INSERT INTO "users" (email, full_name, password_hash, role_id)
+VALUES (
+    $1::TEXT,
+    $2::TEXT,
+    $3::TEXT,
+    (SELECT id FROM "roles" WHERE role_name = 'user')
+)
 RETURNING id
 `
 
 type CreateUserParams struct {
-	Email        *string
+	Email        string
 	FullName     string
 	PasswordHash string
 }
@@ -33,20 +39,22 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 const getPasswordByID = `-- name: GetPasswordByID :one
 SELECT password_hash
 FROM "users"
-WHERE id = $1
+WHERE id = $1::UUID
 `
 
-func (q *Queries) GetPasswordByID(ctx context.Context, id uuid.UUID) (string, error) {
-	row := q.db.QueryRow(ctx, getPasswordByID, id)
+func (q *Queries) GetPasswordByID(ctx context.Context, userID uuid.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, getPasswordByID, userID)
 	var password_hash string
 	err := row.Scan(&password_hash)
 	return password_hash, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT u.id, u.email, u.full_name, r.role_name, u.password_hash, u.is_active, u.created_at, u.updated_at, u.image_url FROM "users" u
-LEFT JOIN  "roles" r ON r.id = u.role_id
-WHERE email = $1 LIMIT 1
+SELECT u.id, u.email, u.full_name, r.role_name, u.password_hash, u.is_active, u.created_at, u.updated_at, u.image_url
+FROM "users" u
+LEFT JOIN "roles" r ON r.id = u.role_id
+WHERE u.email = $1::TEXT
+LIMIT 1
 `
 
 type GetUserByEmailRow struct {
@@ -61,7 +69,7 @@ type GetUserByEmailRow struct {
 	ImageUrl     *string
 }
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email *string) (GetUserByEmailRow, error) {
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i GetUserByEmailRow
 	err := row.Scan(
@@ -79,9 +87,11 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email *string) (GetUserByE
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at, u.image_url FROM "users" u
+SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at, u.image_url
+FROM "users" u
 LEFT JOIN "roles" r ON r.id = u.role_id
-WHERE u.id = $1 LIMIT 1
+WHERE u.id = $1::UUID
+LIMIT 1
 `
 
 type GetUserByIDRow struct {
@@ -95,8 +105,8 @@ type GetUserByIDRow struct {
 	ImageUrl  *string
 }
 
-func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow, error) {
-	row := q.db.QueryRow(ctx, getUserByID, id)
+func (q *Queries) GetUserByID(ctx context.Context, userID uuid.UUID) (GetUserByIDRow, error) {
+	row := q.db.QueryRow(ctx, getUserByID, userID)
 	var i GetUserByIDRow
 	err := row.Scan(
 		&i.ID,
@@ -112,9 +122,11 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow
 }
 
 const getUserByName = `-- name: GetUserByName :one
-SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at, u.image_url FROM "users" u
-LEFT JOIN  "roles" r ON r.id = u.role_id
-WHERE full_name = $1 LIMIT 1
+SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at, u.image_url
+FROM "users" u
+LEFT JOIN "roles" r ON r.id = u.role_id
+WHERE u.full_name = $1::TEXT
+LIMIT 1
 `
 
 type GetUserByNameRow struct {
@@ -145,18 +157,21 @@ func (q *Queries) GetUserByName(ctx context.Context, fullName string) (GetUserBy
 }
 
 const getUserRole = `-- name: GetUserRole :one
-SELECT  r.role_name FROM "users" u
-LEFT JOIN  "roles" r ON r.id = u.role_id
-WHERE u.id = $1 AND u.is_active = $2 LIMIT 1
+SELECT r.role_name
+FROM "users" u
+LEFT JOIN "roles" r ON r.id = u.role_id
+WHERE u.id = $1::UUID
+  AND u.is_active = $2::BOOLEAN
+LIMIT 1
 `
 
 type GetUserRoleParams struct {
-	ID       uuid.UUID
+	UserID   uuid.UUID
 	IsActive bool
 }
 
 func (q *Queries) GetUserRole(ctx context.Context, arg GetUserRoleParams) (*string, error) {
-	row := q.db.QueryRow(ctx, getUserRole, arg.ID, arg.IsActive)
+	row := q.db.QueryRow(ctx, getUserRole, arg.UserID, arg.IsActive)
 	var role_name *string
 	err := row.Scan(&role_name)
 	return role_name, err
@@ -164,38 +179,38 @@ func (q *Queries) GetUserRole(ctx context.Context, arg GetUserRoleParams) (*stri
 
 const updatePasswordByID = `-- name: UpdatePasswordByID :exec
 UPDATE "users"
-SET password_hash = $1
-WHERE id = $2
+SET password_hash = $1::TEXT
+WHERE id = $2::UUID
 `
 
 type UpdatePasswordByIDParams struct {
 	PasswordHash string
-	ID           uuid.UUID
+	UserID       uuid.UUID
 }
 
 func (q *Queries) UpdatePasswordByID(ctx context.Context, arg UpdatePasswordByIDParams) error {
-	_, err := q.db.Exec(ctx, updatePasswordByID, arg.PasswordHash, arg.ID)
+	_, err := q.db.Exec(ctx, updatePasswordByID, arg.PasswordHash, arg.UserID)
 	return err
 }
 
 const updateUser = `-- name: UpdateUser :exec
 UPDATE "users"
-SET full_name = $1,
-    email = $2,
-    password_hash = $3,
-    image_url = $4,
-    is_active = $5,
+SET full_name = $1::TEXT,
+    email = $2::TEXT,
+    password_hash = $3::TEXT,
+    image_url = $4::TEXT,
+    is_active = $5::BOOLEAN,
     updated_at = NOW()
-WHERE id = $6
+WHERE id = $6::UUID
 `
 
 type UpdateUserParams struct {
 	FullName     string
-	Email        *string
+	Email        string
 	PasswordHash string
-	ImageUrl     *string
+	ImageUrl     string
 	IsActive     bool
-	ID           uuid.UUID
+	UserID       uuid.UUID
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
@@ -205,7 +220,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 		arg.PasswordHash,
 		arg.ImageUrl,
 		arg.IsActive,
-		arg.ID,
+		arg.UserID,
 	)
 	return err
 }

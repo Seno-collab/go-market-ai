@@ -11,6 +11,16 @@ import (
 	"time"
 )
 
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+type RefreshTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int    `json:"expires_in"`
+}
+
 type RefreshTokenUseCase struct {
 	Repo   auth.Repository
 	Cache  *cache.AuthCache
