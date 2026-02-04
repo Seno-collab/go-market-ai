@@ -38,7 +38,6 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 	if err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
-	profile := &GetProfileResponse{}
 	if cacheData == nil {
 		record, err := uc.Repo.GetById(ctx, userID)
 		if err != nil {
@@ -54,7 +53,7 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 		}
 		uc.Cache.SetAuthCache(ctx, sessionKey, authData, time.Duration(60*int(time.Minute)))
 	}
-	profile = &GetProfileResponse{
+	profile := &GetProfileResponse{
 		Email:    cacheData.Email,
 		FullName: cacheData.FullName,
 		Role:     cacheData.Role,

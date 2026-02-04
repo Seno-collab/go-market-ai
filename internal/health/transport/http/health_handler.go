@@ -2,7 +2,7 @@ package healthhttp
 
 import (
 	healthapp "go-ai/internal/health/application/health"
-	"go-ai/internal/transport/response"
+	"go-ai/pkg/response"
 	"net/http"
 
 	"github.com/labstack/echo/v5"

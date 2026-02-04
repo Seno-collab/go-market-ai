@@ -1,7 +1,7 @@
 package authapp
 
 import (
-	"go-ai/internal/transport/response"
+	"go-ai/pkg/response"
 )
 
 type RegisterSuccessResponseDoc struct {

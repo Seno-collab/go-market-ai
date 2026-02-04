@@ -5,7 +5,7 @@ import (
 	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/internal/platform/config"
 	security "go-ai/internal/platform/security"
-	"go-ai/internal/transport/response"
+	"go-ai/pkg/response"
 	"strings"
 	"time"
 

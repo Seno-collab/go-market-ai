@@ -2,7 +2,7 @@ package app
 
 import (
 	healthapp "go-ai/internal/health/application/health"
-	"go-ai/internal/transport/response"
+	"go-ai/pkg/response"
 )
 
 type HealthSuccessResponseDoc struct {

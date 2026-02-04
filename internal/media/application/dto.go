@@ -2,7 +2,7 @@ package app
 
 import (
 	uploadapp "go-ai/internal/media/application/upload"
-	"go-ai/internal/transport/response"
+	"go-ai/pkg/response"
 )
 
 type UploadLogoSuccessResponseDoc struct {

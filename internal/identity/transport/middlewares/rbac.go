@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"go-ai/internal/identity/domain/rbac"
-	"go-ai/internal/transport/response"
+	"go-ai/pkg/response"
 	"net/http"
 
 	"github.com/google/uuid"

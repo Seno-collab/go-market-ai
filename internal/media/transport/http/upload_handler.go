@@ -4,7 +4,7 @@ import (
 	"errors"
 	uploadapp "go-ai/internal/media/application/upload"
 	"go-ai/internal/media/infrastructure/storage"
-	"go-ai/internal/transport/response"
+	"go-ai/pkg/response"
 	"io"
 	"net/http"
 

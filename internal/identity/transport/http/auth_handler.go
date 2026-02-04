@@ -2,8 +2,8 @@ package identityhttp
 
 import (
 	authapp "go-ai/internal/identity/application/auth"
-	"go-ai/internal/transport/response"
 	domainerr "go-ai/pkg/domain_err"
+	"go-ai/pkg/response"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -64,6 +64,7 @@ func (h *AuthHandler) Register(c *echo.Context) error {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
 		}
+		h.Logger.Error().Err(err).Msg("failed to register user")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success[any](c, nil, "Create user success")
@@ -121,6 +122,7 @@ func (h *AuthHandler) RefreshToken(c *echo.Context) error {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
 		}
+		h.Logger.Error().Err(err).Msg("failed to refresh token")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success(c, responseData, "Token refreshed successfully")
@@ -150,6 +152,7 @@ func (h *AuthHandler) GetProfile(c *echo.Context) error {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
 		}
+		h.Logger.Error().Err(err).Msg("failed to get profile")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	resp := &authapp.GetProfileResponse{
@@ -191,6 +194,7 @@ func (h *AuthHandler) UpdateProfile(c *echo.Context) error {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
 		}
+		h.Logger.Error().Err(err).Msg("failed to update profile")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success(c, profile, "Profile updated successfully")
@@ -226,6 +230,7 @@ func (h *AuthHandler) ChangePassword(c *echo.Context) error {
 		if ae, ok := err.(domainerr.AppError); ok {
 			return response.Error(c, ae.Status, ae.Msg)
 		}
+		h.Logger.Error().Err(err).Msg("failed to change password")
 		return response.Error(c, http.StatusInternalServerError, "Internal server error")
 	}
 	return response.Success[any](c, nil, "Password changed successfully")
