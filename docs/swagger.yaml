@@ -1,206 +1,4 @@
 definitions:
-  app.ChangePasswordSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.CreateMenuItemSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.CreateOptionGroupSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/optiongroupapp.CreateOptionGroupResponse'
-      message:
-        type: string
-    type: object
-  app.CreateOptionItemSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/optionitemapp.CreateOptionItemResponse'
-      message:
-        type: string
-    type: object
-  app.CreateRestaurantSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/restaurantapp.CreateRestaurantResponse'
-      message:
-        type: string
-    type: object
-  app.CreateTopicSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.DeleteMenuItemSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.DeleteOptionGroupSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.DeleteOptionItemSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.DeleteRestaurantSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.DeleteTopicSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.GetComboboxRestaurantSuccessResponseDoc:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/response.Combobox'
-        type: array
-      message:
-        type: string
-    type: object
-  app.GetMenuItemSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/menuitemapp.GetMenuItemResponse'
-      message:
-        type: string
-    type: object
-  app.GetMenuItemsByRestaurantResponseDoc:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/menuitemapp.GetMenuItemResponse'
-        type: array
-      limit:
-        example: 10
-        type: integer
-      page:
-        example: 1
-        type: integer
-      total_items:
-        example: 42
-        type: integer
-      total_pages:
-        example: 5
-        type: integer
-    type: object
-  app.GetMenuItemsByRestaurantSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/app.GetMenuItemsByRestaurantResponseDoc'
-      message:
-        type: string
-    type: object
-  app.GetOptionGroupSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/optiongroupapp.GetOptionGroupResponse'
-      message:
-        type: string
-    type: object
-  app.GetOptionGroupsSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/optiongroupapp.GetOptionGroupsResponse'
-      message:
-        type: string
-    type: object
-  app.GetOptionItemSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/optionitemapp.GetOptionItemResponse'
-      message:
-        type: string
-    type: object
-  app.GetOptionItemsResponseDoc:
-    properties:
-      items:
-        $ref: '#/definitions/app.GetOptionItemSuccessResponseDoc'
-      limit:
-        example: 10
-        type: integer
-      page:
-        example: 1
-        type: integer
-      total_items:
-        example: 42
-        type: integer
-      total_pages:
-        example: 5
-        type: integer
-    type: object
-  app.GetOptionItemsSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/app.GetOptionItemsResponseDoc'
-      message:
-        type: string
-    type: object
-  app.GetProfileSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/authapp.GetProfileResponse'
-      message:
-        type: string
-    type: object
-  app.GetRestaurantByIDSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/restaurantapp.GetRestaurantByIDResponse'
-      message:
-        type: string
-    type: object
-  app.GetTopicSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.GetTopicsByRestaurantComboboxSuccessResponseDoc:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/response.Combobox'
-        type: array
-      message:
-        type: string
-    type: object
-  app.GetTopicsByRestaurantResponseDoc:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/topicapp.GetTopicResponse'
-        type: array
-      limit:
-        example: 10
-        type: integer
-      page:
-        example: 1
-        type: integer
-      total_items:
-        example: 42
-        type: integer
-      total_pages:
-        example: 5
-        type: integer
-    type: object
-  app.GetTopicsByRestaurantSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/app.GetTopicsByRestaurantResponseDoc'
-      message:
-        type: string
-    type: object
   app.HealthFailureResponseDoc:
     properties:
       data:
@@ -212,69 +10,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/healthapp.HealthResponse'
-      message:
-        type: string
-    type: object
-  app.LoginSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/authapp.LoginResponse'
-      message:
-        type: string
-    type: object
-  app.LogoutSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.RefreshTokenSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/authapp.RefreshTokenResponse'
-      message:
-        type: string
-    type: object
-  app.RegisterSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/authapp.RegisterSuccess'
-      message:
-        type: string
-    type: object
-  app.UpdateMenuItemStatusSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.UpdateMenuItemSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.UpdateOptionGroupSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.UpdateOptionItemSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.UpdateProfileSuccessResponseDoc:
-    properties:
-      data:
-        $ref: '#/definitions/authapp.GetProfileResponse'
-      message:
-        type: string
-    type: object
-  app.UpdateRestaurantSuccessResponseDoc:
-    properties:
-      message:
-        type: string
-    type: object
-  app.UpdateTopicSuccessResponseDoc:
-    properties:
       message:
         type: string
     type: object
@@ -294,6 +29,11 @@ definitions:
       old_password:
         type: string
     type: object
+  authapp.ChangePasswordSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+    type: object
   authapp.GetProfileResponse:
     properties:
       email:
@@ -305,6 +45,13 @@ definitions:
       is_active:
         type: boolean
       role:
+        type: string
+    type: object
+  authapp.GetProfileSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/authapp.GetProfileResponse'
+      message:
         type: string
     type: object
   authapp.LoginRequest:
@@ -323,6 +70,18 @@ definitions:
       refresh_token:
         type: string
     type: object
+  authapp.LoginSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/authapp.LoginResponse'
+      message:
+        type: string
+    type: object
+  authapp.LogoutSuccessResponseDoc:
+    properties:
+      message:
+        type: string
+    type: object
   authapp.RefreshTokenRequest:
     properties:
       refresh_token:
@@ -337,6 +96,13 @@ definitions:
       refresh_token:
         type: string
     type: object
+  authapp.RefreshTokenSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/authapp.RefreshTokenResponse'
+      message:
+        type: string
+    type: object
   authapp.RegisterRequest:
     properties:
       email:
@@ -346,7 +112,10 @@ definitions:
       password:
         type: string
     type: object
-  authapp.RegisterSuccess:
+  authapp.RegisterSuccessResponseDoc:
+    properties:
+      message:
+        type: string
     type: object
   authapp.UpdateProfileRequest:
     properties:
@@ -357,30 +126,13 @@ definitions:
       image_url:
         type: string
     type: object
-  domain.MenuItemType:
-    enum:
-    - dish
-    - beverage
-    - extra
-    - combo
-    type: string
-    x-enum-varnames:
-    - ItemDish
-    - ItemDrink
-    - ItemExtra
-    - ItemCombo
-  domain.MenuType:
-    enum:
-    - dish
-    - beverage
-    - extra
-    - combo
-    type: string
-    x-enum-varnames:
-    - ItemDish
-    - ItemDrink
-    - ItemExtra
-    - ItemCombo
+  authapp.UpdateProfileSuccessResponseDoc:
+    properties:
+      data:
+        $ref: '#/definitions/authapp.GetProfileResponse'
+      message:
+        type: string
+    type: object
   healthapp.HealthResponse:
     properties:
       checked_at:
@@ -412,404 +164,10 @@ definitions:
         example: up
         type: string
     type: object
-  menuapp.ListMenusResponse:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/menuapp.MenuResponse'
-        type: array
-      nextCursor:
-        type: integer
-    type: object
-  menuapp.MenuResponse:
-    properties:
-      basePrice:
-        type: string
-      id:
-        type: integer
-      imageUrl:
-        type: string
-      name:
-        type: string
-      topics:
-        items:
-          type: string
-        type: array
-      type:
-        $ref: '#/definitions/domain.MenuType'
-    type: object
-  menuitemapp.CreateMenuItemRequest:
-    properties:
-      description:
-        type: string
-      image_url:
-        type: string
-      name:
-        type: string
-      price:
-        type: integer
-      sku:
-        type: string
-      topic_id:
-        type: integer
-      type:
-        $ref: '#/definitions/domain.MenuItemType'
-    type: object
-  menuitemapp.GetMenuItemResponse:
-    properties:
-      created_at:
-        type: string
-      description:
-        type: string
-      id:
-        type: integer
-      image_url:
-        type: string
-      is_active:
-        type: boolean
-      name:
-        type: string
-      price:
-        type: integer
-      sku:
-        type: string
-      type:
-        $ref: '#/definitions/domain.MenuItemType'
-      updated_at:
-        type: string
-    type: object
-  menuitemapp.GetMenuItemsRequest:
-    properties:
-      category:
-        type: string
-      filter:
-        type: string
-      is_active:
-        type: boolean
-      limit:
-        type: integer
-      page:
-        type: integer
-    type: object
-  menuitemapp.UpdateMenuItemRequest:
-    properties:
-      description:
-        type: string
-      image_url:
-        type: string
-      name:
-        type: string
-      price:
-        type: integer
-      sku:
-        type: string
-      type:
-        $ref: '#/definitions/domain.MenuItemType'
-    type: object
-  menuitemapp.UpdateMenuItemStatusRequest:
-    properties:
-      is_active:
-        type: boolean
-    type: object
-  optiongroupapp.CreateOptionGroupRequest:
-    properties:
-      is_required:
-        type: boolean
-      max_select:
-        type: integer
-      menu_item_id:
-        type: integer
-      min_select:
-        type: integer
-      name:
-        type: string
-      sort_order:
-        type: integer
-    type: object
-  optiongroupapp.CreateOptionGroupResponse:
-    properties:
-      id:
-        type: integer
-    type: object
-  optiongroupapp.GetOptionGroupResponse:
-    properties:
-      id:
-        type: integer
-      is_required:
-        type: boolean
-      max_select:
-        type: integer
-      min_select:
-        type: integer
-      name:
-        type: string
-      sort_order:
-        type: integer
-    type: object
-  optiongroupapp.GetOptionGroupsResponse:
-    properties:
-      groups:
-        items:
-          $ref: '#/definitions/optiongroupapp.GetOptionGroupResponse'
-        type: array
-    type: object
-  optiongroupapp.UpdateOptionGroupRequest:
-    properties:
-      is_required:
-        type: boolean
-      max_select:
-        type: integer
-      min_select:
-        type: integer
-      name:
-        type: string
-      sort_order:
-        type: integer
-    type: object
-  optionitemapp.CreateOptionItemRequest:
-    properties:
-      linked_menu_item:
-        type: integer
-      name:
-        type: string
-      option_group_id:
-        type: integer
-      price_delta:
-        type: integer
-      quantity_max:
-        type: integer
-      quantity_min:
-        type: integer
-      sort_order:
-        type: integer
-    type: object
-  optionitemapp.CreateOptionItemResponse:
-    properties:
-      id:
-        type: integer
-    type: object
-  optionitemapp.GetOptionItemResponse:
-    properties:
-      id:
-        type: integer
-      is_active:
-        type: boolean
-      linked_menu_item:
-        type: integer
-      name:
-        type: string
-      option_group_id:
-        type: integer
-      price_delta:
-        type: integer
-      quantity_max:
-        type: integer
-      quantity_min:
-        type: integer
-      sort_order:
-        type: integer
-    type: object
-  optionitemapp.UpdateOptionItemRequest:
-    properties:
-      linked_menu_item:
-        type: integer
-      name:
-        type: string
-      price_delta:
-        type: integer
-      quantity_max:
-        type: integer
-      quantity_min:
-        type: integer
-      sort_order:
-        type: integer
-    type: object
-  response.Combobox:
-    properties:
-      text:
-        type: string
-      value: {}
-    type: object
   response.ErrorDoc:
     properties:
       message:
         type: string
-    type: object
-  restaurant.DayOfWeek:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
-    - 6
-    type: integer
-    x-enum-comments:
-      Friday: "5"
-      Monday: "1"
-      Saturday: "6"
-      Sunday: "0"
-      Thursday: "4"
-      Tuesday: "2"
-      Wednesday: "3"
-    x-enum-descriptions:
-    - "0"
-    - "1"
-    - "2"
-    - "3"
-    - "4"
-    - "5"
-    - "6"
-    x-enum-varnames:
-    - Sunday
-    - Monday
-    - Tuesday
-    - Wednesday
-    - Thursday
-    - Friday
-    - Saturday
-  restaurantapp.CreateRestaurantRequest:
-    properties:
-      address:
-        type: string
-      banner_url:
-        type: string
-      category:
-        type: string
-      city:
-        type: string
-      description:
-        type: string
-      district:
-        type: string
-      email:
-        type: string
-      hours:
-        items:
-          $ref: '#/definitions/restaurantapp.RestaurantHoursBase'
-        type: array
-      logo_url:
-        type: string
-      name:
-        type: string
-      phone_number:
-        type: string
-      website_url:
-        type: string
-    type: object
-  restaurantapp.CreateRestaurantResponse:
-    properties:
-      id:
-        type: integer
-    type: object
-  restaurantapp.GetRestaurantByIDResponse:
-    properties:
-      address:
-        type: string
-      banner_url:
-        type: string
-      category:
-        type: string
-      city:
-        type: string
-      description:
-        type: string
-      district:
-        type: string
-      email:
-        type: string
-      hours:
-        items:
-          $ref: '#/definitions/restaurantapp.RestaurantHoursBase'
-        type: array
-      is_active:
-        type: boolean
-      logo_url:
-        type: string
-      name:
-        type: string
-      phone_number:
-        type: string
-      user_name:
-        type: string
-      website_url:
-        type: string
-    type: object
-  restaurantapp.RestaurantHoursBase:
-    properties:
-      close_time:
-        type: string
-      day:
-        $ref: '#/definitions/restaurant.DayOfWeek'
-      open_time:
-        type: string
-    type: object
-  restaurantapp.UpdateRestaurantRequest:
-    properties:
-      address:
-        type: string
-      banner_url:
-        type: string
-      category:
-        type: string
-      city:
-        type: string
-      description:
-        type: string
-      district:
-        type: string
-      email:
-        type: string
-      hours:
-        items:
-          $ref: '#/definitions/restaurantapp.RestaurantHoursBase'
-        type: array
-      logo_url:
-        type: string
-      name:
-        type: string
-      phone_number:
-        type: string
-      website_url:
-        type: string
-    type: object
-  topicapp.CreateTopicRequest:
-    properties:
-      name:
-        type: string
-      parent_id:
-        type: integer
-      slug:
-        type: string
-      sort_order:
-        type: integer
-    type: object
-  topicapp.GetTopicResponse:
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-      parent_id:
-        type: integer
-      restaurant_id:
-        type: integer
-      slug:
-        type: string
-      sort_order:
-        type: integer
-    type: object
-  topicapp.UpdateTopicRequest:
-    properties:
-      name:
-        type: string
-      parent_id:
-        type: integer
-      slug:
-        type: string
-      sort_order:
-        type: integer
     type: object
   uploadapp.UploadLogoResponse:
     properties:
@@ -837,7 +195,7 @@ paths:
         "200":
           description: Password changed successfully
           schema:
-            $ref: '#/definitions/app.ChangePasswordSuccessResponseDoc'
+            $ref: '#/definitions/authapp.ChangePasswordSuccessResponseDoc'
         default:
           description: Errors
           schema:
@@ -863,7 +221,7 @@ paths:
         "200":
           description: Login successful
           schema:
-            $ref: '#/definitions/app.LoginSuccessResponseDoc'
+            $ref: '#/definitions/authapp.LoginSuccessResponseDoc'
         default:
           description: Errors
           schema:
@@ -882,7 +240,7 @@ paths:
         "200":
           description: Successfully logged out
           schema:
-            $ref: '#/definitions/app.LogoutSuccessResponseDoc'
+            $ref: '#/definitions/authapp.LogoutSuccessResponseDoc'
         default:
           description: Errors
           schema:
@@ -901,7 +259,7 @@ paths:
         "200":
           description: Profile retrieved successfully
           schema:
-            $ref: '#/definitions/app.GetProfileSuccessResponseDoc'
+            $ref: '#/definitions/authapp.GetProfileSuccessResponseDoc'
         default:
           description: Errors
           schema:
@@ -926,7 +284,7 @@ paths:
         "200":
           description: Profile updated successfully
           schema:
-            $ref: '#/definitions/app.UpdateProfileSuccessResponseDoc'
+            $ref: '#/definitions/authapp.UpdateProfileSuccessResponseDoc'
         default:
           description: Errors
           schema:
@@ -952,7 +310,7 @@ paths:
         "200":
           description: Token refreshed successfully
           schema:
-            $ref: '#/definitions/app.RefreshTokenSuccessResponseDoc'
+            $ref: '#/definitions/authapp.RefreshTokenSuccessResponseDoc'
         default:
           description: Errors
           schema:
@@ -978,7 +336,7 @@ paths:
         "200":
           description: User created successfully
           schema:
-            $ref: '#/definitions/app.RegisterSuccessResponseDoc'
+            $ref: '#/definitions/authapp.RegisterSuccessResponseDoc'
         default:
           description: Errors
           schema:
@@ -1003,789 +361,6 @@ paths:
       summary: Health check
       tags:
       - Health
-  /api/menu/item/{id}/option-groups:
-    get:
-      consumes:
-      - application/json
-      description: Get option groups attached to a specific menu item
-      parameters:
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get option groups successfully
-          schema:
-            $ref: '#/definitions/app.GetOptionGroupsSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: List option groups of a menu item
-      tags:
-      - OptionGroup
-  /api/menu/items:
-    post:
-      consumes:
-      - application/json
-      description: Create a new menu item with name, price, description and optional
-        image/logo
-      parameters:
-      - description: Menu item data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/menuitemapp.CreateMenuItemRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Create menu item success
-          schema:
-            $ref: '#/definitions/app.CreateMenuItemSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Create a new menu item
-      tags:
-      - Menu
-  /api/menu/items/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete menu item by ID
-      parameters:
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Delete menu item successfully
-          schema:
-            $ref: '#/definitions/app.DeleteMenuItemSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Delete menu item
-      tags:
-      - Menu
-    get:
-      consumes:
-      - application/json
-      description: Get a menu item detail by its ID
-      parameters:
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get menu item successfully
-          schema:
-            $ref: '#/definitions/app.GetMenuItemSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get menu item by ID
-      tags:
-      - Menu
-    patch:
-      consumes:
-      - application/json
-      description: Update menu item by ID
-      parameters:
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Update menu item data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/menuitemapp.UpdateMenuItemRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Update menu item successfully
-          schema:
-            $ref: '#/definitions/app.UpdateMenuItemSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Update menu item
-      tags:
-      - Menu
-  /api/menu/items/{id}/detail:
-    get:
-      consumes:
-      - application/json
-      description: Get a menu item detail including its option groups and option items
-      parameters:
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get menu item with options successfully
-          schema:
-            $ref: '#/definitions/app.GetMenuItemSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get menu item with option groups and items
-      tags:
-      - Menu
-  /api/menu/items/{id}/status:
-    patch:
-      consumes:
-      - application/json
-      description: Enable or disable menu item by ID
-      parameters:
-      - description: Menu item ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Update menu item status request
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/menuitemapp.UpdateMenuItemStatusRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Update menu item status successfully
-          schema:
-            $ref: '#/definitions/app.UpdateMenuItemStatusSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Update menu item status
-      tags:
-      - Menu
-  /api/menu/items/search:
-    post:
-      consumes:
-      - application/json
-      description: Get list of menu items by restaurant ID
-      parameters:
-      - description: Search menu items request
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/menuitemapp.GetMenuItemsRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get menu items by restaurant successfully
-          schema:
-            $ref: '#/definitions/app.GetMenuItemsByRestaurantSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get menu items by restaurant
-      tags:
-      - Menu
-  /api/menu/option-group:
-    post:
-      consumes:
-      - application/json
-      description: Create a new option group for a menu item
-      parameters:
-      - description: Option group payload
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/optiongroupapp.CreateOptionGroupRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Create option group successfully
-          schema:
-            $ref: '#/definitions/app.CreateOptionGroupSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Create option group
-      tags:
-      - OptionGroup
-  /api/menu/option-group/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete an option group by ID
-      parameters:
-      - description: Option group ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Delete option group successfully
-          schema:
-            $ref: '#/definitions/app.DeleteOptionGroupSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Delete option group
-      tags:
-      - OptionGroup
-    get:
-      consumes:
-      - application/json
-      description: Get detailed information of an option group
-      parameters:
-      - description: Option group ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get option group successfully
-          schema:
-            $ref: '#/definitions/app.GetOptionGroupSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get option group by ID
-      tags:
-      - OptionGroup
-    put:
-      consumes:
-      - application/json
-      description: Update option group details by ID
-      parameters:
-      - description: Option group ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Option group payload
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/optiongroupapp.UpdateOptionGroupRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Update option group successfully
-          schema:
-            $ref: '#/definitions/app.UpdateOptionGroupSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Update option group
-      tags:
-      - OptionGroup
-  /api/menu/option-group/{id}/option-items:
-    get:
-      consumes:
-      - application/json
-      description: Get option items for a specific option group
-      parameters:
-      - description: Option group ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get option items successfully
-          schema:
-            $ref: '#/definitions/app.GetOptionItemsSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: List option items in a group
-      tags:
-      - OptionItem
-  /api/menu/option-item:
-    post:
-      consumes:
-      - application/json
-      description: Create a new option item under an option group
-      parameters:
-      - description: Option item payload
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/optionitemapp.CreateOptionItemRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Create option item successfully
-          schema:
-            $ref: '#/definitions/app.CreateOptionItemSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Create option item
-      tags:
-      - OptionItem
-  /api/menu/option-item/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete option item by ID
-      parameters:
-      - description: Option item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Delete option item successfully
-          schema:
-            $ref: '#/definitions/app.DeleteOptionItemSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Delete option item
-      tags:
-      - OptionItem
-    get:
-      consumes:
-      - application/json
-      description: Get option item details by ID
-      parameters:
-      - description: Option item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get option item successfully
-          schema:
-            $ref: '#/definitions/app.GetOptionItemSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get option item
-      tags:
-      - OptionItem
-    put:
-      consumes:
-      - application/json
-      description: Update option item details by ID
-      parameters:
-      - description: Option item ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Option item payload
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/optionitemapp.UpdateOptionItemRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Update option item successfully
-          schema:
-            $ref: '#/definitions/app.UpdateOptionItemSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Update option item
-      tags:
-      - OptionItem
-  /api/menu/topics:
-    post:
-      consumes:
-      - application/json
-      description: Create a new topic with name, price, description, and optional
-        image or logo
-      parameters:
-      - description: Topic data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/topicapp.CreateTopicRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Create topic success
-          schema:
-            $ref: '#/definitions/app.CreateTopicSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Create a new topic
-      tags:
-      - Topic
-  /api/menu/topics/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete topic by ID
-      parameters:
-      - description: Topic ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Delete topic successfully
-          schema:
-            $ref: '#/definitions/app.DeleteTopicSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Delete topic
-      tags:
-      - Topic
-    get:
-      consumes:
-      - application/json
-      description: Get detailed information of a topic using its ID
-      parameters:
-      - description: Topic ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get topic successfully
-          schema:
-            $ref: '#/definitions/app.GetTopicSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get topic by ID
-      tags:
-      - Topic
-    put:
-      consumes:
-      - application/json
-      description: Update topic information by ID
-      parameters:
-      - description: Topic ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Topic data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/topicapp.UpdateTopicRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Update topic successfully
-          schema:
-            $ref: '#/definitions/app.UpdateTopicSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Update topic
-      tags:
-      - Topic
-  /api/menu/topics/combobox:
-    get:
-      consumes:
-      - application/json
-      description: Get list of topics for combobox by restaurant (optional parent_id)
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get topic combobox successfully
-          schema:
-            items:
-              $ref: '#/definitions/app.GetTopicsByRestaurantComboboxSuccessResponseDoc'
-            type: array
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get topic combobox
-      tags:
-      - Topic
-  /api/menu/topics/search:
-    get:
-      consumes:
-      - application/json
-      description: Get list of topics by restaurant ID
-      parameters:
-      - description: Topic name keyword
-        in: query
-        name: name
-        type: string
-      - description: 'Page number (default: 1)'
-        in: query
-        name: page
-        type: integer
-      - description: 'Items per page (default: 20)'
-        in: query
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get topics by restaurant successfully
-          schema:
-            $ref: '#/definitions/app.GetTopicsByRestaurantSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get topics by restaurant
-      tags:
-      - Topic
-  /api/menus:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve menus filtered by restaurant, type, and optional topics
-        using cursor-based pagination
-      parameters:
-      - description: Restaurant ID
-        in: header
-        name: X-Restaurant-Id
-        required: true
-        type: integer
-      - description: Menu type
-        enum:
-        - dish
-        - beverage
-        - extra
-        - combo
-        in: query
-        name: type
-        required: true
-        type: string
-      - description: Comma-separated topic names, e.g. \
-        in: query
-        name: topics
-        type: string
-      - description: Items per page (default 20, max 50)
-        in: query
-        name: limit
-        type: integer
-      - description: Pagination cursor (last returned menu id)
-        format: int64
-        in: query
-        name: cursor
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Menus page
-          schema:
-            $ref: '#/definitions/menuapp.ListMenusResponse'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: List menus with cursor pagination
-      tags:
-      - Menu
-  /api/restaurants:
-    post:
-      consumes:
-      - application/json
-      description: Create a new restaurant with name, email, phone, logo_url, banner_url,...
-      parameters:
-      - description: Restaurant create payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/restaurantapp.CreateRestaurantRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Create restaurant successfully
-          schema:
-            $ref: '#/definitions/app.CreateRestaurantSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Create restaurant
-      tags:
-      - Restaurant
-  /api/restaurants/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Remove a restaurant and its related data using its ID
-      parameters:
-      - description: Restaurant ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Restaurant deleted successfully
-          schema:
-            $ref: '#/definitions/app.DeleteRestaurantSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Delete restaurant by ID
-      tags:
-      - Restaurant
-    get:
-      consumes:
-      - application/json
-      description: Get detailed information of a restaurant using its ID
-      parameters:
-      - description: Restaurant ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get restaurant successfully
-          schema:
-            $ref: '#/definitions/app.GetRestaurantByIDSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Get restaurant by ID
-      tags:
-      - Restaurant
-    put:
-      consumes:
-      - application/json
-      description: Update restaurant fields such as name, address, contact info, logo,
-        banner, etc.
-      parameters:
-      - description: Restaurant ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Restaurant update payload
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/restaurantapp.UpdateRestaurantRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Update restaurant successfully
-          schema:
-            $ref: '#/definitions/app.UpdateRestaurantSuccessResponseDoc'
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      summary: Update restaurant information
-      tags:
-      - Restaurant
-  /api/restaurants/combobox:
-    get:
-      description: Get option/combobox groups and items
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Get restaurant combobox successfully
-          schema:
-            items:
-              $ref: '#/definitions/app.GetComboboxRestaurantSuccessResponseDoc'
-            type: array
-        default:
-          description: Errors
-          schema:
-            $ref: '#/definitions/response.ErrorDoc'
-      security:
-      - BearerAuth: []
-      summary: Get combobox of a menu item
-      tags:
-      - Restaurant
   /api/upload/logo:
     post:
       consumes:

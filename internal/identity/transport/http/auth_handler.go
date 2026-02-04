@@ -51,7 +51,7 @@ func NewAuthHandler(
 // @Accept json
 // @Produce json
 // @Param body body authapp.RegisterRequest true "User registration payload"
-// @Success 200 {object} app.RegisterSuccessResponseDoc "User created successfully"
+// @Success 200 {object} authapp.RegisterSuccessResponseDoc "User created successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/register [post]
 func (h *AuthHandler) Register(c *echo.Context) error {
@@ -76,7 +76,7 @@ func (h *AuthHandler) Register(c *echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param body body authapp.LoginRequest true "User login payload"
-// @Success 200 {object} app.LoginSuccessResponseDoc "Login successful"
+// @Success 200 {object} authapp.LoginSuccessResponseDoc "Login successful"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/login [post]
 func (h *AuthHandler) Login(c *echo.Context) error {
@@ -106,7 +106,7 @@ func (h *AuthHandler) Login(c *echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param body body authapp.RefreshTokenRequest true "Refresh token payload"
-// @Success 200 {object} app.RefreshTokenSuccessResponseDoc "Token refreshed successfully"
+// @Success 200 {object} authapp.RefreshTokenSuccessResponseDoc "Token refreshed successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/refresh-token [post]
 func (h *AuthHandler) RefreshToken(c *echo.Context) error {
@@ -132,7 +132,7 @@ func (h *AuthHandler) RefreshToken(c *echo.Context) error {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} app.GetProfileSuccessResponseDoc "Profile retrieved successfully"
+// @Success 200 {object} authapp.GetProfileSuccessResponseDoc "Profile retrieved successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/profile [get]
 func (h *AuthHandler) GetProfile(c *echo.Context) error {
@@ -169,7 +169,7 @@ func (h *AuthHandler) GetProfile(c *echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param body body authapp.UpdateProfileRequest true "Profile update payload"
-// @Success 200 {object} app.UpdateProfileSuccessResponseDoc "Profile updated successfully"
+// @Success 200 {object} authapp.UpdateProfileSuccessResponseDoc "Profile updated successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/profile [patch]
 func (h *AuthHandler) UpdateProfile(c *echo.Context) error {
@@ -203,7 +203,7 @@ func (h *AuthHandler) UpdateProfile(c *echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param body body authapp.ChangePasswordRequest true "Old and new password"
-// @Success 200 {object} app.ChangePasswordSuccessResponseDoc "Password changed successfully"
+// @Success 200 {object} authapp.ChangePasswordSuccessResponseDoc "Password changed successfully"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/change-password [patch]
 func (h *AuthHandler) ChangePassword(c *echo.Context) error {
@@ -237,7 +237,7 @@ func (h *AuthHandler) ChangePassword(c *echo.Context) error {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} app.LogoutSuccessResponseDoc "Successfully logged out"
+// @Success 200 {object} authapp.LogoutSuccessResponseDoc "Successfully logged out"
 // @Failure default {object} response.ErrorDoc "Errors"
 // @Router /api/auth/logout [post]
 func (h *AuthHandler) Logout(c *echo.Context) error {

@@ -44,13 +44,6 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 		if err != nil {
 			return nil, auth.ErrUserNotFound
 		}
-		profile = &GetProfileResponse{
-			Email:    record.Email.String(),
-			FullName: record.FullName,
-			Role:     record.Role,
-			IsActive: record.IsActive,
-			ImageUrl: record.ImageUrl,
-		}
 		authData := &cache.UserCache{
 			UserID:   userID,
 			Email:    record.Email.String(),
@@ -60,7 +53,6 @@ func (uc *GetProfileUseCase) Execute(ctx context.Context, userID uuid.UUID) (*Ge
 			ImageUrl: record.ImageUrl,
 		}
 		uc.Cache.SetAuthCache(ctx, sessionKey, authData, time.Duration(60*int(time.Minute)))
-		return profile, nil
 	}
 	profile = &GetProfileResponse{
 		Email:    cacheData.Email,
