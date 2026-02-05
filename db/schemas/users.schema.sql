@@ -27,7 +27,7 @@ FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 -- =========================
 CREATE TABLE IF NOT EXISTS "users" (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    full_name      TEXT NOT NULL,
+    full_name      TEXT NOT NULL UNIQUE,
     email          CITEXT UNIQUE,
     password_hash  TEXT NOT NULL,
     role_id        INT REFERENCES role(id) ON UPDATE CASCADE ON DELETE SET NULL,

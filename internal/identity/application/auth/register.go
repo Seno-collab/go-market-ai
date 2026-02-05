@@ -2,8 +2,6 @@ package authapp
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 
 	"go-ai/internal/identity/domain/auth"
 	"go-ai/internal/identity/infrastructure/cache"
@@ -37,26 +35,6 @@ func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) 
 	email, err := utils.NewEmail(request.Email)
 	if err != nil {
 		return uuid.Nil, err
-	}
-
-	// unique email
-	record, err := s.Repo.GetByEmail(ctx, request.Email)
-	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
-			return uuid.Nil, err
-		}
-	}
-	if record != nil {
-		return uuid.Nil, auth.ErrEmailAlreadyExists
-	}
-	record, err = s.Repo.GetByName(ctx, request.FullName)
-	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
-			return uuid.Nil, err
-		}
-	}
-	if record != nil {
-		return uuid.Nil, auth.ErrNameAlreadyExists
 	}
 
 	rawPassword, err := auth.NewPassword(request.Password)

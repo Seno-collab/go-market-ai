@@ -121,41 +121,6 @@ func (q *Queries) GetUserByID(ctx context.Context, userID uuid.UUID) (GetUserByI
 	return i, err
 }
 
-const getUserByName = `-- name: GetUserByName :one
-SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at, u.image_url
-FROM "users" u
-LEFT JOIN "roles" r ON r.id = u.role_id
-WHERE u.full_name = $1::TEXT
-LIMIT 1
-`
-
-type GetUserByNameRow struct {
-	ID        uuid.UUID
-	Email     *string
-	FullName  string
-	RoleName  *string
-	IsActive  bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ImageUrl  *string
-}
-
-func (q *Queries) GetUserByName(ctx context.Context, fullName string) (GetUserByNameRow, error) {
-	row := q.db.QueryRow(ctx, getUserByName, fullName)
-	var i GetUserByNameRow
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.FullName,
-		&i.RoleName,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.ImageUrl,
-	)
-	return i, err
-}
-
 const getUserRole = `-- name: GetUserRole :one
 SELECT r.role_name
 FROM "users" u

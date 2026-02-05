@@ -2,6 +2,7 @@ package response
 
 import (
 	"net/http"
+	"reflect"
 
 	"github.com/labstack/echo/v5"
 )
@@ -26,6 +27,9 @@ type SuccessBaseDoc struct {
 
 func Success[T any](ctx *echo.Context, data T, message string) error {
 	setJSON(ctx)
+	if isNil(data) {
+		return ctx.JSON(http.StatusOK, SuccessBaseDoc{Message: message})
+	}
 	resp := &ResponseDTO[T]{
 		Data:    &data,
 		Message: message,
@@ -35,10 +39,22 @@ func Success[T any](ctx *echo.Context, data T, message string) error {
 
 func Error(ctx *echo.Context, code int, msg string) error {
 	setJSON(ctx)
-	resp := &ResponseDTO[any]{
+	resp := &ErrorDoc{
 		Message: msg,
 	}
 	return ctx.JSON(code, resp)
+}
+
+func isNil(v any) bool {
+	if v == nil {
+		return true
+	}
+	rv := reflect.ValueOf(v)
+	switch rv.Kind() {
+	case reflect.Pointer, reflect.Interface, reflect.Slice, reflect.Map:
+		return rv.IsNil()
+	}
+	return false
 }
 
 func setJSON(ctx *echo.Context) {

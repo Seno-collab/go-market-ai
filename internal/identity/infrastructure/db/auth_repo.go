@@ -4,6 +4,7 @@ import (
 	"context"
 	"go-ai/internal/identity/domain/auth"
 	sqlc "go-ai/internal/identity/infrastructure/sqlc/user"
+	"go-ai/pkg/pgerr"
 	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"
@@ -62,32 +63,16 @@ func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, 
 		FullName:     a.FullName,
 	})
 	if err != nil {
+		if pgerr.IsUniqueViolation(err, "user_email_key") {
+			return uuid.Nil, auth.ErrEmailAlreadyExists
+		}
+		if pgerr.IsUniqueViolation(err, "users_full_name_unique") {
+			return uuid.Nil, auth.ErrNameAlreadyExists
+		}
 		return uuid.Nil, err
 	}
 
 	return id, nil
-}
-func (au *AuthRepo) GetByName(ctx context.Context, name string) (*auth.Entity, error) {
-	u, err := au.queries.GetUserByName(ctx, name)
-	if err != nil {
-		return nil, err
-	}
-	em, err := utils.NewEmail(*u.Email)
-	if err != nil {
-		return nil, auth.ErrInvalidEmail
-	}
-	imageUrl := ""
-	if u.ImageUrl != nil {
-		imageUrl = *u.ImageUrl
-	}
-	return &auth.Entity{
-		ID:       u.ID,
-		Email:    em,
-		FullName: u.FullName,
-		Role:     *u.RoleName,
-		ImageUrl: imageUrl,
-		IsActive: u.IsActive,
-	}, nil
 }
 
 func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, error) {
@@ -130,7 +115,7 @@ func (au *AuthRepo) UpdateProfile(ctx context.Context, u *auth.Entity) error {
 	if err != nil {
 		return err
 	}
-	return au.queries.UpdateUser(ctx, sqlc.UpdateUserParams{
+	err = au.queries.UpdateUser(ctx, sqlc.UpdateUserParams{
 		FullName:     u.FullName,
 		Email:        email,
 		PasswordHash: password,
@@ -138,4 +123,13 @@ func (au *AuthRepo) UpdateProfile(ctx context.Context, u *auth.Entity) error {
 		IsActive:     u.IsActive,
 		UserID:       u.ID,
 	})
+	if err != nil {
+		if pgerr.IsUniqueViolation(err, "user_email_key") {
+			return auth.ErrEmailAlreadyExists
+		}
+		if pgerr.IsUniqueViolation(err, "users_full_name_unique") {
+			return auth.ErrNameAlreadyExists
+		}
+	}
+	return err
 }

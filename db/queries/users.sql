@@ -12,13 +12,6 @@ LEFT JOIN "roles" r ON r.id = u.role_id
 WHERE u.email = sqlc.arg(email)::TEXT
 LIMIT 1;
 
--- name: GetUserByName :one
-SELECT u.id, u.email, u.full_name, r.role_name, u.is_active, u.created_at, u.updated_at, u.image_url
-FROM "users" u
-LEFT JOIN "roles" r ON r.id = u.role_id
-WHERE u.full_name = sqlc.arg(full_name)::TEXT
-LIMIT 1;
-
 -- name: CreateUser :one
 INSERT INTO "users" (email, full_name, password_hash, role_id)
 VALUES (

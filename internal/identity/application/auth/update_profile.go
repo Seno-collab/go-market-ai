@@ -14,6 +14,10 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+func isNotFound(err error) bool {
+	return errors.Is(err, sql.ErrNoRows) || errors.Is(err, pgx.ErrNoRows)
+}
+
 type UpdateProfileRequest struct {
 	Email    string `json:"email"`
 	FullName string `json:"full_name"`
@@ -38,7 +42,7 @@ func (uc *UpdateProfileUseCase) Execute(ctx context.Context, userID uuid.UUID, r
 		if ae, ok := err.(domainerr.AppError); ok {
 			return nil, ae
 		}
-		if errors.Is(err, sql.ErrNoRows) || errors.Is(err, pgx.ErrNoRows) {
+		if isNotFound(err) {
 			return nil, auth.ErrUserNotFound
 		}
 		return nil, domainerr.ErrInternalServerError
@@ -54,14 +58,6 @@ func (uc *UpdateProfileUseCase) Execute(ctx context.Context, userID uuid.UUID, r
 		if err := user.UpdateEmail(req.Email); err != nil {
 			return nil, err
 		}
-
-		existing, err := uc.Repo.GetByEmail(ctx, req.Email)
-		if err == nil && existing != nil && existing.ID != user.ID {
-			return nil, auth.ErrEmailAlreadyExists
-		}
-		if err != nil && !errors.Is(err, sql.ErrNoRows) && !errors.Is(err, pgx.ErrNoRows) {
-			return nil, domainerr.ErrInternalServerError
-		}
 	}
 
 	if req.ImageUrl != "" && req.ImageUrl != user.ImageUrl {
@@ -71,6 +67,9 @@ func (uc *UpdateProfileUseCase) Execute(ctx context.Context, userID uuid.UUID, r
 	}
 
 	if err := uc.Repo.UpdateProfile(ctx, user); err != nil {
+		if ae, ok := err.(domainerr.AppError); ok {
+			return nil, ae
+		}
 		return nil, domainerr.ErrInternalServerError
 	}
 
