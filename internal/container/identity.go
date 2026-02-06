@@ -28,7 +28,7 @@ func InitIdentityModule(pool *pgxpool.Pool, redis *redis.Client, config *config.
 	authRepo := db.NewAuthRepo(pool)
 	authCache := cache.NewAuthCache(redis)
 
-	registerUseCase := authapp.NewRegisterUseCase(authRepo, authCache)
+	registerUseCase := authapp.NewRegisterUseCase(authRepo)
 	loginUseCase := authapp.NewLoginUseCase(authRepo, authCache, config)
 	refreshUseCase := authapp.NewRefreshTokenUseCase(authRepo, authCache, config)
 	profileUseCase := authapp.NewGetProfileUseCase(authRepo, authCache)

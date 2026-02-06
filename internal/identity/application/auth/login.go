@@ -74,11 +74,11 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 		ImageUrl: storedUser.ImageUrl,
 	}
 	keyAuthCache := fmt.Sprintf("session_%s", sid)
-	if err := s.Cache.SetAuthCache(ctx, keyAuthCache, dataCache, time.Duration(s.Config.JwtExpiresIn*int(time.Minute))); err != nil {
-		return nil, domainerr.ErrInternalServerError
-	}
 	keyRefreshToken := fmt.Sprintf("refresh_token_%s", sid)
-	if err := s.Cache.SetRefreshTokenCache(ctx, keyRefreshToken, refreshToken, time.Duration(s.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
+
+	sessionTTL := time.Duration(s.Config.JwtExpiresIn) * time.Second
+	refreshTTL := time.Duration(s.Config.JwtRefreshExpiresIn) * time.Second
+	if err := s.Cache.SetLoginCaches(ctx, keyAuthCache, dataCache, sessionTTL, keyRefreshToken, refreshToken, refreshTTL); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
 	metrics.RecordAuthAttempt(true)

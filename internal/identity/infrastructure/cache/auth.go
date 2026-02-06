@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"encoding/json"
+	pkgcache "go-ai/pkg/cache"
 	"go-ai/pkg/metrics"
 	"time"
 
@@ -20,77 +21,75 @@ type UserCache struct {
 }
 
 type AuthCache struct {
-	Redis *redis.Client
+	client       *redis.Client
+	session      *pkgcache.Cache[UserCache]
+	refreshToken *pkgcache.Cache[string]
 }
 
-func NewAuthCache(redis *redis.Client) *AuthCache {
+func NewAuthCache(client *redis.Client) *AuthCache {
 	return &AuthCache{
-		Redis: redis,
+		client: client,
+		session: pkgcache.New[UserCache](client, pkgcache.Options{
+			CacheType: "session",
+		}),
+		refreshToken: pkgcache.New[string](client, pkgcache.Options{
+			CacheType: "refresh_token",
+			RawString: true,
+		}),
 	}
 }
 
-func (authCache *AuthCache) GetAuthCache(ctx context.Context, key string) (*UserCache, error) {
-	start := time.Now()
-	val, err := authCache.Redis.Get(ctx, key).Result()
-	metrics.RecordCacheOperation("get", "session", time.Since(start).Seconds())
-	if err == redis.Nil {
-		metrics.RecordCacheMiss("session")
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	metrics.RecordCacheHit("session")
-	authData := &UserCache{}
-	if err := json.Unmarshal([]byte(val), authData); err != nil {
-		return nil, err
-	}
-	return authData, nil
+func (a *AuthCache) GetAuthCache(ctx context.Context, key string) (*UserCache, error) {
+	return a.session.Get(ctx, key)
 }
 
-func (authCache *AuthCache) SetAuthCache(ctx context.Context, key string, value *UserCache, ttl time.Duration) error {
-	b, err := json.Marshal(value)
+func (a *AuthCache) SetAuthCache(ctx context.Context, key string, value *UserCache, ttl time.Duration) error {
+	return a.session.Set(ctx, key, value, ttl)
+}
+
+// SetLoginCaches writes session and refresh token in a single round-trip.
+func (a *AuthCache) SetLoginCaches(
+	ctx context.Context,
+	sessionKey string,
+	sessionValue *UserCache,
+	sessionTTL time.Duration,
+	refreshKey string,
+	refreshToken string,
+	refreshTTL time.Duration,
+) error {
+	data, err := json.Marshal(sessionValue)
 	if err != nil {
 		return err
 	}
+
 	start := time.Now()
-	err = authCache.Redis.Set(ctx, key, string(b), ttl).Err()
-	metrics.RecordCacheOperation("set", "session", time.Since(start).Seconds())
+	pipe := a.client.Pipeline()
+	pipe.Set(ctx, sessionKey, data, sessionTTL)
+	pipe.Set(ctx, refreshKey, refreshToken, refreshTTL)
+	_, err = pipe.Exec(ctx)
+	metrics.RecordCacheOperation("set_batch", "auth", time.Since(start).Seconds())
 	return err
 }
 
-func (authCache *AuthCache) SetRefreshTokenCache(ctx context.Context, key string, refresh string, ttl time.Duration) error {
-	start := time.Now()
-	err := authCache.Redis.Set(ctx, key, refresh, ttl).Err()
-	metrics.RecordCacheOperation("set", "refresh_token", time.Since(start).Seconds())
-	return err
+func (a *AuthCache) DeleteAuthCache(ctx context.Context, key string) error {
+	return a.session.Delete(ctx, key)
 }
 
-func (authCache *AuthCache) GetRefreshTokenCache(ctx context.Context, key string) (string, error) {
-	start := time.Now()
-	value, err := authCache.Redis.Get(ctx, key).Result()
-	metrics.RecordCacheOperation("get", "refresh_token", time.Since(start).Seconds())
-	if err == redis.Nil {
-		metrics.RecordCacheMiss("refresh_token")
-		return "", nil
-	}
+func (a *AuthCache) GetRefreshTokenCache(ctx context.Context, key string) (string, error) {
+	val, err := a.refreshToken.Get(ctx, key)
 	if err != nil {
 		return "", err
 	}
-	metrics.RecordCacheHit("refresh_token")
-	return value, nil
+	if val == nil {
+		return "", nil
+	}
+	return *val, nil
 }
 
-func (authCache *AuthCache) DeleteAuthCache(ctx context.Context, key string) error {
-	start := time.Now()
-	err := authCache.Redis.Del(ctx, key).Err()
-	metrics.RecordCacheOperation("del", "session", time.Since(start).Seconds())
-	return err
+func (a *AuthCache) SetRefreshTokenCache(ctx context.Context, key string, refresh string, ttl time.Duration) error {
+	return a.refreshToken.Set(ctx, key, &refresh, ttl)
 }
 
-func (authCache *AuthCache) DeleteRefreshTokenCache(ctx context.Context, key string) error {
-	start := time.Now()
-	err := authCache.Redis.Del(ctx, key).Err()
-	metrics.RecordCacheOperation("del", "refresh_token", time.Since(start).Seconds())
-	return err
+func (a *AuthCache) DeleteRefreshTokenCache(ctx context.Context, key string) error {
+	return a.refreshToken.Delete(ctx, key)
 }

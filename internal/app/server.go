@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -77,6 +78,11 @@ func NewServerWithConfig(srvCfg ServerConfig) *echo.Echo {
 	promMiddleware := echoprometheus.NewMiddlewareWithConfig(echoprometheus.MiddlewareConfig{
 		Namespace: metrics.Namespace,
 		Subsystem: "http",
+		Skipper: func(c *echo.Context) bool {
+			path := c.Request().URL.Path
+			return path == "/metrics" || path == "/api/auth/login" || strings.HasPrefix(path, "/swagger")
+		},
+		DoNotUseRequestPathFor404: true,
 		BeforeNext: func(c *echo.Context) {
 			httpInFlight.Inc()
 		},

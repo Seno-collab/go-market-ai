@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"go-ai/internal/identity/domain/auth"
-	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/pkg/helpers"
 	domainerr "go-ai/pkg/domain_err"
 
@@ -18,14 +17,12 @@ type RegisterRequest struct {
 }
 
 type RegisterUseCase struct {
-	Repo  auth.Repository
-	Cache *cache.AuthCache
+	Repo auth.Repository
 }
 
-func NewRegisterUseCase(repo auth.Repository, cache *cache.AuthCache) *RegisterUseCase {
+func NewRegisterUseCase(repo auth.Repository) *RegisterUseCase {
 	return &RegisterUseCase{
-		Repo:  repo,
-		Cache: cache,
+		Repo: repo,
 	}
 }
 
