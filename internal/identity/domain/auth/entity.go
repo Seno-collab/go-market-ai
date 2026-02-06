@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"go-ai/pkg/utils"
+	"go-ai/pkg/helpers"
 	"regexp"
 	"strings"
 
@@ -13,7 +13,7 @@ var emailRegex = regexp.MustCompile(`^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$`)
 type Entity struct {
 	ID       uuid.UUID
 	FullName string
-	Email    utils.Email
+	Email    helpers.Email
 	Password Password
 	Role     string
 	ImageUrl string
@@ -39,7 +39,7 @@ func NewAuth(fullName, email, password, role string) (*Entity, error) {
 		return nil, err
 	}
 
-	em, err := utils.NewEmail(email)
+	em, err := helpers.NewEmail(email)
 	if err != nil {
 		return nil, ErrInvalidEmail
 	}
@@ -98,7 +98,7 @@ func (e *Entity) UpdateEmail(v string) error {
 	if err := validateEmail(v); err != nil {
 		return err
 	}
-	em, err := utils.NewEmail(v)
+	em, err := helpers.NewEmail(v)
 	if err != nil {
 		return ErrInvalidEmail
 	}
@@ -132,7 +132,7 @@ func (e *Entity) UpdateRole(v string) error {
 }
 
 func (e *Entity) UpdateImageUrl(v string) error {
-	url, err := utils.NewUrl(v)
+	url, err := helpers.NewUrl(v)
 	if err != nil {
 		return err
 	}

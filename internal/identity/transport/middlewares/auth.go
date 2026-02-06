@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/internal/platform/config"
-	security "go-ai/internal/platform/security"
+	"go-ai/pkg/helpers"
 	"go-ai/pkg/response"
 	"strings"
 	"time"
@@ -36,7 +36,7 @@ func (m *IdentityMiddleware) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 		if !ok || scheme != "Bearer" || token == "" {
 			return response.Error(c, 401, "Invalid Authorization header format")
 		}
-		claims, err := security.VerifyToken(token, m.Config.JwtAccessSecret)
+		claims, err := helpers.VerifyToken(token, m.Config.JwtAccessSecret)
 		if err != nil || claims == nil {
 			return response.Error(c, 401, "Invalid token")
 		}

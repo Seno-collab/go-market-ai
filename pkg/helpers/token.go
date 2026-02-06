@@ -1,4 +1,4 @@
-package security
+package helpers
 
 import (
 	"crypto/rand"

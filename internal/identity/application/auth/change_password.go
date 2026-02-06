@@ -3,7 +3,7 @@ package authapp
 import (
 	"context"
 	"go-ai/internal/identity/domain/auth"
-	"go-ai/internal/platform/security"
+	"go-ai/pkg/helpers"
 	domainerr "go-ai/pkg/domain_err"
 
 	"github.com/google/uuid"
@@ -30,7 +30,7 @@ func (uc *ChangePasswordUseCase) Execute(ctx context.Context, req ChangePassword
 	if err != nil {
 		return domainerr.ErrInternalServerError
 	}
-	if !security.CheckPasswordHash(req.OldPassword, passwordHashCurrent) {
+	if !helpers.CheckPasswordHash(req.OldPassword, passwordHashCurrent) {
 		return auth.ErrOldPasswordIncorrect
 	}
 	if req.ConfirmPassword != req.NewPassword {
@@ -40,7 +40,7 @@ func (uc *ChangePasswordUseCase) Execute(ctx context.Context, req ChangePassword
 	if err != nil {
 		return err
 	}
-	hashPassword, err := security.HashPassword(newPassword.String())
+	hashPassword, err := helpers.HashPassword(newPassword.String())
 	if err != nil {
 		return auth.ErrHashPasswordFailed
 	}

@@ -1,4 +1,4 @@
-package utils
+package helpers
 
 import (
 	domainerr "go-ai/pkg/domain_err"

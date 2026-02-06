@@ -4,8 +4,10 @@ import (
 	"context"
 	"go-ai/internal/identity/domain/auth"
 	sqlc "go-ai/internal/identity/infrastructure/sqlc/user"
+	"go-ai/pkg/helpers"
+	"go-ai/pkg/metrics"
 	"go-ai/pkg/pgerr"
-	"go-ai/pkg/utils"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -22,14 +24,16 @@ func NewAuthRepo(pool *pgxpool.Pool) *AuthRepo {
 }
 
 func (au *AuthRepo) GetByEmail(ctx context.Context, email string) (*auth.Entity, error) {
+	start := time.Now()
 	u, err := au.queries.GetUserByEmail(ctx, email)
+	metrics.RecordDBQuery("select", "users", time.Since(start).Seconds(), err)
 	if err != nil {
 		return nil, err
 	}
 	if u.Email == nil {
 		return nil, auth.ErrInvalidEmail
 	}
-	em, err := utils.NewEmail(*u.Email)
+	em, err := helpers.NewEmail(*u.Email)
 	if err != nil {
 		return nil, auth.ErrInvalidEmail
 	}
@@ -57,11 +61,13 @@ func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, 
 	email := a.Email.String()
 	password := a.Password.String()
 
+	start := time.Now()
 	id, err := au.queries.CreateUser(ctx, sqlc.CreateUserParams{
 		Email:        email,
 		PasswordHash: password,
 		FullName:     a.FullName,
 	})
+	metrics.RecordDBQuery("insert", "users", time.Since(start).Seconds(), err)
 	if err != nil {
 		if pgerr.IsUniqueViolation(err, "user_email_key") {
 			return uuid.Nil, auth.ErrEmailAlreadyExists
@@ -76,14 +82,16 @@ func (au *AuthRepo) CreateUser(ctx context.Context, a *auth.Entity) (uuid.UUID, 
 }
 
 func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, error) {
+	start := time.Now()
 	u, err := au.queries.GetUserByID(ctx, id)
+	metrics.RecordDBQuery("select", "users", time.Since(start).Seconds(), err)
 	if err != nil {
 		return nil, err
 	}
 	if u.ID == uuid.Nil {
 		return nil, auth.ErrUserNotFound
 	}
-	em, err := utils.NewEmail(*u.Email)
+	em, err := helpers.NewEmail(*u.Email)
 	imageUrl := ""
 	if u.ImageUrl != nil {
 		imageUrl = *u.ImageUrl
@@ -99,14 +107,20 @@ func (au *AuthRepo) GetById(ctx context.Context, id uuid.UUID) (*auth.Entity, er
 }
 
 func (au *AuthRepo) ChangePassword(ctx context.Context, NewPasswordHash string, userID uuid.UUID) error {
-	return au.queries.UpdatePasswordByID(ctx, sqlc.UpdatePasswordByIDParams{
+	start := time.Now()
+	err := au.queries.UpdatePasswordByID(ctx, sqlc.UpdatePasswordByIDParams{
 		PasswordHash: NewPasswordHash,
 		UserID:       userID,
 	})
+	metrics.RecordDBQuery("update", "users", time.Since(start).Seconds(), err)
+	return err
 }
 
 func (au *AuthRepo) GetPasswordByID(ctx context.Context, id uuid.UUID) (string, error) {
-	return au.queries.GetPasswordByID(ctx, id)
+	start := time.Now()
+	pw, err := au.queries.GetPasswordByID(ctx, id)
+	metrics.RecordDBQuery("select", "users", time.Since(start).Seconds(), err)
+	return pw, err
 }
 
 func (au *AuthRepo) UpdateProfile(ctx context.Context, u *auth.Entity) error {
@@ -115,6 +129,7 @@ func (au *AuthRepo) UpdateProfile(ctx context.Context, u *auth.Entity) error {
 	if err != nil {
 		return err
 	}
+	start := time.Now()
 	err = au.queries.UpdateUser(ctx, sqlc.UpdateUserParams{
 		FullName:     u.FullName,
 		Email:        email,
@@ -123,6 +138,7 @@ func (au *AuthRepo) UpdateProfile(ctx context.Context, u *auth.Entity) error {
 		IsActive:     u.IsActive,
 		UserID:       u.ID,
 	})
+	metrics.RecordDBQuery("update", "users", time.Since(start).Seconds(), err)
 	if err != nil {
 		if pgerr.IsUniqueViolation(err, "user_email_key") {
 			return auth.ErrEmailAlreadyExists

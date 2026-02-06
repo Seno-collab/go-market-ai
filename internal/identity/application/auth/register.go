@@ -5,9 +5,8 @@ import (
 
 	"go-ai/internal/identity/domain/auth"
 	"go-ai/internal/identity/infrastructure/cache"
-	"go-ai/internal/platform/security"
+	"go-ai/pkg/helpers"
 	domainerr "go-ai/pkg/domain_err"
-	"go-ai/pkg/utils"
 
 	"github.com/google/uuid"
 )
@@ -32,7 +31,7 @@ func NewRegisterUseCase(repo auth.Repository, cache *cache.AuthCache) *RegisterU
 
 func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) (uuid.UUID, error) {
 
-	email, err := utils.NewEmail(request.Email)
+	email, err := helpers.NewEmail(request.Email)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -42,7 +41,7 @@ func (s *RegisterUseCase) Execute(ctx context.Context, request RegisterRequest) 
 		return uuid.Nil, err
 	}
 
-	hashedPassword, err := security.HashPassword(rawPassword.String())
+	hashedPassword, err := helpers.HashPassword(rawPassword.String())
 	if err != nil {
 		return uuid.Nil, domainerr.ErrInternalServerError
 	}

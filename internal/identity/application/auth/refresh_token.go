@@ -6,8 +6,9 @@ import (
 	"go-ai/internal/identity/domain/auth"
 	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/internal/platform/config"
-	"go-ai/internal/platform/security"
 	domainerr "go-ai/pkg/domain_err"
+	"go-ai/pkg/helpers"
+	"go-ai/pkg/metrics"
 	"time"
 )
 
@@ -39,7 +40,7 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	if request.RefreshToken == "" {
 		return nil, auth.ErrTokenInvalid
 	}
-	claims, err := security.VerifyToken(request.RefreshToken, uc.Config.JwtRefreshSecret)
+	claims, err := helpers.VerifyToken(request.RefreshToken, uc.Config.JwtRefreshSecret)
 	if err != nil {
 		return nil, auth.ErrTokenNotActive
 	}
@@ -60,12 +61,12 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	if !record.IsActive {
 		return nil, auth.ErrUserInactive
 	}
-	sid := security.GenerateKey()
-	accessToken, err := security.GenerateToken(sid, uc.Config.JwtAccessSecret, uc.Config.JwtExpiresIn)
+	sid := helpers.GenerateKey()
+	accessToken, err := helpers.GenerateToken(sid, uc.Config.JwtAccessSecret, uc.Config.JwtExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
-	refreshToken, err := security.GenerateToken(sid, uc.Config.JwtRefreshSecret, uc.Config.JwtRefreshExpiresIn)
+	refreshToken, err := helpers.GenerateToken(sid, uc.Config.JwtRefreshSecret, uc.Config.JwtRefreshExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
@@ -83,6 +84,7 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 	if err := uc.Cache.SetRefreshTokenCache(ctx, keyRefreshToken, refreshToken, time.Duration(uc.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
+	metrics.AuthTokenRefreshes.Inc()
 	return &RefreshTokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

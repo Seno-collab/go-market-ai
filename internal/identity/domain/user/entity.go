@@ -1,7 +1,7 @@
 package user
 
 import (
-	"go-ai/pkg/utils"
+	"go-ai/pkg/helpers"
 
 	"github.com/google/uuid"
 )
@@ -9,7 +9,7 @@ import (
 type Entity struct {
 	ID       uuid.UUID
 	FullName string
-	Email    utils.Email
+	Email    helpers.Email
 	Role     string
 	IsActive bool
 }

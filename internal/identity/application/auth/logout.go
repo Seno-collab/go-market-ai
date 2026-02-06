@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-ai/internal/identity/domain/auth"
 	"go-ai/internal/identity/infrastructure/cache"
+	"go-ai/pkg/metrics"
 
 	"github.com/google/uuid"
 )
@@ -32,5 +33,6 @@ func (uc *LogoutUseCase) Execute(ctx context.Context, userID uuid.UUID) error {
 	if errRefresh != nil {
 		return errRefresh
 	}
+	metrics.ActiveSessions.Dec()
 	return nil
 }

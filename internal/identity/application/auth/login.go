@@ -6,9 +6,9 @@ import (
 	"go-ai/internal/identity/domain/auth"
 	"go-ai/internal/identity/infrastructure/cache"
 	"go-ai/internal/platform/config"
-	"go-ai/internal/platform/security"
 	domainerr "go-ai/pkg/domain_err"
-	"go-ai/pkg/utils"
+	"go-ai/pkg/helpers"
+	"go-ai/pkg/metrics"
 
 	"time"
 )
@@ -39,26 +39,29 @@ type LoginResponse struct {
 }
 
 func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginResponse, error) {
-	email, err := utils.NewEmail(req.Email)
+	email, err := helpers.NewEmail(req.Email)
 	if err != nil || email.String() == "" {
 		return nil, auth.ErrInvalidCredentials
 	}
 	storedUser, err := s.Repo.GetByEmail(ctx, email.String())
 	if err != nil {
+		metrics.RecordAuthAttempt(false)
 		return nil, auth.ErrInvalidCredentials
 	}
 	if storedUser.IsActive == false {
+		metrics.RecordAuthAttempt(false)
 		return nil, auth.ErrUserInactive
 	}
-	if !security.CheckPasswordHash(req.Password, storedUser.Password.String()) {
+	if !helpers.CheckPasswordHash(req.Password, storedUser.Password.String()) {
+		metrics.RecordAuthAttempt(false)
 		return nil, auth.ErrInvalidCredentials
 	}
-	sid := security.GenerateKey()
-	accessToken, err := security.GenerateToken(sid, s.Config.JwtAccessSecret, s.Config.JwtExpiresIn)
+	sid := helpers.GenerateKey()
+	accessToken, err := helpers.GenerateToken(sid, s.Config.JwtAccessSecret, s.Config.JwtExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
-	refreshToken, err := security.GenerateToken(sid, s.Config.JwtRefreshSecret, s.Config.JwtRefreshExpiresIn)
+	refreshToken, err := helpers.GenerateToken(sid, s.Config.JwtRefreshSecret, s.Config.JwtRefreshExpiresIn)
 	if err != nil {
 		return nil, auth.ErrTokenGenerateFail
 	}
@@ -78,6 +81,8 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 	if err := s.Cache.SetRefreshTokenCache(ctx, keyRefreshToken, refreshToken, time.Duration(s.Config.JwtRefreshExpiresIn*int(time.Second))); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
+	metrics.RecordAuthAttempt(true)
+	metrics.ActiveSessions.Inc()
 	return &LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

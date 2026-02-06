@@ -21,6 +21,8 @@ import (
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 )
@@ -66,7 +68,27 @@ func NewServerWithConfig(srvCfg ServerConfig) *echo.Echo {
 	e := echo.New()
 	log := logger.NewLogger()
 
-	e.Use(echoprometheus.NewMiddleware("echo"))
+	httpInFlight := promauto.NewGauge(prometheus.GaugeOpts{
+		Namespace: metrics.Namespace,
+		Name:      "http_requests_in_flight",
+		Help:      "Number of HTTP requests currently being processed",
+	})
+
+	promMiddleware := echoprometheus.NewMiddlewareWithConfig(echoprometheus.MiddlewareConfig{
+		Namespace: metrics.Namespace,
+		Subsystem: "http",
+		BeforeNext: func(c *echo.Context) {
+			httpInFlight.Inc()
+		},
+		AfterNext: func(c *echo.Context, err error) {
+			httpInFlight.Dec()
+		},
+		HistogramOptsFunc: func(opts prometheus.HistogramOpts) prometheus.HistogramOpts {
+			opts.Buckets = []float64{.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5}
+			return opts
+		},
+	})
+	e.Use(promMiddleware)
 	e.GET("/metrics", echoprometheus.NewHandler())
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -93,7 +115,6 @@ func NewServerWithConfig(srvCfg ServerConfig) *echo.Echo {
 	e.Use(middleware.RateLimiter(rateLimiterStore))
 
 	e.Use(middlewares.RequestIDMiddleware(log))
-	e.Use(middlewares.MetricsMiddleware())
 	e.Use(middleware.ContextTimeout(srvCfg.RequestTimeout))
 	e.Use(middleware.Recover())
 	e.Use(middlewares.RequestLoggerMiddleware(log))
@@ -145,9 +166,8 @@ func Run(e *echo.Echo) error {
 
 	BuildApp(e, pool, redisClient, cfg, log)
 
-	// Start metrics collector for pool stats
-	metricsCollector := metrics.NewPoolMetricsCollector(pool, redisClient, log)
-	metricsCollector.Start(15 * time.Second)
+	// Register pool collectors for on-demand Prometheus scraping
+	metrics.RegisterPoolCollectors(pool, redisClient)
 
 	chServer := make(chan error, 1)
 	serverAddr := ":" + cfg.ServerPort
@@ -190,10 +210,6 @@ func Run(e *echo.Echo) error {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Error().Err(err).Msg("HTTP server shutdown error")
 	}
-
-	// Stop metrics collector
-	log.Info().Msg("Stopping metrics collector...")
-	metricsCollector.Stop()
 
 	// Clean up database connections
 	log.Info().Msg("Closing database connections...")
