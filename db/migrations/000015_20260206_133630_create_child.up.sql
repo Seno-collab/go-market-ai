@@ -8,12 +8,12 @@ CREATE TABLE IF NOT EXISTS childrens (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_children_grade ON children(grade);
+CREATE INDEX IF NOT EXISTS idx_children_grade ON childrens(grade);
 
 
-CREATE TABLE IF NOT EXISTS user_children (
+CREATE TABLE IF NOT EXISTS user_childrens (
   user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  child_id    UUID NOT NULL REFERENCES children(id) ON DELETE CASCADE,
+  child_id    UUID NOT NULL REFERENCES childrens(id) ON DELETE CASCADE,
 
   relation    TEXT NOT NULL DEFAULT 'parent'
               CHECK (relation IN ('parent','mother','father','guardian')),
@@ -30,7 +30,5 @@ CREATE TABLE IF NOT EXISTS user_children (
   PRIMARY KEY (user_id, child_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_user_children_user  ON user_children(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_children_child ON user_children(child_id);
-
-
+CREATE INDEX IF NOT EXISTS idx_user_children_user  ON user_childrens(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_children_child ON user_childrens(child_id);
