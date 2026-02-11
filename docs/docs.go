@@ -407,6 +407,9 @@ const docTemplate = `{
                 "is_active": {
                     "type": "boolean"
                 },
+                "phone": {
+                    "type": "string"
+                },
                 "role": {
                     "type": "string"
                 }
@@ -511,6 +514,9 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                },
+                "phone": {
+                    "type": "string"
                 }
             }
         },
@@ -532,6 +538,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "image_url": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 }
             }

@@ -7,12 +7,16 @@ import (
 )
 
 func RegisterIdentityRoutes(api *echo.Group, h *AuthHandler, m *middlewares.IdentityMiddleware) {
-	r := api.Group("/auth")
-	r.POST("/register", h.Register)
-	r.POST("/login", h.Login)
-	r.POST("/refresh-token", h.RefreshToken)
-	r.GET("/profile", h.GetProfile, m.Handler)
-	r.PATCH("/profile", h.UpdateProfile, m.Handler)
-	r.PATCH("/change-password", h.ChangePassword, m.Handler)
-	r.POST("/logout", h.Logout, m.Handler)
+	auth := api.Group("/auth")
+
+	// Public
+	auth.POST("/register", h.Register)
+	auth.POST("/login", h.Login)
+	auth.POST("/refresh-token", h.RefreshToken)
+
+	// Protected
+	auth.GET("/profile", h.GetProfile, m.Handler)
+	auth.PATCH("/profile", h.UpdateProfile, m.Handler)
+	auth.PATCH("/change-password", h.ChangePassword, m.Handler)
+	auth.POST("/logout", h.Logout, m.Handler)
 }

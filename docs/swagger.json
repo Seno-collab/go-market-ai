@@ -396,6 +396,9 @@
                 "is_active": {
                     "type": "boolean"
                 },
+                "phone": {
+                    "type": "string"
+                },
                 "role": {
                     "type": "string"
                 }
@@ -500,6 +503,9 @@
                 },
                 "password": {
                     "type": "string"
+                },
+                "phone": {
+                    "type": "string"
                 }
             }
         },
@@ -521,6 +527,9 @@
                     "type": "string"
                 },
                 "image_url": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 }
             }

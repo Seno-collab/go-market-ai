@@ -44,6 +44,8 @@ definitions:
         type: string
       is_active:
         type: boolean
+      phone:
+        type: string
       role:
         type: string
     type: object
@@ -111,6 +113,8 @@ definitions:
         type: string
       password:
         type: string
+      phone:
+        type: string
     type: object
   authapp.RegisterSuccessResponseDoc:
     properties:
@@ -124,6 +128,8 @@ definitions:
       full_name:
         type: string
       image_url:
+        type: string
+      phone:
         type: string
     type: object
   authapp.UpdateProfileSuccessResponseDoc:

@@ -22,6 +22,7 @@ type UpdateProfileRequest struct {
 	Email    string `json:"email"`
 	FullName string `json:"full_name"`
 	ImageUrl string `json:"image_url"`
+	Phone    string `json:"phone"`
 }
 
 type UpdateProfileUseCase struct {

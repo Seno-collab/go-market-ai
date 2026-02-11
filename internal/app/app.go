@@ -19,10 +19,10 @@ func BuildApp(e *echo.Echo, pool *pgxpool.Pool, redis *redis.Client, cfg *config
 	healthModule := container.InitHealthModule(pool, redis, cfg, log)
 	healthhttp.RegisterHealthRoutes(api, healthModule.Handler)
 
-	initIdentityModule := container.InitIdentityModule(pool, redis, cfg, log)
-	identityhttp.RegisterIdentityRoutes(api, initIdentityModule.Handler, initIdentityModule.Middleware)
+	identityModule := container.InitIdentityModule(pool, redis, cfg, log)
+	identityhttp.RegisterIdentityRoutes(api, identityModule.Handler, identityModule.Middleware)
 
-	mediaModule, err := container.InitMediaModule(initIdentityModule.Middleware, cfg, log)
+	mediaModule, err := container.InitMediaModule(identityModule.Middleware, cfg, log)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to init media module")
 	} else {

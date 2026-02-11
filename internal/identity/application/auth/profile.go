@@ -18,6 +18,7 @@ type GetProfileResponse struct {
 	Role     string `json:"role"`
 	IsActive bool   `json:"is_active"`
 	ImageUrl string `json:"image_url"`
+	Phone    string `json:"phone"`
 }
 
 type GetProfileUseCase struct {

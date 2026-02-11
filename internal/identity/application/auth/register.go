@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"go-ai/internal/identity/domain/auth"
-	"go-ai/pkg/helpers"
 	domainerr "go-ai/pkg/domain_err"
+	"go-ai/pkg/helpers"
 
 	"github.com/google/uuid"
 )
@@ -14,6 +14,7 @@ type RegisterRequest struct {
 	Email    string `json:"email"`
 	FullName string `json:"full_name"`
 	Password string `json:"password"`
+	Phone    string `json:"phone"`
 }
 
 type RegisterUseCase struct {

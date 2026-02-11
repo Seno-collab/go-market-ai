@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Go-AI is a restaurant management API backend built with Go using Domain-Driven Design (DDD) patterns. It provides REST APIs for managing restaurants, menus, media uploads, and user authentication with RBAC.
+Go-AI is a restaurant management API backend built with Go using Domain-Driven Design (DDD) patterns. It provides REST APIs for managing 
+, menus, media uploads, and user authentication with RBAC.
 
 **Tech Stack:** Go 1.25, Echo v5, PostgreSQL 18, Redis, MinIO, sqlc, JWT
 
