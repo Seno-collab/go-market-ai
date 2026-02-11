@@ -114,25 +114,29 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
-    ports:
-      - "9090:9090"
+    expose:
+      - "9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.retention.size=1GB"
+    mem_limit: 512m
     restart: always
 
   loki:
     image: grafana/loki:latest
     container_name: loki
-    ports:
-      - "3100:3100"
+    expose:
+      - "3100"
     volumes:
       - ./loki/loki-config.yml:/etc/loki/local-config.yaml
       - loki-data:/loki
     command: -config.file=/etc/loki/local-config.yaml
+    mem_limit: 512m
     restart: always
 
   promtail:
@@ -140,11 +144,11 @@ services:
     container_name: promtail
     volumes:
       - ./promtail/promtail-config.yml:/etc/promtail/config.yml
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
     command: -config.file=/etc/promtail/config.yml
     depends_on:
       - loki
+    mem_limit: 256m
     restart: always
 
   grafana:

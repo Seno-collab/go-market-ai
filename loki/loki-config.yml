@@ -2,7 +2,6 @@ auth_enabled: false
 
 server:
   http_listen_port: 3100
-  grpc_listen_port: 9096
 
 common:
   instance_addr: 127.0.0.1
@@ -21,7 +20,7 @@ query_range:
     cache:
       embedded_cache:
         enabled: true
-        max_size_mb: 100
+        max_size_mb: 50
 
 schema_config:
   configs:
@@ -33,8 +32,14 @@ schema_config:
         prefix: index_
         period: 24h
 
-ruler:
-  alertmanager_url: http://localhost:9093
+compactor:
+  working_directory: /loki/compactor
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  delete_request_store: filesystem
 
 limits_config:
   retention_period: 168h
+  ingestion_rate_mb: 4
+  ingestion_burst_size_mb: 6
