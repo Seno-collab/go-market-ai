@@ -6,15 +6,16 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: postgres-market
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${DOCKER_POSTGRES_DB:-go-market-ai-db}
 
-      REDIS_HOST: redis
+      REDIS_HOST: redis-market
       REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      REDIS_DB: ${DOCKER_REDIS_DB:-1}
 
       MINIO_END_POINT: minio
       MINIO_PORT: 9000
@@ -23,45 +24,63 @@ services:
       MINIO_USE_SSL: false
 
     depends_on:
-      postgres:
+      postgres-market:
         condition: service_healthy
-      redis:
-        condition: service_started
+      redis-market:
+        condition: service_healthy
       minio:
         condition: service_healthy
     restart: always
 
-  postgres:
+  postgres-market:
     image: postgres:18-alpine
+    container_name: postgres-market
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${DOCKER_POSTGRES_DB:-go-market-ai-db}
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - market-pgdata:/var/lib/postgresql/data
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-appdb}",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${DOCKER_POSTGRES_DB:-go-market-ai-db}",
         ]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  redis:
+  redis-market:
     image: redis:8.2-alpine
-    command: ["redis-server", "--appendonly", "yes"]
+    container_name: redis-market
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--requirepass",
+        "${REDIS_PASSWORD:?REDIS_PASSWORD is required}",
+      ]
     environment:
       REDIS_HOST: ${REDIS_HOST}
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       REDIS_PORT: ${REDIS_PORT}
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - redisdata:/data
+      - market-redisdata:/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "redis-cli -a ${REDIS_PASSWORD:?REDIS_PASSWORD is required} ping | grep -q PONG",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   minio:
     image: minio/minio:RELEASE.2024-09-22T00-33-43Z
@@ -111,6 +130,7 @@ services:
       # nếu bạn muốn đọc log của container kiểu json-file:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     restart: unless-stopped
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -158,7 +178,7 @@ services:
       - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
-      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:?GF_SECURITY_ADMIN_PASSWORD is required}
       - GF_USERS_ALLOW_SIGN_UP=${GF_USERS_ALLOW_SIGN_UP}
     depends_on:
       - prometheus
@@ -169,8 +189,8 @@ services:
     restart: always
 
 volumes:
-  pgdata:
-  redisdata:
+  market-pgdata:
+  market-redisdata:
   miniodata:
   grafana-data:
   prometheus-data:
