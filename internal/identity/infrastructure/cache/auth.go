@@ -24,6 +24,7 @@ type AuthCache struct {
 	client       *redis.Client
 	session      *pkgcache.Cache[UserCache]
 	refreshToken *pkgcache.Cache[string]
+	blacklist    *pkgcache.Cache[string]
 }
 
 func NewAuthCache(client *redis.Client) *AuthCache {
@@ -34,6 +35,10 @@ func NewAuthCache(client *redis.Client) *AuthCache {
 		}),
 		refreshToken: pkgcache.New[string](client, pkgcache.Options{
 			CacheType: "refresh_token",
+			RawString: true,
+		}),
+		blacklist: pkgcache.New[string](client, pkgcache.Options{
+			CacheType: "blacklist",
 			RawString: true,
 		}),
 	}
@@ -92,4 +97,17 @@ func (a *AuthCache) SetRefreshTokenCache(ctx context.Context, key string, refres
 
 func (a *AuthCache) DeleteRefreshTokenCache(ctx context.Context, key string) error {
 	return a.refreshToken.Delete(ctx, key)
+}
+
+func (a *AuthCache) BlacklistToken(ctx context.Context, key string, ttl time.Duration) error {
+	val := "1"
+	return a.blacklist.Set(ctx, key, &val, ttl)
+}
+
+func (a *AuthCache) IsTokenBlacklisted(ctx context.Context, key string) (bool, error) {
+	val, err := a.blacklist.Get(ctx, key)
+	if err != nil {
+		return false, err
+	}
+	return val != nil, nil
 }

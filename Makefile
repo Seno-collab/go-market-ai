@@ -7,6 +7,9 @@ run:
 	go test ./...
 	go run cmd/api/main.go
 
+coinai:
+	go run cmd/coinai/main.go
+
 sqlc:
 	sqlc generate -f sqlc.yaml
 
