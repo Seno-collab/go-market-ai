@@ -21,7 +21,6 @@ type Config struct {
 	RedisHost           string `mapstructure:"REDIS_HOST"`
 	RedisPassword       string `mapstructure:"REDIS_PASSWORD"`
 	RedisPort           int    `mapstructure:"REDIS_PORT"`
-	RedisDB             int    `mapstructure:"REDIS_DB"`
 	DBName              string `mapstructure:"POSTGRES_DB"`
 	DBHost              string `mapstructure:"POSTGRES_HOST"`
 	DBPort              string `mapstructure:"POSTGRES_PORT"`
@@ -112,7 +111,6 @@ func setDefaults() {
 	// Redis defaults
 	viper.SetDefault("REDIS_HOST", "localhost")
 	viper.SetDefault("REDIS_PORT", 6379)
-	viper.SetDefault("REDIS_DB", 0)
 	viper.SetDefault("REDIS_PASSWORD", "")
 
 	// Database defaults

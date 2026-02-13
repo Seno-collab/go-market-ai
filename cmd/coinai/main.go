@@ -8,12 +8,20 @@ import (
 	"go-ai/internal/coinai"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
+const (
+	marketCoin  = "coin"
+	marketStock = "stock"
+)
+
 type config struct {
+	Market         string
 	Symbol         string
 	Interval       string
+	StockCSV       string
 	Limit          int
 	TrainRatio     float64
 	Epochs         int
@@ -28,6 +36,8 @@ type config struct {
 }
 
 type trainReport struct {
+	Market              string                `json:"market"`
+	DataSource          string                `json:"data_source"`
 	Symbol              string                `json:"symbol"`
 	Interval            string                `json:"interval"`
 	Candles             int                   `json:"candles"`
@@ -44,6 +54,8 @@ type trainReport struct {
 }
 
 type savedModel struct {
+	Market       string                `json:"market"`
+	DataSource   string                `json:"data_source"`
 	Symbol       string                `json:"symbol"`
 	Interval     string                `json:"interval"`
 	FeatureNames []string              `json:"feature_names"`
@@ -61,9 +73,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.Timeout)
 	defer cancel()
 
-	baseURL := os.Getenv("BINANCE_BASE_URL")
-	client := coinai.NewBinanceClient(baseURL, cfg.Timeout)
-	candles, err := client.FetchKlines(ctx, cfg.Symbol, cfg.Interval, cfg.Limit)
+	candles, dataSource, err := loadCandles(ctx, cfg)
 	if err != nil {
 		log.Fatalf("fetch candles: %v", err)
 	}
@@ -129,6 +139,8 @@ func main() {
 	signal := coinai.SignalFromPrediction(nextPred, cfg.LongThreshold, cfg.ShortThreshold)
 
 	report := trainReport{
+		Market:              normalizeMarket(cfg.Market),
+		DataSource:          dataSource,
 		Symbol:              cfg.Symbol,
 		Interval:            cfg.Interval,
 		Candles:             len(candles),
@@ -145,7 +157,7 @@ func main() {
 	}
 
 	if cfg.ModelOut != "" {
-		if err := saveModel(cfg, scaler, model); err != nil {
+		if err := saveModel(cfg, dataSource, scaler, model); err != nil {
 			log.Fatalf("save model: %v", err)
 		}
 	}
@@ -165,9 +177,11 @@ func main() {
 func parseFlags() config {
 	cfg := config{}
 
+	flag.StringVar(&cfg.Market, "market", marketCoin, "market type: coin | stock")
 	flag.StringVar(&cfg.Symbol, "symbol", "BTCUSDT", "trading pair symbol")
-	flag.StringVar(&cfg.Interval, "interval", "1h", "kline interval (e.g. 15m, 1h, 4h)")
-	flag.IntVar(&cfg.Limit, "limit", 500, "number of candles to fetch (1..1000)")
+	flag.StringVar(&cfg.Interval, "interval", "1h", "candle interval label (e.g. 15m, 1h, 1d)")
+	flag.StringVar(&cfg.StockCSV, "stock-csv", "", "CSV path for stock OHLCV data when market=stock")
+	flag.IntVar(&cfg.Limit, "limit", 500, "number of latest candles to use")
 	flag.Float64Var(&cfg.TrainRatio, "train-ratio", 0.7, "sequential train split ratio")
 	flag.IntVar(&cfg.Epochs, "epochs", 800, "training epochs")
 	flag.Float64Var(&cfg.LearningRate, "lr", 0.03, "learning rate")
@@ -184,13 +198,20 @@ func parseFlags() config {
 }
 
 func validateConfig(cfg config) error {
+	market := normalizeMarket(cfg.Market)
 	switch {
+	case market != marketCoin && market != marketStock:
+		return fmt.Errorf("market must be coin or stock")
 	case cfg.Symbol == "":
 		return fmt.Errorf("symbol is required")
 	case cfg.Interval == "":
 		return fmt.Errorf("interval is required")
-	case cfg.Limit <= 0 || cfg.Limit > 1000:
-		return fmt.Errorf("limit must be in range 1..1000")
+	case cfg.Limit <= 0:
+		return fmt.Errorf("limit must be greater than 0")
+	case market == marketCoin && cfg.Limit > 1000:
+		return fmt.Errorf("limit for coin must be in range 1..1000")
+	case market == marketStock && strings.TrimSpace(cfg.StockCSV) == "":
+		return fmt.Errorf("stock-csv is required when market=stock")
 	case cfg.TrainRatio <= 0 || cfg.TrainRatio >= 1:
 		return fmt.Errorf("train-ratio must be in (0,1)")
 	case cfg.LongThreshold <= cfg.ShortThreshold:
@@ -199,6 +220,31 @@ func validateConfig(cfg config) error {
 		return fmt.Errorf("fee-bps cannot be negative")
 	}
 	return nil
+}
+
+func loadCandles(ctx context.Context, cfg config) ([]coinai.Candle, string, error) {
+	switch normalizeMarket(cfg.Market) {
+	case marketCoin:
+		baseURL := os.Getenv("BINANCE_BASE_URL")
+		client := coinai.NewBinanceClient(baseURL, cfg.Timeout)
+		candles, err := client.FetchKlines(ctx, cfg.Symbol, cfg.Interval, cfg.Limit)
+		if err != nil {
+			return nil, "", err
+		}
+		return candles, "binance", nil
+	case marketStock:
+		candles, err := coinai.LoadCandlesFromCSV(strings.TrimSpace(cfg.StockCSV), cfg.Limit)
+		if err != nil {
+			return nil, "", err
+		}
+		return candles, "csv", nil
+	default:
+		return nil, "", fmt.Errorf("unsupported market %q", cfg.Market)
+	}
+}
+
+func normalizeMarket(market string) string {
+	return strings.ToLower(strings.TrimSpace(market))
 }
 
 func samplesToXY(samples []coinai.Sample) ([][]float64, []float64) {
@@ -212,7 +258,8 @@ func samplesToXY(samples []coinai.Sample) ([][]float64, []float64) {
 }
 
 func printReport(report trainReport, modelPath string) {
-	fmt.Printf("Coin AI report [%s %s]\n", report.Symbol, report.Interval)
+	fmt.Printf("Coin AI report [%s | %s %s]\n", report.Market, report.Symbol, report.Interval)
+	fmt.Printf("Data source: %s\n", report.DataSource)
 	fmt.Printf("Candles: %d | train: %d | test: %d\n", report.Candles, report.TrainSamples, report.TestSamples)
 	fmt.Printf("Train loss: %.8f\n", report.TrainLoss)
 	fmt.Printf("Test MSE: %.8f\n", report.TestMSE)
@@ -229,8 +276,10 @@ func printReport(report trainReport, modelPath string) {
 	}
 }
 
-func saveModel(cfg config, scaler *coinai.StandardScaler, model *coinai.LinearModel) error {
+func saveModel(cfg config, dataSource string, scaler *coinai.StandardScaler, model *coinai.LinearModel) error {
 	payload := savedModel{
+		Market:       normalizeMarket(cfg.Market),
+		DataSource:   dataSource,
 		Symbol:       cfg.Symbol,
 		Interval:     cfg.Interval,
 		FeatureNames: coinai.FeatureNames(),

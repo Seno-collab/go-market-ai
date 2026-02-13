@@ -160,7 +160,7 @@ func Run(e *echo.Echo) error {
 	}
 
 	dsnRedis := fmt.Sprintf("redis://%s:%s@%s:%d/%d",
-		"", cfg.RedisPassword, cfg.RedisHost, cfg.RedisPort, cfg.RedisDB,
+		"", cfg.RedisPassword, cfg.RedisHost, cfg.RedisPort, container.RedisDBAuth,
 	)
 
 	// Connect to Redis with optimized pool settings

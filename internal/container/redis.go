@@ -9,6 +9,13 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// Redis DB numbers — managed in code, not via environment variables,
+// so each module can use a dedicated database.
+const (
+	RedisDBAuth    = 0 // sessions, refresh tokens, blacklist
+	RedisDBDefault = 0
+)
+
 // RedisPoolConfig holds Redis connection pool settings
 type RedisPoolConfig struct {
 	PoolSize     int
