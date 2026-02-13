@@ -8,7 +8,6 @@ import (
 	"go-ai/internal/platform/config"
 	domainerr "go-ai/pkg/domain_err"
 	"go-ai/pkg/helpers"
-	"go-ai/pkg/metrics"
 
 	"time"
 )
@@ -45,15 +44,12 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 	}
 	storedUser, err := s.Repo.GetByEmail(ctx, email.String())
 	if err != nil {
-		metrics.RecordAuthAttempt(false)
 		return nil, auth.ErrInvalidCredentials
 	}
 	if storedUser.IsActive == false {
-		metrics.RecordAuthAttempt(false)
 		return nil, auth.ErrUserInactive
 	}
 	if !helpers.CheckPasswordHash(req.Password, storedUser.Password.String()) {
-		metrics.RecordAuthAttempt(false)
 		return nil, auth.ErrInvalidCredentials
 	}
 	sid := helpers.GenerateKey()
@@ -81,8 +77,6 @@ func (s *LoginUseCase) Execute(ctx context.Context, req LoginRequest) (*LoginRes
 	if err := s.Cache.SetLoginCaches(ctx, keyAuthCache, dataCache, sessionTTL, keyRefreshToken, refreshToken, refreshTTL); err != nil {
 		return nil, domainerr.ErrInternalServerError
 	}
-	metrics.RecordAuthAttempt(true)
-	metrics.ActiveSessions.Inc()
 	return &LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

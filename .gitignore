@@ -24,7 +24,6 @@ go.work
 
 # env file
 *.env
-grafana.env
 
 # Air tmp
 tmp/

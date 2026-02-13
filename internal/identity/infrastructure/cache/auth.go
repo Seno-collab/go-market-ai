@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	pkgcache "go-ai/pkg/cache"
-	"go-ai/pkg/metrics"
 	"time"
 
 	"github.com/google/uuid"
@@ -67,12 +66,10 @@ func (a *AuthCache) SetLoginCaches(
 		return err
 	}
 
-	start := time.Now()
 	pipe := a.client.Pipeline()
 	pipe.Set(ctx, sessionKey, data, sessionTTL)
 	pipe.Set(ctx, refreshKey, refreshToken, refreshTTL)
 	_, err = pipe.Exec(ctx)
-	metrics.RecordCacheOperation("set_batch", "auth", time.Since(start).Seconds())
 	return err
 }
 

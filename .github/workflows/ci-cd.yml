@@ -62,12 +62,8 @@ jobs:
           ${{ secrets.ENV_FILE }}
           ENVEOF
 
-          echo "🔧 Creating grafana.env file..."
-          cat << 'ENVEOF' > grafana.env
-          ${{ secrets.GRAFANA_ENV }}
-          ENVEOF
-
           docker network create app-network || true
-          docker compose up -d --build --no-deps app
+          docker compose down --remove-orphans
+          docker compose up -d --build
           docker image prune -f
           EOF

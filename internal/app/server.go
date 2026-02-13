@@ -8,22 +8,17 @@ import (
 	"go-ai/internal/transport/middlewares"
 	"go-ai/internal/transport/swagger"
 	"go-ai/pkg/logger"
-	"go-ai/pkg/metrics"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
 	_ "go-ai/docs"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 )
@@ -68,34 +63,6 @@ func NewServer() *echo.Echo {
 func NewServerWithConfig(srvCfg ServerConfig) *echo.Echo {
 	e := echo.New()
 	log := logger.NewLogger()
-
-	httpInFlight := promauto.NewGauge(prometheus.GaugeOpts{
-		Namespace: metrics.Namespace,
-		Name:      "http_requests_in_flight",
-		Help:      "Number of HTTP requests currently being processed",
-	})
-
-	promMiddleware := echoprometheus.NewMiddlewareWithConfig(echoprometheus.MiddlewareConfig{
-		Namespace: metrics.Namespace,
-		Subsystem: "http",
-		Skipper: func(c *echo.Context) bool {
-			path := c.Request().URL.Path
-			return path == "/metrics" || path == "/api/auth/login" || strings.HasPrefix(path, "/swagger")
-		},
-		DoNotUseRequestPathFor404: true,
-		BeforeNext: func(c *echo.Context) {
-			httpInFlight.Inc()
-		},
-		AfterNext: func(c *echo.Context, err error) {
-			httpInFlight.Dec()
-		},
-		HistogramOptsFunc: func(opts prometheus.HistogramOpts) prometheus.HistogramOpts {
-			opts.Buckets = []float64{.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5}
-			return opts
-		},
-	})
-	e.Use(promMiddleware)
-	e.GET("/metrics", echoprometheus.NewHandler())
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:3000", "http://157.66.218.138:3000"},
@@ -171,9 +138,6 @@ func Run(e *echo.Echo) error {
 	}
 
 	BuildApp(e, pool, redisClient, cfg, log)
-
-	// Register pool collectors for on-demand Prometheus scraping
-	metrics.RegisterPoolCollectors(pool, redisClient)
 
 	chServer := make(chan error, 1)
 	serverAddr := ":" + cfg.ServerPort

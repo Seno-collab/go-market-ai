@@ -115,5 +115,3 @@ Run `make swagger` to regenerate docs from code annotations.
 
 **Swagger files:** `docs/` (docs.go, swagger.json, swagger.yaml)
 **Swagger handler:** `internal/transport/swagger/swagger.go`
-
-Prometheus metrics available at `/metrics`.

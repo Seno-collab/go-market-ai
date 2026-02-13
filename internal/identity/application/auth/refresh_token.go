@@ -8,7 +8,6 @@ import (
 	"go-ai/internal/platform/config"
 	domainerr "go-ai/pkg/domain_err"
 	"go-ai/pkg/helpers"
-	"go-ai/pkg/metrics"
 	"time"
 )
 
@@ -119,7 +118,6 @@ func (uc *RefreshTokenUseCase) Execute(ctx context.Context, request RefreshToken
 		return nil, domainerr.ErrInternalServerError
 	}
 
-	metrics.AuthTokenRefreshes.Inc()
 	return &RefreshTokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

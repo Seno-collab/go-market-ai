@@ -4,7 +4,6 @@ import (
 	"errors"
 	uploadapp "go-ai/internal/media/application/upload"
 	"go-ai/internal/media/infrastructure/storage"
-	"go-ai/pkg/metrics"
 	"go-ai/pkg/response"
 	"io"
 	"net/http"
@@ -80,10 +79,8 @@ func (h *UpLoadHandler) UploadLogoHandler() echo.HandlerFunc {
 		url, err := h.MC.UploadLogo(c.Request().Context(), file, fileHeader)
 		if err != nil {
 			h.Logger.Error().Err(err).Msg("Upload logo: MinIO upload error")
-			metrics.RecordFileUpload("logo", false, fileHeader.Size)
 			return response.Error(c, http.StatusBadRequest, "Upload to storage failed")
 		}
-		metrics.RecordFileUpload("logo", true, fileHeader.Size)
 		return response.Success(c, &uploadapp.UploadLogoResponse{
 			Url: url,
 		}, "Upload logo successfully")

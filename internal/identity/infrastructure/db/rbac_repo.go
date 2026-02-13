@@ -4,8 +4,6 @@ import (
 	"context"
 	"go-ai/internal/identity/domain/rbac"
 	sqlc "go-ai/internal/identity/infrastructure/sqlc/user"
-	"go-ai/pkg/metrics"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -22,12 +20,10 @@ func NewRbacRepo(pool *pgxpool.Pool) *RbacRepo {
 }
 
 func (ru *RbacRepo) GetUserRole(ctx context.Context, userID uuid.UUID) (rbac.UserRole, error) {
-	start := time.Now()
 	u, err := ru.q.GetUserRole(ctx, sqlc.GetUserRoleParams{
 		UserID:   userID,
 		IsActive: true,
 	})
-	metrics.RecordDBQuery("select", "user_roles", time.Since(start).Seconds(), err)
 	if err != nil {
 		return rbac.UserRole{}, err
 	}
