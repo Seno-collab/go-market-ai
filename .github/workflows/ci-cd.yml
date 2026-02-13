@@ -63,7 +63,8 @@ jobs:
           ENVEOF
 
           docker network create app-network || true
-          docker compose down --remove-orphans
+          docker compose down --remove-orphans || true
+          docker rm -f fail2ban || true
           docker compose up -d --build
           docker image prune -f
           EOF
